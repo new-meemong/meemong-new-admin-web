@@ -1,0 +1,28 @@
+@theme inline {
+  --color-background: var(--background);
+  --color-background-label: var(--background-label);
+  --color-foreground: var(--foreground);
+  --color-foreground-label-sub: var(--foreground-label-sub);
+  --color-foreground-strong: var(--foreground-strong);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-border-alternative: var(--border-alternative);
+  --color-primary-background: var(--primary-background);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary-background: var(--secondary-background);
+  --color-secondary-foreground: var(--secondary-foreground);
+  /* Input */
+  --color-input-background: var(--background);
+  --color-input-foreground: var(--foreground-strong);
+  /* Button */
+  --color-button-primary-background: var(--background-point);
+  --color-button-primary-foreground: var(--white);
+  /* Table */
+  --color-table-background: var(--background);
+  --color-table-foreground: var(--foreground);
+  --color-table-header-background: var(--background-alternative);
+  --color-table-header-foreground: var(--foreground-strong);
+  /* Status */
+  --color-nagative: var(--nagative);
+  --color-cautionary: var(--cautionary);
+}

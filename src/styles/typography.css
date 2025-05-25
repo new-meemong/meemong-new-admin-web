@@ -1,0 +1,205 @@
+@theme {
+  --font-family: var(--font-pretendard);
+
+  /* Title */
+  --title-1-size: 20px;
+  --title-2-size: 14px;
+
+  /* Body */
+  --headline-size: 14px;
+  --body-1-size: 14px;
+  --body-2-size: 13px;
+
+  /* Caption */
+  --caption-1-size: 12px;
+  --caption-2-size: 11px;
+
+  /* 행간 */
+  --line-height-normal: 130%;
+  --line-height-long: 150%;
+
+  /* 자간 */
+  --letter-spacing: -2.5%;
+}
+
+@utility typo-title-1-bold {
+  font-size: var(--title-1-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 700;
+}
+
+@utility typo-title-1-medium {
+  font-size: var(--title-1-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 500;
+}
+
+@utility typo-title-2-semibold {
+  font-size: var(--title-2-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 600;
+}
+
+@utility typo-title-2-medium {
+  font-size: var(--title-2-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 500;
+}
+
+/* Headline */
+@utility typo-headline-bold {
+  font-size: var(--headline-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 700;
+}
+
+@utility typo-headline-medium {
+  font-size: var(--headline-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 500;
+}
+
+@utility typo-headline-regular {
+  font-size: var(--headline-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 400;
+}
+
+/* Body 1 */
+@utility typo-body-1-semibold {
+  font-size: var(--body-1-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 600;
+}
+
+@utility typo-body-1-medium {
+  font-size: var(--body-1-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 500;
+}
+
+@utility typo-body-1-regular {
+  font-size: var(--body-1-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 400;
+}
+
+/* Body 1 long */
+@utility typo-body-1-long-semibold {
+  font-size: var(--body-1-size);
+  line-height: var(--line-height-long);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 600;
+}
+
+@utility typo-body-1-long-medium {
+  font-size: var(--body-1-size);
+  line-height: var(--line-height-long);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 500;
+}
+
+@utility typo-body-1-long-regular {
+  font-size: var(--body-1-size);
+  line-height: var(--line-height-long);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 400;
+}
+
+/* Body 2 */
+@utility typo-body-2-semibold {
+  font-size: var(--body-2-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 600;
+}
+
+@utility typo-body-2-medium {
+  font-size: var(--body-2-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 500;
+}
+
+@utility typo-body-2-regular {
+  font-size: var(--body-2-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 400;
+}
+
+/* Body 2 long */
+@utility typo-body-2-long-semibold {
+  font-size: var(--body-2-size);
+  line-height: var(--line-height-long);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 600;
+}
+
+@utility typo-body-2-long-medium {
+  font-size: var(--body-2-size);
+  line-height: var(--line-height-long);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 500;
+}
+
+@utility typo-body-2-long-regular {
+  font-size: var(--body-2-size);
+  line-height: var(--line-height-long);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 400;
+}
+
+/* Caption 1 */
+@utility typo-caption-1-semibold {
+  font-size: var(--caption-1-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 600;
+}
+
+@utility typo-caption-1-medium {
+  font-size: var(--caption-1-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 500;
+}
+
+@utility typo-caption-1-regular {
+  font-size: var(--caption-1-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 400;
+}
+
+/* Caption 2 */
+@utility typo-caption-2-semibold {
+  font-size: var(--caption-2-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 600;
+}
+
+@utility typo-caption-2-medium {
+  font-size: var(--caption-2-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 500;
+}
+
+@utility typo-caption-2-regular {
+  font-size: var(--caption-2-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 400;
+}

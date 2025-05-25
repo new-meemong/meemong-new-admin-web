@@ -1,0 +1,42 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@import "./theme.css";
+@import "./radius.css";
+@import "./typography.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --background-alternative: #f4f4f4;
+  --background-point: #4f378a;
+  --background-label: #f7f7f8;
+  --foreground: #51514f;
+  --foreground-label: #17171c;
+  --foreground-label-sub: #46474c;
+  --foreground-strong: #262524;
+  --muted-foreground: #cececc;
+  --border: #e1e2e4;
+  --border-alternative: #e5e5e5;
+  --primary-background: #c8c0dc;
+  --primary-foreground: #65558f;
+  --secondary-background: #eaf2ff;
+  --secondary-foreground: #375ce0;
+  /* Status */
+  --nagative: #ff3300;
+  --cautionary: #ff9142;
+
+  /* Font */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
