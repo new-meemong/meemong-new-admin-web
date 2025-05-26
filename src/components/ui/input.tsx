@@ -4,12 +4,12 @@ import { cn } from "@/lib/utils";
 
 const sizeClass = {
   md: "w-[262px] h-[44px] px-[15px] py-[12px] rounded-6",
-  sm: "w-[262px] h-[36px] px-[15px] py-[5px] rounded-0",
+  sm: "w-[262px] h-[30px] px-[15px] py-[5px] rounded-0",
 } as const;
 
 type InputSize = keyof typeof sizeClass;
 
-type InputProps = Omit<React.ComponentProps<"input">, "size"> & {
+export type InputProps = Omit<React.ComponentProps<"input">, "size"> & {
   size?: InputSize;
 };
 

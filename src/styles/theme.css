@@ -25,4 +25,6 @@
   /* Status */
   --color-nagative: var(--nagative);
   --color-cautionary: var(--cautionary);
+  /* SideNav */
+  --shadow-sidenav: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }

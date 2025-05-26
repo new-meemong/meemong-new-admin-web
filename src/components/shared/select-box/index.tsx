@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Select,
   SelectTrigger,
@@ -6,13 +8,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useCallback } from "react";
 
 type Size = "sm" | "md" | "lg";
 
-interface DropdownMenuProps {
+export interface SelectBoxProps {
   options: { label: string; value: string }[];
-  value?: string;
-  onChange?: (value: string) => void;
+  value: string;
+  onChange: ({ key, value }: { key: string; value: string }) => void;
+  name: string;
   placeholder?: string;
   size?: Size;
   className?: string;
@@ -24,16 +28,24 @@ const triggerSizeMap: Record<Size, string> = {
   lg: "w-[262px] h-[44px] px-[15px] py-[12px]",
 };
 
-export function SelectBox({
+function SelectBox({
   options,
   value,
   onChange,
+  name,
   placeholder = "선택하세요",
   size = "md",
   className,
-}: DropdownMenuProps) {
+}: SelectBoxProps) {
+  const handleChange = useCallback(
+    (val: string) => {
+      onChange({ key: name, value: val });
+    },
+    [onChange, name],
+  );
+
   return (
-    <Select value={value} onValueChange={onChange}>
+    <Select value={value} onValueChange={handleChange} name={name}>
       <SelectTrigger
         size={size}
         className={cn(triggerSizeMap[size], className)}
@@ -50,3 +62,5 @@ export function SelectBox({
     </Select>
   );
 }
+
+export default SelectBox;

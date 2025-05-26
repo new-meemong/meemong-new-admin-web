@@ -139,6 +139,13 @@
 }
 
 /* Body 2 long */
+@utility typo-body-2-long-bold {
+  font-size: var(--body-2-size);
+  line-height: var(--line-height-long);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 700;
+}
+
 @utility typo-body-2-long-semibold {
   font-size: var(--body-2-size);
   line-height: var(--line-height-long);
