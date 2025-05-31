@@ -11,7 +11,7 @@ import {
 import useSearchForm, {
   IUseSearchForm,
 } from "@/components/shared/search-form/useSearchForm";
-import { BlockType, UserType } from "@/types/user";
+import { BlockType, UserType } from "@/models/user";
 
 interface UserSearchFormProps extends SearchFormProps {
   searchForm: IUseSearchForm;
