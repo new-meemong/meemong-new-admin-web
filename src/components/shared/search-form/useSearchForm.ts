@@ -1,26 +1,29 @@
 import { ChangeEventHandler, useState } from "react";
 
-interface IUseSearchFormParams {
-  defaultValues: { [key: string]: string | number | string[] };
+interface IUseSearchFormParams<
+  T extends Record<string, string | number | string[]>,
+> {
+  defaultValues: T;
 }
 
-export interface IUseSearchForm {
-  values: { [key: string]: string | number | string[] };
-  handleSubmit: () => { [key: string]: string | number | string[] };
+export interface IUseSearchForm<
+  T extends Record<string, string | number | string[]>,
+> {
+  values: T;
+  handleSubmit: () => T;
   handleReset: () => void;
   handleChangeText: ChangeEventHandler<HTMLInputElement>;
-  handleSelect: ({ key, value }: { key: string; value: string }) => void;
+  handleSelect: (params: { key: keyof T; value: T[keyof T] }) => void;
 }
 
-export default function useSearchForm(
-  params: IUseSearchFormParams,
-): IUseSearchForm {
-  const [values, setValues] = useState(params.defaultValues);
+export default function useSearchForm<
+  T extends Record<string, string | number | string[]>,
+>(params: IUseSearchFormParams<T>): IUseSearchForm<T> {
+  const [values, setValues] = useState<T>(params.defaultValues);
 
   const handleSubmit = () => {
     const newValues = { ...values };
     setValues(newValues);
-
     return newValues;
   };
 
@@ -29,11 +32,18 @@ export default function useSearchForm(
   };
 
   const handleChangeText: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setValues({ ...values, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setValues((prev) => ({ ...prev, [name]: value }) as T);
   };
 
-  const handleSelect = ({ key, value }: { key: string; value: string }) => {
-    setValues({ ...values, [key]: value });
+  const handleSelect = ({
+    key,
+    value,
+  }: {
+    key: keyof T;
+    value: T[keyof T];
+  }) => {
+    setValues((prev) => ({ ...prev, [key]: value }));
   };
 
   return {

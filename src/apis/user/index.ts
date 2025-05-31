@@ -1,8 +1,8 @@
 // lib/api/user.ts
-import { IUser, IUserForm } from "@/models/user";
+import { BlockType, IUser, IUserForm, UserType } from "@/models/user";
 import { fetcher } from "@/apis/core";
 import { PaginatedResponse } from "@/apis/types";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import { DEFAULT_PAGE_SIZE } from "@/components/shared/search-table/common-pagination/contants";
 
 const BASE_URL = "/api/admin/users";
 
@@ -64,6 +64,9 @@ const dummyUserDetail: IUserForm = {
 };
 
 export interface GetUsersRequest {
+  userType?: UserType;
+  blockType?: BlockType;
+  searchKeyword?: string;
   page?: number;
   size?: number;
 }
@@ -74,6 +77,9 @@ export const userAPI = {
 
   getById: (id: number) => fetcher<IUserForm>(`${BASE_URL}/${id}`),*/
   getAll: ({
+    userType,
+    blockType,
+    searchKeyword,
     page = 1,
     size = DEFAULT_PAGE_SIZE,
   }: GetUsersRequest): Promise<GetUsersResponse> => mockFetch(dummyUsers),

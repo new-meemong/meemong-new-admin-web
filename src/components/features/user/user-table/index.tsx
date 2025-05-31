@@ -1,22 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
-import CommonTable from "@/components/shared/common-table";
-import { useGetUsersQuery } from "@/queries";
 import { ColumnDef } from "@tanstack/react-table";
 import { IUser, UserType } from "@/models/user";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
-import CommonPagination from "@/components/shared/common-pagination";
+import SearchTable, {
+  SearchTableProps,
+} from "@/components/shared/search-table";
 
-interface UserTableProps {
+interface UserTableProps extends SearchTableProps<IUser> {
   className?: string;
 }
 
-function UserTable({ className, ...props }: UserTableProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const getUsersQuery = useGetUsersQuery();
-
+function UserTable({
+  className,
+  data,
+  totalCount,
+  currentPage = 1,
+  onPageChange,
+  ...props
+}: UserTableProps) {
   const columns: ColumnDef<IUser>[] = [
     {
       accessorKey: "id",
@@ -80,12 +83,12 @@ function UserTable({ className, ...props }: UserTableProps) {
 
   return (
     <div className={cn("user-table-wrapper", className)} {...props}>
-      <CommonTable data={getUsersQuery.data?.content || []} columns={columns} />
-      <CommonPagination
+      <SearchTable<IUser>
+        data={data}
+        columns={columns}
+        totalCount={totalCount}
         currentPage={currentPage}
-        totalCount={getUsersQuery.data?.totalCount ?? 0}
-        pageSize={DEFAULT_PAGE_SIZE}
-        onPageChange={setCurrentPage}
+        onPageChange={onPageChange}
       />
     </div>
   );

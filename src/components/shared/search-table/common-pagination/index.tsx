@@ -10,10 +10,10 @@ import {
   PaginationNext,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import { DEFAULT_PAGE_SIZE } from "@/components/shared/search-table/common-pagination/contants";
 import {cn} from "@/lib/utils";
 
-interface CommonPaginationProps {
+export interface CommonPaginationProps {
   currentPage: number;
   totalCount: number;
   pageSize: number;

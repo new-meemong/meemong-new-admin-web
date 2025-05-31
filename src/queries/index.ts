@@ -1,14 +1,19 @@
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import {
+  useQuery,
+  UseQueryOptions,
+  UseQueryResult,
+} from "@tanstack/react-query";
 import { IUser, IUserForm } from "@/models/user";
-import { userAPI } from "@/apis/user";
+import { GetUsersRequest, userAPI } from "@/apis/user";
 import { PaginatedResponse } from "@/apis/types";
 
 export const useGetUsersQuery = (
+  params: GetUsersRequest,
   config?: UseQueryOptions<PaginatedResponse<IUser>, Error>,
-) =>
+): UseQueryResult<PaginatedResponse<IUser>, Error> =>
   useQuery<PaginatedResponse<IUser>, Error>({
     queryKey: ["GET_USERS"],
-    queryFn: userAPI.getAll,
+    queryFn: () => userAPI.getAll(params),
     ...config,
   });
 
