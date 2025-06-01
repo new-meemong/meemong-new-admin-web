@@ -8,16 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Input, InputProps } from "@/components/ui/input";
 import SelectBox, { SelectBoxProps } from "@/components/shared/select-box";
 
-export interface SearchParams {
-  [key: string]: string;
-}
-
 export interface SearchFormProps
   extends React.FormHTMLAttributes<HTMLFormElement> {
   children?: React.ReactNode;
   className?: string;
-  params: SearchParams;
-  onParamsChange: (params: SearchParams) => void;
   onSubmit: () => void;
 }
 
@@ -51,11 +45,11 @@ function SearchForm({ children, className, onSubmit }: SearchFormProps) {
   );
 }
 
-function SearchFormInput({
+function SearchFormInput<T>({
   name,
   title,
   ...props
-}: InputProps & { name: string; title?: string }) {
+}: InputProps & { name: keyof T & string; title?: string }) {
   return (
     <SearchFormWrapper className={cn("search-form-input")}>
       {title && <Label className={cn("mr-[8px]")}>{title}</Label>}
@@ -64,19 +58,17 @@ function SearchFormInput({
   );
 }
 
-function SearchFormSelectBox({
+function SearchFormSelectBox<K>({
   title,
   ...props
-}: SelectBoxProps & {
-  name: string;
+}: SelectBoxProps<K> & {
+  name: keyof K & string;
   title?: string;
-  params?: SearchParams;
-  onParamsChange?: (params: SearchParams) => void;
 }) {
   return (
-    <SearchFormWrapper className={cn("search-form-select-box")}>
-      {title && <Label className={cn("mr-[8px]")}>{title}</Label>}
-      <SelectBox size={"md"} {...props} />
+    <SearchFormWrapper className="search-form-select-box">
+      {title && <Label className="mr-[8px]">{title}</Label>}
+      <SelectBox size="md" {...props} />
     </SearchFormWrapper>
   );
 }

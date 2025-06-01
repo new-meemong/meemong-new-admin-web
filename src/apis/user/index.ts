@@ -1,15 +1,14 @@
-// lib/api/user.ts
 import { BlockType, IUser, IUserForm, UserType } from "@/models/user";
 import { fetcher } from "@/apis/core";
 import { PaginatedResponse } from "@/apis/types";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/search-table/common-pagination/contants";
+import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
 
 const BASE_URL = "/api/admin/users";
 
 // TODO: 실제 api 값으로 변경
 
 // 실제 API 대체용 더미 fetcher
-function mockFetch<T>(data: T, delay = 300): Promise<T> {
+function mockFetch<T>(data: T, params?: unknown, delay = 300): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), delay));
 }
 
@@ -21,7 +20,7 @@ const dummyUsers: PaginatedResponse<IUser> = {
       userType: "1",
       nickname: "모델유저",
       createdAt: "2024-01-10T12:34:56",
-      recentLoggedIndAt: "2025-05-29T10:00:00",
+      recentLoggedInAt: "2025-05-29T10:00:00",
       isWithdraw: true,
       isBlocked: false,
     },
@@ -30,7 +29,7 @@ const dummyUsers: PaginatedResponse<IUser> = {
       userType: "2",
       nickname: "디자이너홍",
       createdAt: "2023-11-22T08:10:30",
-      recentLoggedIndAt: "2025-05-25T15:44:12",
+      recentLoggedInAt: "2025-05-25T15:44:12",
       isWithdraw: false,
       isBlocked: true,
     },
@@ -46,31 +45,36 @@ const dummyUserDetail: IUserForm = {
   userType: "1",
   nickname: "모델유저",
   createdAt: "2024-01-10T12:34:56",
-  recentLoggedIndAt: "2025-05-29T10:00:00",
+  recentLoggedInAt: "2025-05-29T10:00:00",
   isWithdraw: false,
   isBlocked: false,
   userNumber: "M123456",
   name: "홍길동",
   joinType: "0",
-  profileUrl: "https://example.com/profile.jpg",
+  profileUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9",
   phoneNumber: "010-1234-5678",
   email: "model@example.com",
   intro: "안녕하세요, 모델입니다.",
   pictureUrlList: [
-    "https://example.com/pic1.jpg",
-    "https://example.com/pic2.jpg",
+    {
+      src: "https://images.unsplash.com/photo-1607746882042-944635dfe10e",
+      title: "profile 1",
+    },
+    {
+      src: "https://images.unsplash.com/photo-1517841905240-472988babdf9",
+      title: "profile 2",
+    },
   ],
-  blockInfo: "",
 };
 
-export interface GetUsersRequest {
+export type GetUsersRequest = {
   userType?: UserType;
   blockType?: BlockType;
   searchKeyword?: string;
   page?: number;
   size?: number;
-}
-export interface GetUsersResponse extends PaginatedResponse<IUser> {}
+};
+export type GetUsersResponse = PaginatedResponse<IUser>;
 
 export const userAPI = {
   /*  getAll: () => fetcher<IUser[]>(BASE_URL),
@@ -82,10 +86,16 @@ export const userAPI = {
     searchKeyword,
     page = 1,
     size = DEFAULT_PAGE_SIZE,
-  }: GetUsersRequest): Promise<GetUsersResponse> => mockFetch(dummyUsers),
+  }: GetUsersRequest): Promise<GetUsersResponse> =>
+    mockFetch(dummyUsers, {
+      userType,
+      blockType,
+      searchKeyword,
+      page,
+      size,
+    }),
   getById: ({ userId }: { userId: number }): Promise<IUserForm> => {
-    if (userId === 1) return mockFetch(dummyUserDetail);
-    return Promise.reject(new Error("사용자 없음"));
+    return mockFetch(dummyUserDetail, { userId });
   },
   create: (user: Omit<IUserForm, "id">) =>
     fetcher<IUser>(BASE_URL, {

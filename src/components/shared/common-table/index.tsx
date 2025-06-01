@@ -6,7 +6,7 @@ import {
   getCoreRowModel,
   useReactTable,
   ColumnDef,
-  Table as ReactTable,
+  Row,
 } from "@tanstack/react-table";
 
 import {
@@ -17,17 +17,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {cn} from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
-interface GenericTableProps<TData, TValue> {
+export interface CommonTableProps<TData> {
   data: TData[];
-  columns: ColumnDef<TData, TValue>[];
+  columns: ColumnDef<TData>[];
+  onClickRow?: (row: Row<TData>) => void;
 }
 
-function CommonTable<TData, TValue>({
+function CommonTable<TData>({
   data,
   columns,
-}: GenericTableProps<TData, TValue>) {
+  onClickRow,
+}: CommonTableProps<TData>) {
   const table = useReactTable({
     data,
     columns,
@@ -55,7 +57,11 @@ function CommonTable<TData, TValue>({
       <TableBody>
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id} className={cn('cursor-pointer')}>
+            <TableRow
+              key={row.id}
+              className={cn("cursor-pointer")}
+              onClick={() => onClickRow?.(row)}
+            >
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

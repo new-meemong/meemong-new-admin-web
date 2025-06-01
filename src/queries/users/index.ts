@@ -19,11 +19,10 @@ export const useGetUsersQuery = (
 
 export const useGetUserDetailQuery = (
   userId: number,
-  config?: UseQueryOptions,
-) =>
-  useQuery<IUserForm>({
+  config?: UseQueryOptions<IUserForm, Error>,
+): UseQueryResult<IUserForm, Error> =>
+  useQuery<IUserForm, Error>({
     queryKey: ["GET_USER_DETAIL", userId],
-    queryFn: () => userAPI.getById(userId),
-    enabled: !userId,
+    queryFn: () => userAPI.getById({ userId }),
     ...config,
   });

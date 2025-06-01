@@ -8,13 +8,12 @@ import {
   SearchFormProps,
   SearchFormSelectBox,
 } from "@/components/shared/search-form";
-import useSearchForm, {
-  IUseSearchForm,
-} from "@/components/shared/search-form/useSearchForm";
 import { BlockType, UserType } from "@/models/user";
+import { GetUsersRequest } from "@/apis/user";
+import { IUseSearchForm } from "@/components/shared/search-form/useSearchForm";
 
 interface UserSearchFormProps extends SearchFormProps {
-  searchForm: IUseSearchForm;
+  searchForm: IUseSearchForm<GetUsersRequest>;
   className?: string;
 }
 
@@ -37,24 +36,25 @@ function UserSearchForm({
 
   return (
     <SearchForm className={cn("user-search-form", className)} {...props}>
-      <SearchFormSelectBox
-        name={"userType"}
-        value={searchForm.values.userType as string}
+      <SearchFormSelectBox<GetUsersRequest>
+        name="userType"
+        value={searchForm.values.userType!}
         onChange={searchForm.handleSelect}
         options={USER_TYPE_OPTIONS}
-        title={"유저타입"}
+        title="유저타입"
       />
-      <SearchFormSelectBox
-        name={"blockType"}
-        value={searchForm.values.blockType as string}
+      <SearchFormSelectBox<GetUsersRequest>
+        name="blockType"
+        value={searchForm.values.blockType!}
         onChange={searchForm.handleSelect}
         options={BLOCK_TYPE_OPTIONS}
-        title={"차단/탈퇴"}
+        title="차단/탈퇴"
       />
       <SearchFormInput
-        name={"searchKeyword"}
+        name="searchKeyword"
         onChange={searchForm.handleChangeText}
-        placeholder={"uid/닉네임/전화번호"}
+        placeholder="uid/닉네임/전화번호"
+        value={searchForm.values.searchKeyword}
       />
     </SearchForm>
   );

@@ -1,14 +1,21 @@
 "use client";
 
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import { IUser, UserType } from "@/models/user";
-import SearchTable, {
-  SearchTableProps,
-} from "@/components/shared/search-table";
+import UserDetailModal from "@/components/features/user/user-detail-modal";
+import { useModal } from "@/components/shared/modal/useModal";
+import CommonTable, {
+  CommonTableProps,
+} from "@/components/shared/common-table";
+import CommonPagination, {
+  CommonPaginationProps,
+} from "@/components/shared/common-pagination";
+import { formatDate } from "@/utils/date";
 
-interface UserTableProps extends SearchTableProps<IUser> {
+interface UserTableProps
+  extends Omit<CommonTableProps<IUser> & CommonPaginationProps, "columns"> {
   className?: string;
 }
 
@@ -20,6 +27,10 @@ function UserTable({
   onPageChange,
   ...props
 }: UserTableProps) {
+  const modal = useModal();
+
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+
   const columns: ColumnDef<IUser>[] = [
     {
       accessorKey: "id",
@@ -35,7 +46,7 @@ function UserTable({
       accessorKey: "userType",
       header: "유저타입",
       cell: (info) => {
-        const userType: UserType = info.getValue();
+        const userType = info.getValue() as UserType;
         if (userType === "1") {
           return "모델";
         } else if (userType === "2") {
@@ -48,12 +59,12 @@ function UserTable({
     {
       accessorKey: "createdAt",
       header: "가입일",
-      cell: (info) => info.getValue(),
+      cell: (info) => formatDate(info.getValue() as string),
     },
     {
-      accessorKey: "recentLoggedIndAt",
+      accessorKey: "recentLoggedInAt",
       header: "최근접속",
-      cell: (info) => info.getValue(),
+      cell: (info) => formatDate(info.getValue() as string),
     },
     {
       accessorKey: "isWithdraw",
@@ -81,14 +92,33 @@ function UserTable({
     },
   ];
 
+  const handleClickRow = useCallback(
+    (row: Row<IUser>) => {
+      setSelectedUserId(row.getValue("id"));
+      modal.open();
+    },
+    [modal],
+  );
+
   return (
     <div className={cn("user-table-wrapper", className)} {...props}>
-      <SearchTable<IUser>
-        data={data}
+      <CommonTable<IUser>
+        data={data || []}
         columns={columns}
-        totalCount={totalCount}
-        currentPage={currentPage}
+        onClickRow={handleClickRow}
+      />
+      <CommonPagination
+        currentPage={currentPage || 1}
+        totalCount={totalCount ?? 0}
         onPageChange={onPageChange}
+      />
+      <UserDetailModal
+        userId={selectedUserId!}
+        isOpen={modal.isOpen}
+        onClose={() => {
+          modal.close();
+          setSelectedUserId(null);
+        }}
       />
     </div>
   );

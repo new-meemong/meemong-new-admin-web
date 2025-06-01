@@ -10,13 +10,13 @@ import {
   PaginationNext,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/search-table/common-pagination/contants";
-import {cn} from "@/lib/utils";
+import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import { cn } from "@/lib/utils";
 
 export interface CommonPaginationProps {
   currentPage: number;
   totalCount: number;
-  pageSize: number;
+  pageSize?: number;
   onPageChange: (page: number) => void;
   siblingCount?: number; // 현재 페이지 양 옆에 보여줄 페이지 개수
 }
@@ -72,12 +72,12 @@ export default function CommonPagination({
       const middleRange = range(leftSiblingIndex, rightSiblingIndex);
       return [firstPageIndex, DOTS, ...middleRange, DOTS, lastPageIndex];
     }
-  }, [currentPage, totalCount, pageSize, siblingCount]);
+  }, [currentPage, totalPageCount, siblingCount]);
 
   if (totalPageCount <= 1) return null;
 
   return (
-    <Pagination className={cn('mt-[20px]')}>
+    <Pagination className={cn("mt-[20px]")}>
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious

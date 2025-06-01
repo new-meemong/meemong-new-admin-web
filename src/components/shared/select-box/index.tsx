@@ -12,10 +12,10 @@ import { useCallback } from "react";
 
 type Size = "sm" | "md" | "lg";
 
-export interface SelectBoxProps {
+export interface SelectBoxProps<K> {
   options: { label: string; value: string }[];
   value: string;
-  onChange: ({ key, value }: { key: string; value: string }) => void;
+  onChange: ({ key, value }: { key: keyof K; value: string }) => void;
   name: string;
   placeholder?: string;
   size?: Size;
@@ -28,7 +28,7 @@ const triggerSizeMap: Record<Size, string> = {
   lg: "w-[262px] h-[44px] px-[15px] py-[12px]",
 };
 
-function SelectBox({
+function SelectBox<K>({
   options,
   value,
   onChange,
@@ -36,10 +36,10 @@ function SelectBox({
   placeholder = "선택하세요",
   size = "md",
   className,
-}: SelectBoxProps) {
+}: SelectBoxProps<K>) {
   const handleChange = useCallback(
     (val: string) => {
-      onChange({ key: name, value: val });
+      onChange({ key: name as keyof K, value: val });
     },
     [onChange, name],
   );
