@@ -2,13 +2,12 @@
 
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import UserSearchForm from "@/components/features/user/user-search-form";
+import UserSearchForm, {SearchFormValues} from "@/components/features/user/user-search-form";
 import useSearchForm from "@/components/shared/search-form/useSearchForm";
 import UserTable from "@/components/features/user/user-table";
 import { useGetUsersQuery } from "@/queries/users";
 import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
 import { BlockType, UserType } from "@/models/user";
-import { GetUsersRequest } from "@/apis/user";
 
 interface UserPageContentProps {
   className?: string;
@@ -17,15 +16,25 @@ interface UserPageContentProps {
 function UserPageContent({ className }: UserPageContentProps) {
   const [currentPage, setCurrentPage] = useState(1);
 
-  const searchForm = useSearchForm<GetUsersRequest>({
-    defaultValues: { userType: "0", blockType: "0", searchKeyword: "" },
+  const searchForm = useSearchForm<SearchFormValues>({
+    defaultValues: {
+      userType: "ALL",
+      blockType: "ALL",
+      searchKeyword: "",
+    },
   });
 
   const getUsersQuery = useGetUsersQuery({
     page: currentPage - 1,
     size: DEFAULT_PAGE_SIZE,
-    userType: searchForm.values.userType as UserType,
-    blockType: searchForm.values.blockType as BlockType,
+    userType:
+      searchForm.values.userType === "ALL"
+        ? undefined
+        : (searchForm.values.userType as UserType),
+    blockType:
+      searchForm.values.blockType === "ALL"
+        ? undefined
+        : (searchForm.values.blockType as BlockType),
     searchKeyword: searchForm.values.searchKeyword,
   });
 

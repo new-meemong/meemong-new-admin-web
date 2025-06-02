@@ -28,11 +28,11 @@ function SearchForm({ children, className, onSubmit }: SearchFormProps) {
     <div className={cn("search-form w-[962px] h-[36px] mb-[42px]", className)}>
       <form
         onSubmit={handleSubmit}
-        className={cn("flex flex-row items-center justify-between")}
+        className={cn("flex flex-row items-center justify-start")}
       >
         <div
           className={cn(
-            "search-form-content flex-1 flex flex-row gap-x-[10px]",
+            "search-form-content mr-[8px] flex flex-row gap-x-[10px]",
           )}
         >
           {children}

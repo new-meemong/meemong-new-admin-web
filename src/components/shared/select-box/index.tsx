@@ -14,7 +14,8 @@ type Size = "sm" | "md" | "lg";
 
 export interface SelectBoxProps<K> {
   options: { label: string; value: string }[];
-  value: string;
+  value?: string;
+  defaultValue?: string;
   onChange: ({ key, value }: { key: keyof K; value: string }) => void;
   name: string;
   placeholder?: string;
@@ -31,6 +32,7 @@ const triggerSizeMap: Record<Size, string> = {
 function SelectBox<K>({
   options,
   value,
+  defaultValue,
   onChange,
   name,
   placeholder = "선택하세요",
@@ -45,11 +47,12 @@ function SelectBox<K>({
   );
 
   return (
-    <Select value={value} onValueChange={handleChange} name={name}>
-      <SelectTrigger
-        size={size}
-        className={cn(triggerSizeMap[size], className)}
-      >
+    <Select
+      value={value}
+      defaultValue={defaultValue}
+      onValueChange={handleChange}
+    >
+      <SelectTrigger className={cn(triggerSizeMap[size], className)}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>

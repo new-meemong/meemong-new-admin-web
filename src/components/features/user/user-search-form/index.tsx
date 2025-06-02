@@ -9,11 +9,19 @@ import {
   SearchFormSelectBox,
 } from "@/components/shared/search-form";
 import { BlockType, UserType } from "@/models/user";
-import { GetUsersRequest } from "@/apis/user";
 import { IUseSearchForm } from "@/components/shared/search-form/useSearchForm";
 
+type UserTypeWithAll = UserType | "ALL";
+type BlockTypeWithAll = BlockType | "ALL";
+
+export type SearchFormValues = {
+  userType?: UserTypeWithAll;
+  blockType?: BlockTypeWithAll;
+  searchKeyword?: string;
+};
+
 interface UserSearchFormProps extends SearchFormProps {
-  searchForm: IUseSearchForm<GetUsersRequest>;
+  searchForm: IUseSearchForm<SearchFormValues>;
   className?: string;
 }
 
@@ -22,30 +30,32 @@ function UserSearchForm({
   className,
   ...props
 }: UserSearchFormProps) {
-  const USER_TYPE_OPTIONS: { value: UserType; label: string }[] = [
-    { value: "0", label: "전체" },
+  const USER_TYPE_OPTIONS: { value: UserType | "ALL"; label: string }[] = [
+    { value: "ALL", label: "전체" },
     { value: "1", label: "모델" },
     { value: "2", label: "디자이너" },
   ];
 
-  const BLOCK_TYPE_OPTIONS: { value: BlockType; label: string }[] = [
-    { value: "0", label: "전체" },
+  const BLOCK_TYPE_OPTIONS: { value: BlockType | "ALL"; label: string }[] = [
+    { value: "ALL", label: "전체" },
     { value: "1", label: "차단" },
     { value: "2", label: "탈퇴" },
   ];
 
   return (
     <SearchForm className={cn("user-search-form", className)} {...props}>
-      <SearchFormSelectBox<GetUsersRequest>
+      <SearchFormSelectBox<SearchFormValues>
         name="userType"
         value={searchForm.values.userType!}
+        defaultValue={"ALL"}
         onChange={searchForm.handleSelect}
         options={USER_TYPE_OPTIONS}
         title="유저타입"
       />
-      <SearchFormSelectBox<GetUsersRequest>
+      <SearchFormSelectBox<SearchFormValues>
         name="blockType"
         value={searchForm.values.blockType!}
+        defaultValue={"ALL"}
         onChange={searchForm.handleSelect}
         options={BLOCK_TYPE_OPTIONS}
         title="차단/탈퇴"
