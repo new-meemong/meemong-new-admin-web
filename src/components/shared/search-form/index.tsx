@@ -4,6 +4,7 @@ import React, { useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import IcRefresh from "@/assets/icons/ic_refresh.svg";
+import IcSearch from "@/assets/icons/ic_search.svg";
 import { Label } from "@/components/ui/label";
 import { Input, InputProps } from "@/components/ui/input";
 import SelectBox, { SelectBoxProps } from "@/components/shared/select-box";
@@ -52,8 +53,8 @@ function SearchFormInput<T>({
 }: InputProps & { name: keyof T & string; title?: string }) {
   return (
     <SearchFormWrapper className={cn("search-form-input")}>
-      {title && <Label className={cn("mr-[8px]")}>{title}</Label>}
-      <Input name={name} size={"sm"} {...props} />
+      <IcSearch className={cn('mr-[10px]')} />
+      <Input name={name} size={"sm"} className={cn('w-[185px]')} {...props} />
     </SearchFormWrapper>
   );
 }
