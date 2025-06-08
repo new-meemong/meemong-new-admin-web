@@ -1,4 +1,3 @@
-// common-form-read-only.tsx
 "use client";
 
 import React from "react";
@@ -10,7 +9,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 
-interface CommonFormReadonlyProps {
+interface CommonFormReadonlyRowProps {
   name: string;
   label: string;
   value?: string | number | boolean;
@@ -18,19 +17,19 @@ interface CommonFormReadonlyProps {
   className?: string;
 }
 
-export function CommonFormReadonly({
+export function CommonFormReadonlyRow({
   name,
   label,
   value,
   formatter,
   className,
-}: CommonFormReadonlyProps) {
+}: CommonFormReadonlyRowProps) {
   return (
     <FormField
       name={name}
       render={() => (
-        <FormItem className={cn("flex flex-col mt-[20px]", className)}>
-          <FormLabel className="w-full shrink-0 text-foreground-strong">{label}</FormLabel>
+        <FormItem className={cn("flex flex-row border-b py-[6px]", className)}>
+          <FormLabel className="min-w-[80px] shrink-0">{label}</FormLabel>
           <FormControl>
             <div className="typo-body-2-regular">
               {formatter && value ? formatter(value) : String(value ?? "-")}

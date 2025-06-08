@@ -9,3 +9,13 @@ export interface IBanner {
   endAt: string;
   clickCount: number;
 }
+
+export interface IBannerForm {
+  id: number;
+  companyName: string;
+  createdAt: string;
+  endAt: string;
+  location: BannerLocationType;
+  bannerImageUrl: string;
+  linkUrl: string;
+}

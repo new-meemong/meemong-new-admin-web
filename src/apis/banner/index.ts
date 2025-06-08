@@ -1,6 +1,6 @@
 import { PaginatedResponse } from "@/apis/types";
 import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
-import { IBanner } from "@/models/banner";
+import { IBanner, IBannerForm } from "@/models/banner";
 
 //const BASE_URL = "/api/admin/banners";
 
@@ -50,14 +50,24 @@ export const dummyContents: PaginatedResponse<IBanner> = {
       bannerImageUrl:
         "https://images.unsplash.com/photo-1517841905240-472988babdf9",
       location: "1",
-      createdAt: "2024-04-28T09:00:00",
-      endAt: "2024-05-05T09:00:00",
+      createdAt: "2024-04-28",
+      endAt: "2024-05-05",
       clickCount: 0,
     },
   ],
   totalCount: 50,
   page: 1,
   size: 10,
+};
+
+const dummyBanner: IBannerForm = {
+  id: 1,
+  companyName: "예시컴퍼니",
+  createdAt: "2025-06-07",
+  endAt: "2025-07-07",
+  location: "1",
+  bannerImageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9",
+  linkUrl: "https://example.com/promo",
 };
 
 export type GetBannersRequest = {
@@ -78,4 +88,7 @@ export const bannerAPI = {
       page,
       size,
     }),
+  getById: ({ bannerId }: { bannerId: number }): Promise<IBannerForm> => {
+    return mockFetch(dummyBanner, { bannerId });
+  },
 };

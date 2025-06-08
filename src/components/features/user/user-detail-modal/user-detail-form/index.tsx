@@ -79,12 +79,12 @@ export default function UserDetailForm({
     <Form {...form}>
       <form onSubmit={onSubmit}>
         <FormGroup title={"기본 정보"}>
-          <CommonForm.Readonly
+          <CommonForm.ReadonlyRow
             name={"userNumber"}
             label={"회원번호"}
             value={form.watch("userNumber")}
           />
-          <CommonForm.Readonly
+          <CommonForm.ReadonlyRow
             name={"userType"}
             label={"유형"}
             value={form.watch("userType")}
@@ -92,17 +92,17 @@ export default function UserDetailForm({
               return USER_TYPE_MAP[v as UserType] ?? "-";
             }}
           />
-          <CommonForm.Readonly
+          <CommonForm.ReadonlyRow
             name={"nickname"}
             label={"닉네임"}
             value={form.watch("nickname")}
           />
-          <CommonForm.Readonly
+          <CommonForm.ReadonlyRow
             name={"name"}
             label={"이름"}
             value={form.watch("name")}
           />
-          <CommonForm.Readonly
+          <CommonForm.ReadonlyRow
             name={"joinType"}
             label={"가입형태"}
             value={form.watch("joinType")}
@@ -110,7 +110,7 @@ export default function UserDetailForm({
               return JOIN_TYPE_MAP[v as JoinType];
             }}
           />
-          <CommonForm.Readonly
+          <CommonForm.ReadonlyRow
             name={"createdAt"}
             label={"가입일"}
             value={form.watch("createdAt")}
@@ -118,7 +118,7 @@ export default function UserDetailForm({
               return v ? formatDate(v as string) : "";
             }}
           />
-          <CommonForm.Readonly
+          <CommonForm.ReadonlyRow
             name={"recentLoggedInAt"}
             label={"최근 로그인"}
             value={form.watch("recentLoggedInAt")}
@@ -126,7 +126,7 @@ export default function UserDetailForm({
               return v ? formatDate(v as string) : "";
             }}
           />
-          <CommonForm.Readonly
+          <CommonForm.ReadonlyRow
             name={"isWithdraw"}
             label={"탈퇴여부"}
             value={form.watch("isWithdraw")}
@@ -139,7 +139,7 @@ export default function UserDetailForm({
           />
         </FormGroup>
         <FormGroup title={"프로필 정보"}>
-          <CommonForm.Readonly
+          <CommonForm.ReadonlyRow
             name={"profileUrl"}
             label={"프로필 이미지"}
             value={form.watch("profileUrl")}
@@ -147,17 +147,17 @@ export default function UserDetailForm({
               return v ? <UserImageBox src={v as string} size={64} /> : "";
             }}
           />
-          <CommonForm.Readonly
+          <CommonForm.ReadonlyRow
             name={"phoneNumber"}
             label={"휴대폰 번호"}
             value={form.watch("phoneNumber")}
           />
-          <CommonForm.Readonly
+          <CommonForm.ReadonlyRow
             name={"email"}
             label={"이메일"}
             value={form.watch("email")}
           />
-          <CommonForm.Readonly
+          <CommonForm.ReadonlyRow
             name={"intro"}
             label={"소개글"}
             value={form.watch("intro")}

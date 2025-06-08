@@ -8,25 +8,24 @@ import {
   GetBannersRequest,
   GetBannersResponse,
 } from "@/apis/banner";
+import { IBannerForm } from "@/models/banner";
 
 export const useGetBannersQuery = (
   params: GetBannersRequest,
   config?: UseQueryOptions<GetBannersResponse, Error>,
 ): UseQueryResult<GetBannersResponse, Error> =>
   useQuery<GetBannersResponse, Error>({
-    queryKey: ["GET_USERS"],
+    queryKey: ["GET_BANNERS"],
     queryFn: () => bannerAPI.getAll(params),
     ...config,
   });
 
-/*
-export const useGetUserDetailQuery = (
-  userId: number,
-  config?: UseQueryOptions<IUserForm, Error>,
-): UseQueryResult<IUserForm, Error> =>
-  useQuery<IUserForm, Error>({
-    queryKey: ["GET_USER_DETAIL", userId],
-    queryFn: () => userAPI.getById({ userId }),
+export const useGetBannerDetailQuery = (
+  bannerId: number,
+  config?: UseQueryOptions<IBannerForm, Error>,
+): UseQueryResult<IBannerForm, Error> =>
+  useQuery<IBannerForm, Error>({
+    queryKey: ["GET_BANNER_DETAIL", bannerId],
+    queryFn: () => bannerAPI.getById({ bannerId }),
     ...config,
   });
-*/

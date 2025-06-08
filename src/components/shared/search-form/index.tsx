@@ -48,13 +48,12 @@ function SearchForm({ children, className, onSubmit }: SearchFormProps) {
 
 function SearchFormInput<T>({
   name,
-  title,
   ...props
 }: InputProps & { name: keyof T & string; title?: string }) {
   return (
     <SearchFormWrapper className={cn("search-form-input")}>
-      <IcSearch className={cn('mr-[10px]')} />
-      <Input name={name} size={"sm"} className={cn('w-[185px]')} {...props} />
+      <IcSearch className={cn("mr-[10px]")} />
+      <Input name={name} size={"sm"} className={cn("w-[185px]")} {...props} />
     </SearchFormWrapper>
   );
 }
@@ -69,7 +68,7 @@ function SearchFormSelectBox<K>({
   return (
     <SearchFormWrapper className="search-form-select-box">
       {title && <Label className="mr-[8px]">{title}</Label>}
-      <SelectBox size="md" {...props} />
+      <SelectBox className={cn("rounded-none")} size="md" {...props} />
     </SearchFormWrapper>
   );
 }

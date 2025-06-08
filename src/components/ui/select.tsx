@@ -37,7 +37,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "border-border flex w-fit items-center justify-between gap-2 rounded-none border bg-transparent whitespace-nowrap transition-[color,box-shadow] outline-none",
+        "border-border flex w-fit items-center justify-between gap-2 rounded-6 border bg-transparent whitespace-nowrap transition-[color,box-shadow] outline-none",
         "typo-body-2-long-regular data-[placeholder]:text-muted-foreground",
         className,
       )}

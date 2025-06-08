@@ -1,6 +1,5 @@
 "use client";
 
-import { useGetUserBlockDetailQuery } from "@/queries/users/[userId]/block";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import React, { ChangeEventHandler, useCallback, useState } from "react";
@@ -8,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatDate } from "@/utils/date";
 import { useDialog } from "@/components/shared/dialog/context";
 import { IUserForm } from "@/models/user";
+import { useGetUserBlockDetailQuery } from "@/queries/users";
 
 interface UserBlockInfoListProps {
   user: IUserForm;

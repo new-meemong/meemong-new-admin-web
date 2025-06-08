@@ -21,6 +21,7 @@ export interface SelectBoxProps<K> {
   placeholder?: string;
   size?: Size;
   className?: string;
+  disabled?: boolean
 }
 
 const triggerSizeMap: Record<Size, string> = {
@@ -37,6 +38,7 @@ function SelectBox<K>({
   name,
   placeholder = "선택하세요",
   size = "md",
+    disabled,
   className,
 }: SelectBoxProps<K>) {
   const handleChange = useCallback(
@@ -46,11 +48,14 @@ function SelectBox<K>({
     [onChange, name],
   );
 
+  const isControlled = value !== undefined;
+
   return (
     <Select
-      value={value}
-      defaultValue={defaultValue}
+      name={name}
+      {...(isControlled ? { value } : { defaultValue })}
       onValueChange={handleChange}
+      disabled={disabled}
     >
       <SelectTrigger className={cn(triggerSizeMap[size], className)}>
         <SelectValue placeholder={placeholder} />

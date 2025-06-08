@@ -7,7 +7,6 @@ import {
   SearchFormInput,
   SearchFormProps,
 } from "@/components/shared/search-form";
-import { BlockType, UserType } from "@/models/user";
 import { IUseSearchForm } from "@/components/shared/search-form/useSearchForm";
 
 export type BannerSearchFormValues = {

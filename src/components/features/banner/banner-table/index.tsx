@@ -3,8 +3,6 @@
 import React, { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
-import UserDetailModal from "@/components/features/user/user-detail-modal";
-import { useModal } from "@/components/shared/modal/useModal";
 import CommonTable, {
   CommonTableProps,
 } from "@/components/shared/common-table";
@@ -15,8 +13,9 @@ import { formatDate } from "@/utils/date";
 import { BannerLocationType, IBanner } from "@/models/banner";
 import IcUpdate from "@/assets/icons/ic_update.svg";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import BannerImageBox from "@/components/features/banner/banner-image-box";
+import { useDrawer } from "@/components/shared/right-drawer/useDrawer";
+import BannerRightDrawer from "@/components/features/banner/banner-right-drawer";
 
 interface BannerTableProps
   extends Omit<CommonTableProps<IBanner> & CommonPaginationProps, "columns"> {
@@ -31,9 +30,9 @@ function BannerTable({
   onPageChange,
   ...props
 }: BannerTableProps) {
-  const modal = useModal();
+  const { openDrawer } = useDrawer();
 
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedBannerId, setSelectedBannerId] = useState<number | null>(null);
 
   const columns: ColumnDef<IBanner>[] = [
     {
@@ -44,7 +43,7 @@ function BannerTable({
     {
       accessorKey: "bannerImageUrl",
       header: "이미지",
-      cell: (info) => <BannerImageBox src={info.getValue()} />,
+      cell: (info) => <BannerImageBox src={info.getValue() as string} />,
     },
     {
       accessorKey: "location",
@@ -93,10 +92,10 @@ function BannerTable({
 
   const handleClickRow = useCallback(
     (bannerId: number) => {
-      setSelectedUserId(bannerId);
-      modal.open();
+      setSelectedBannerId(bannerId);
+      openDrawer();
     },
-    [modal],
+    [openDrawer],
   );
 
   return (
@@ -107,14 +106,7 @@ function BannerTable({
         totalCount={totalCount ?? 0}
         onPageChange={onPageChange}
       />
-      <UserDetailModal
-        userId={selectedUserId!}
-        isOpen={modal.isOpen}
-        onClose={() => {
-          modal.close();
-          setSelectedUserId(null);
-        }}
-      />
+      <BannerRightDrawer bannerId={selectedBannerId!} />
     </div>
   );
 }
