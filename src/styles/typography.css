@@ -3,7 +3,7 @@
 
   /* Title */
   --title-1-size: 20px;
-  --title-2-size: 14px;
+  --title-2-size: 18px;
 
   /* Body */
   --headline-size: 14px;
@@ -34,6 +34,13 @@
   line-height: var(--line-height-normal);
   letter-spacing: var(--letter-spacing);
   font-weight: 500;
+}
+
+@utility typo-title-2-bold {
+  font-size: var(--title-2-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 700;
 }
 
 @utility typo-title-2-semibold {
@@ -95,6 +102,13 @@
 }
 
 /* Body 1 long */
+@utility typo-body-1-long-bold {
+  font-size: var(--body-1-size);
+  line-height: var(--line-height-long);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 700;
+}
+
 @utility typo-body-1-long-semibold {
   font-size: var(--body-1-size);
   line-height: var(--line-height-long);

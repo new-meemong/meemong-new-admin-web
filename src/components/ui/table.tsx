@@ -13,7 +13,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
       <table
         data-slot="table"
         className={cn(
-          "w-full caption-bottom typo-body-2-long-regular text-table-foreground",
+          "w-full caption-bottom typo-body-2-long-regular text-table-foreground table-auto",
           className,
         )}
         {...props}

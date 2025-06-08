@@ -4,8 +4,7 @@ import React, { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { IUser, UserType } from "@/models/user";
-import UserDetailModal from "@/components/features/user/user-detail-modal";
-import { useModal } from "@/components/shared/modal/useModal";
+import UserRightDrawer from "@/components/features/user/user-right-drawer";
 import CommonTable, {
   CommonTableProps,
 } from "@/components/shared/common-table";
@@ -13,6 +12,8 @@ import CommonPagination, {
   CommonPaginationProps,
 } from "@/components/shared/common-pagination";
 import { formatDate } from "@/utils/date";
+import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import { useDrawer } from "@/components/shared/right-drawer/useDrawer";
 
 interface UserTableProps
   extends Omit<CommonTableProps<IUser> & CommonPaginationProps, "columns"> {
@@ -24,10 +25,12 @@ function UserTable({
   data,
   totalCount,
   currentPage = 1,
+  pageSize = DEFAULT_PAGE_SIZE,
   onPageChange,
+  onSizeChange,
   ...props
 }: UserTableProps) {
-  const modal = useModal();
+  const { openDrawer } = useDrawer();
 
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
@@ -35,36 +38,65 @@ function UserTable({
     {
       accessorKey: "id",
       header: "No",
-      cell: (info) => info.getValue(),
+      cell: (info) => {
+        const userType = info.row.original.userType;
+
+        let cellValue = info.getValue() as string;
+
+        if (userType === "MODEL") {
+          cellValue = `M-${cellValue}`;
+        } else if (userType === "DESIGNER") {
+          cellValue = `D-${cellValue}`;
+        }
+
+        return cellValue;
+      },
+      size: 80,
+      enableSorting: false,
     },
     {
       accessorKey: "nickname",
       header: "닉네임",
-      cell: (info) => info.getValue(),
+      cell: (info) => (
+        <span
+          className={cn(
+            "cursor-pointer text-secondary-foreground hover:underline",
+          )}
+        >
+          {info.getValue()}
+        </span>
+      ),
+      enableSorting: false,
     },
     {
       accessorKey: "userType",
       header: "유저타입",
       cell: (info) => {
         const userType = info.getValue() as UserType;
-        if (userType === "1") {
+        if (userType === "MODEL") {
           return "모델";
-        } else if (userType === "2") {
+        } else if (userType === "DESIGNER") {
           return "디자이너";
         } else {
           return "-";
         }
       },
+      size: 120,
+      enableSorting: false,
     },
     {
       accessorKey: "createdAt",
       header: "가입일",
-      cell: (info) => formatDate(info.getValue() as string),
+      cell: (info) => formatDate(info.getValue() as string, "YYYY.MM.DD"),
+      size: 120,
+      enableSorting: true,
     },
     {
       accessorKey: "recentLoggedInAt",
       header: "최근접속",
-      cell: (info) => formatDate(info.getValue() as string),
+      cell: (info) => formatDate(info.getValue() as string, "YYYY.MM.DD"),
+      size: 120,
+      enableSorting: true,
     },
     {
       accessorKey: "isWithdraw",
@@ -77,6 +109,8 @@ function UserTable({
           return "-";
         }
       },
+      size: 80,
+      enableSorting: false,
     },
     {
       accessorKey: "isBlocked",
@@ -89,16 +123,15 @@ function UserTable({
           return "-";
         }
       },
+      size: 80,
+      enableSorting: false,
     },
   ];
 
-  const handleClickRow = useCallback(
-    (row: Row<IUser>) => {
-      setSelectedUserId(row.getValue("id"));
-      modal.open();
-    },
-    [modal],
-  );
+  const handleClickRow = useCallback((row: Row<IUser>) => {
+    setSelectedUserId(row.getValue("id"));
+    openDrawer();
+  }, []);
 
   return (
     <div className={cn("user-table-wrapper", className)} {...props}>
@@ -109,17 +142,12 @@ function UserTable({
       />
       <CommonPagination
         currentPage={currentPage || 1}
+        pageSize={pageSize}
         totalCount={totalCount ?? 0}
         onPageChange={onPageChange}
+        onSizeChange={onSizeChange}
       />
-      <UserDetailModal
-        userId={selectedUserId!}
-        isOpen={modal.isOpen}
-        onClose={() => {
-          modal.close();
-          setSelectedUserId(null);
-        }}
-      />
+      <UserRightDrawer userId={selectedUserId!} />
     </div>
   );
 }

@@ -36,12 +36,14 @@ function BannerPageContent({ className }: BannerPageContentProps) {
         onSubmit={() => {
           setCurrentPage(1); // 검색 시 페이지 초기화
         }}
+        onRefresh={() => {}}
       />
       <BannerTable
         data={getBannersQuery.data?.content ?? []}
         totalCount={getBannersQuery.data?.totalCount ?? 0}
         currentPage={currentPage}
         onPageChange={setCurrentPage}
+        onSizeChange={() => {}}
       />
     </div>
   );

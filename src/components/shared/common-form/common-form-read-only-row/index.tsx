@@ -28,10 +28,10 @@ export function CommonFormReadonlyRow({
     <FormField
       name={name}
       render={() => (
-        <FormItem className={cn("flex flex-row border-b py-[6px]", className)}>
-          <FormLabel className="min-w-[80px] shrink-0">{label}</FormLabel>
+        <FormItem className={cn("flex flex-row border-b py-[10px]", className)}>
+          <FormLabel className="min-w-[80px] w-[15%] shrink-0">{label}</FormLabel>
           <FormControl>
-            <div className="typo-body-2-regular">
+            <div className="typo-body-1-regular">
               {formatter && value ? formatter(value) : String(value ?? "-")}
             </div>
           </FormControl>

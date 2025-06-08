@@ -32,6 +32,7 @@ function ContentsTable({
   totalCount,
   currentPage = 1,
   onPageChange,
+  onSizeChange,
   ...props
 }: ContentsTableProps) {
   const getColumnsByCategory = (
@@ -59,9 +60,9 @@ function ContentsTable({
             header: "작성자타입",
             cell: (info) => {
               const userType = info.getValue() as UserType;
-              return userType === "1"
+              return userType === "MODEL"
                 ? "모델"
-                : userType === "2"
+                : userType === "DESIGNER"
                   ? "디자이너"
                   : "-";
             },
@@ -210,6 +211,7 @@ function ContentsTable({
         currentPage={currentPage || 1}
         totalCount={totalCount ?? 0}
         onPageChange={onPageChange}
+        onSizeChange={onSizeChange}
       />
     </div>
   );

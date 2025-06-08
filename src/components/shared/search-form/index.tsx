@@ -3,8 +3,8 @@
 import React, { useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import IcRefresh from "@/assets/icons/ic_refresh.svg";
 import IcSearch from "@/assets/icons/ic_search.svg";
+import IcRefresh from "@/assets/icons/ic_refresh.svg";
 import { Label } from "@/components/ui/label";
 import { Input, InputProps } from "@/components/ui/input";
 import SelectBox, { SelectBoxProps } from "@/components/shared/select-box";
@@ -14,15 +14,29 @@ export interface SearchFormProps
   children?: React.ReactNode;
   className?: string;
   onSubmit: () => void;
+  onRefresh: () => void;
 }
 
-function SearchForm({ children, className, onSubmit }: SearchFormProps) {
+function SearchForm({
+  children,
+  className,
+  onSubmit,
+  onRefresh,
+}: SearchFormProps) {
   const handleSubmit = useCallback(
     (event: React.MouseEvent<HTMLFormElement>) => {
       event.preventDefault();
       onSubmit();
     },
     [onSubmit],
+  );
+
+  const handleRefresh = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      onRefresh();
+    },
+    [onRefresh],
   );
 
   return (
@@ -33,14 +47,17 @@ function SearchForm({ children, className, onSubmit }: SearchFormProps) {
       >
         <div
           className={cn(
-            "search-form-content mr-[8px] flex flex-row gap-x-[10px]",
+            "search-form-content mr-[8px] flex flex-row items-center gap-x-[10px]",
           )}
         >
           {children}
+          <Button type={"submit"} variant={"outline"} size={"icon"}>
+            <IcSearch />
+          </Button>
+          <Button variant={"outline"} size={"icon"} onClick={handleRefresh}>
+            <IcRefresh />
+          </Button>
         </div>
-        <Button variant={"outline"} size={"icon"}>
-          <IcRefresh />
-        </Button>
       </form>
     </div>
   );
@@ -52,13 +69,13 @@ function SearchFormInput<T>({
 }: InputProps & { name: keyof T & string; title?: string }) {
   return (
     <SearchFormWrapper className={cn("search-form-input")}>
-      <IcSearch className={cn("mr-[10px]")} />
       <Input name={name} size={"sm"} className={cn("w-[185px]")} {...props} />
     </SearchFormWrapper>
   );
 }
 
 function SearchFormSelectBox<K>({
+  className,
   title,
   ...props
 }: SelectBoxProps<K> & {
@@ -68,7 +85,11 @@ function SearchFormSelectBox<K>({
   return (
     <SearchFormWrapper className="search-form-select-box">
       {title && <Label className="mr-[8px]">{title}</Label>}
-      <SelectBox className={cn("rounded-none")} size="md" {...props} />
+      <SelectBox
+        className={cn("rounded-none w-[182px]", className)}
+        size="md"
+        {...props}
+      />
     </SearchFormWrapper>
   );
 }

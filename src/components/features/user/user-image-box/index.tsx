@@ -15,7 +15,7 @@ export default function UserImageBox({
   src,
   title,
   alt = "image",
-  size = 64,
+  size = 100,
   className,
 }: UserImageBoxProps) {
   return (

@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import UserSearchForm, {SearchFormValues} from "@/components/features/user/user-search-form";
+import UserSearchForm, {
+  IUserSearchForm,
+} from "@/components/features/user/user-search-form";
 import useSearchForm from "@/components/shared/search-form/useSearchForm";
 import UserTable from "@/components/features/user/user-table";
 import { useGetUsersQuery } from "@/queries/users";
@@ -14,28 +16,41 @@ interface UserPageContentProps {
 }
 
 function UserPageContent({ className }: UserPageContentProps) {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [currentSize, setCurrentSize] = useState<number>(DEFAULT_PAGE_SIZE);
 
-  const searchForm = useSearchForm<SearchFormValues>({
-    defaultValues: {
-      userType: "ALL",
-      blockType: "ALL",
-      searchKeyword: "",
-    },
+  const DEFAULT_SEARCH_FORM: IUserSearchForm = {
+    userType: "ALL",
+    blockType: "ALL",
+    searchType: "UUID",
+    searchKeyword: "",
+  };
+
+  const searchForm = useSearchForm<IUserSearchForm>({
+    defaultValues: DEFAULT_SEARCH_FORM,
   });
 
-  const getUsersQuery = useGetUsersQuery({
-    page: currentPage - 1,
-    size: DEFAULT_PAGE_SIZE,
-    userType:
-      searchForm.values.userType === "ALL"
-        ? undefined
-        : (searchForm.values.userType as UserType),
-    blockType:
-      searchForm.values.blockType === "ALL"
-        ? undefined
-        : (searchForm.values.blockType as BlockType),
-    searchKeyword: searchForm.values.searchKeyword,
+  const getUsersQuery = useGetUsersQuery(
+    {
+      page: currentPage - 1,
+      size: currentSize,
+      userType:
+        searchForm.values.userType === "ALL"
+          ? undefined
+          : (searchForm.values.userType as UserType),
+      blockType:
+        searchForm.values.blockType === "ALL"
+          ? undefined
+          : (searchForm.values.blockType as BlockType),
+      searchKeyword: searchForm.values.searchKeyword,
+    },
+    {
+      enabled: false,
+    },
+  );
+
+  useEffect(() => {
+    getUsersQuery.refetch();
   });
 
   return (
@@ -43,14 +58,21 @@ function UserPageContent({ className }: UserPageContentProps) {
       <UserSearchForm
         searchForm={searchForm}
         onSubmit={() => {
+          console.log(searchForm.values);
+          getUsersQuery.refetch();
           setCurrentPage(1); // 검색 시 페이지 초기화
+        }}
+        onRefresh={() => {
+          searchForm.handleReset();
         }}
       />
       <UserTable
         data={getUsersQuery.data?.content ?? []}
         totalCount={getUsersQuery.data?.totalCount ?? 0}
         currentPage={currentPage}
+        pageSize={currentSize}
         onPageChange={setCurrentPage}
+        onSizeChange={setCurrentSize}
       />
     </div>
   );

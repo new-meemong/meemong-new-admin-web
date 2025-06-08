@@ -28,6 +28,7 @@ function BannerTable({
   totalCount,
   currentPage = 1,
   onPageChange,
+  onSizeChange,
   ...props
 }: BannerTableProps) {
   const { openDrawer } = useDrawer();
@@ -105,6 +106,7 @@ function BannerTable({
         currentPage={currentPage || 1}
         totalCount={totalCount ?? 0}
         onPageChange={onPageChange}
+        onSizeChange={onSizeChange}
       />
       <BannerRightDrawer bannerId={selectedBannerId!} />
     </div>

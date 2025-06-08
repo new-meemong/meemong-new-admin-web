@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import {
   Pagination,
@@ -11,6 +9,7 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import SelectBox from "@/components/shared/select-box";
 import { cn } from "@/lib/utils";
 
 export interface CommonPaginationProps {
@@ -18,7 +17,8 @@ export interface CommonPaginationProps {
   totalCount: number;
   pageSize?: number;
   onPageChange: (page: number) => void;
-  siblingCount?: number; // 현재 페이지 양 옆에 보여줄 페이지 개수
+  onSizeChange: (size: number) => void;
+  siblingCount?: number;
 }
 
 function range(start: number, end: number): number[] {
@@ -30,15 +30,14 @@ export default function CommonPagination({
   totalCount,
   pageSize = DEFAULT_PAGE_SIZE,
   onPageChange,
+  onSizeChange,
   siblingCount = 1,
 }: CommonPaginationProps) {
   const totalPageCount = Math.ceil(totalCount / pageSize);
-
   const DOTS = "...";
 
   const paginationRange = React.useMemo(() => {
     const totalPageNumbers = siblingCount * 2 + 5;
-
     if (totalPageNumbers >= totalPageCount) {
       return range(1, totalPageCount);
     }
@@ -48,10 +47,8 @@ export default function CommonPagination({
       currentPage + siblingCount,
       totalPageCount,
     );
-
     const showLeftDots = leftSiblingIndex > 2;
     const showRightDots = rightSiblingIndex < totalPageCount - 1;
-
     const firstPageIndex = 1;
     const lastPageIndex = totalPageCount;
 
@@ -74,47 +71,68 @@ export default function CommonPagination({
     }
   }, [currentPage, totalPageCount, siblingCount]);
 
-  if (totalPageCount <= 1) return null;
+  const PAGE_SIZE_OPTIONS: { value: string; label: string }[] = [
+    {
+      value: "10",
+      label: "10 / page",
+    },
+    {
+      value: "20",
+      label: "20 / page",
+    },
+    {
+      value: "50",
+      label: "50 / page",
+    },
+  ];
 
   return (
-    <Pagination className={cn("mt-[20px]")}>
-      <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
-            aria-disabled={currentPage === 1}
-          />
-        </PaginationItem>
-        {paginationRange?.map((page, idx) => {
-          if (page === DOTS) {
-            return (
+    <div className="flex flex-row items-center justify-center mt-5 gap-[8px]">
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
+              aria-disabled={currentPage === 1}
+            />
+          </PaginationItem>
+          {paginationRange?.map((page, idx) =>
+            page === DOTS ? (
               <PaginationItem key={`dots-${idx}`}>
                 <PaginationEllipsis />
               </PaginationItem>
-            );
-          }
-
-          return (
-            <PaginationItem key={page}>
-              <PaginationLink
-                isActive={page === currentPage}
-                onClick={() => onPageChange(Number(page))}
-                href="#"
-              >
-                {page}
-              </PaginationLink>
-            </PaginationItem>
-          );
-        })}
-        <PaginationItem>
-          <PaginationNext
-            onClick={() =>
-              currentPage < totalPageCount && onPageChange(currentPage + 1)
-            }
-            aria-disabled={currentPage === totalPageCount}
-          />
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
+            ) : (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  isActive={page === currentPage}
+                  onClick={() => onPageChange(Number(page))}
+                  href="#"
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ),
+          )}
+          <PaginationItem>
+            <PaginationNext
+              onClick={() =>
+                currentPage < totalPageCount && onPageChange(currentPage + 1)
+              }
+              aria-disabled={currentPage === totalPageCount}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+      <SelectBox
+        className={cn("w-[118px]")}
+        options={PAGE_SIZE_OPTIONS}
+        value={String(pageSize)}
+        size={"sm"}
+        onChange={({ value }) => {
+          onSizeChange(Number(value));
+        }}
+        name={"pageSize"}
+      />
+    </div>
   );
 }

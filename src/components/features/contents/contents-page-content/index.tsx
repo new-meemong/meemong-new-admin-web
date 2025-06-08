@@ -66,6 +66,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
         onSubmit={() => {
           setCurrentPage(1); // 검색 시 페이지 초기화
         }}
+        onRefresh={() => {}}
         onChangeCategory={() => {
           setCurrentPage(1); // 검색 시 페이지 초기화
         }}
@@ -76,6 +77,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
         totalCount={getContentsQuery.data?.totalCount ?? 0}
         currentPage={currentPage}
         onPageChange={setCurrentPage}
+        onSizeChange={() => {}}
       />
     </div>
   );

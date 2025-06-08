@@ -58,7 +58,7 @@ export default function RightDrawer({
         <DrawerContent className={cn("drawer-content", className)}>
           <DrawerHeader
             className={cn(
-              "flex flex-row px-[24px] py-[16px] items-center justify-start gap-[8px] border-b",
+              "flex flex-row p-[24px] py-[16px] items-center justify-start gap-[8px] border-b",
             )}
           >
             {closable && onClose && (
@@ -77,7 +77,7 @@ export default function RightDrawer({
               {title}
             </DrawerTitle>
           </DrawerHeader>
-          <div className="p-4 flex-1 overflow-y-auto">{children}</div>
+          <div className="p-[24px] flex-1 overflow-y-auto">{children}</div>
           {footer && <DrawerFooter>{footer}</DrawerFooter>}
         </DrawerContent>
       </DrawerPortal>

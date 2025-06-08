@@ -17,7 +17,7 @@ export const dummyContents: PaginatedResponse<IContents> = {
     {
       id: 1,
       nickname: "모델김",
-      userType: "1",
+      userType: "MODEL",
       title: "번개 알바 구합니다",
       createdAt: "2024-05-01T10:00:00",
       isDeleted: false,
@@ -26,7 +26,7 @@ export const dummyContents: PaginatedResponse<IContents> = {
     {
       id: 2,
       nickname: "디자이너최",
-      userType: "2",
+      userType: "DESIGNER",
       title: "디자인 프리미엄 번개 모집",
       createdAt: "2024-05-02T14:00:00",
       isDeleted: false,
@@ -35,7 +35,7 @@ export const dummyContents: PaginatedResponse<IContents> = {
     {
       id: 3,
       nickname: "홍디자",
-      userType: "1",
+      userType: "MODEL",
       title: "강남 스튜디오 디자이너 모집",
       company: "디자인하우스",
       createdAt: "2024-04-29T11:20:00",
@@ -45,7 +45,7 @@ export const dummyContents: PaginatedResponse<IContents> = {
     {
       id: 4,
       nickname: "모집짱",
-      userType: "2",
+      userType: "DESIGNER",
       title: "대형 촬영 모집 공고",
       recruitment: "1",
       costType: "2",

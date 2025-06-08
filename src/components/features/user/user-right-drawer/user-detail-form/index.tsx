@@ -12,9 +12,9 @@ import { CommonForm } from "@/components/shared/common-form";
 import { JOIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/user";
 import UserImageBox from "@/components/features/user/user-image-box";
 import { formatDate } from "@/utils/date";
-import UserBlockInfoList from "@/components/features/user/user-detail-modal/user-block-info-list";
+import UserBlockInfoList from "@/components/features/user/user-right-drawer/user-block-info-list";
 
-interface UserDetailModalProps {
+interface UserDetailFormProps {
   formData: IUserForm;
   onSubmit: (event: FormEvent) => void;
 }
@@ -22,7 +22,7 @@ interface UserDetailModalProps {
 export default function UserDetailForm({
   formData,
   onSubmit,
-}: UserDetailModalProps) {
+}: UserDetailFormProps) {
   const formSchema = z.object({
     userNumber: z.string(),
     userType: z.string(),
@@ -144,7 +144,7 @@ export default function UserDetailForm({
             label={"프로필 이미지"}
             value={form.watch("profileUrl")}
             formatter={(v) => {
-              return v ? <UserImageBox src={v as string} size={64} /> : "";
+              return v ? <UserImageBox src={v as string} /> : "";
             }}
           />
           <CommonForm.ReadonlyRow
@@ -164,16 +164,26 @@ export default function UserDetailForm({
           />
         </FormGroup>
         <FormGroup title={"사진 정보"}>
-          <div className={cn("flex flex-wrap gap-4 py-[6px]")}>
-            {(form.watch("pictureUrlList") || []).map((picture, index) => (
-              <UserImageBox
-                key={`picture-url-${index}`}
-                src={picture.src}
-                title={picture.title}
-                size={64}
-              />
-            ))}
-          </div>
+          <CommonForm.ReadonlyRow
+            name={"pictureUrlList"}
+            label={"사진"}
+            value={form.watch("pictureUrlList")}
+            formatter={(urlList) => {
+              return (
+                <div className={cn("flex flex-wrap gap-4 py-[6px]")}>
+                  {urlList && Array.isArray(urlList)
+                    ? urlList.map((urlItem, index) => (
+                        <UserImageBox
+                          key={`picture-url-${index}`}
+                          src={urlItem.src as string}
+                          title={urlItem.title}
+                        />
+                      ))
+                    : ""}
+                </div>
+              );
+            }}
+          />
         </FormGroup>
         <FormGroup title={"차단 정보"}>
           <UserBlockInfoList

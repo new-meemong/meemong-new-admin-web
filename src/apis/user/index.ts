@@ -17,7 +17,7 @@ const dummyUsers: PaginatedResponse<IUser> = {
   content: [
     {
       id: 1,
-      userType: "1",
+      userType: "MODEL",
       nickname: "모델유저",
       createdAt: "2024-01-10T12:34:56",
       recentLoggedInAt: "2025-05-29T10:00:00",
@@ -26,7 +26,7 @@ const dummyUsers: PaginatedResponse<IUser> = {
     },
     {
       id: 2,
-      userType: "2",
+      userType: "DESIGNER",
       nickname: "디자이너홍",
       createdAt: "2023-11-22T08:10:30",
       recentLoggedInAt: "2025-05-25T15:44:12",
@@ -42,7 +42,7 @@ const dummyUsers: PaginatedResponse<IUser> = {
 // 더미 상세 데이터
 const dummyUserDetail: IUserForm = {
   id: 1,
-  userType: "1",
+  userType: "MODEL",
   nickname: "모델유저",
   createdAt: "2024-01-10T12:34:56",
   recentLoggedInAt: "2025-05-29T10:00:00",

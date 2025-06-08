@@ -8,20 +8,21 @@ import {
   SearchFormProps,
   SearchFormSelectBox,
 } from "@/components/shared/search-form";
-import { BlockType, UserType } from "@/models/user";
+import { BlockType, SearchType, UserType } from "@/models/user";
 import { IUseSearchForm } from "@/components/shared/search-form/useSearchForm";
 
 type UserTypeWithAll = UserType | "ALL";
 type BlockTypeWithAll = BlockType | "ALL";
 
-export type SearchFormValues = {
+export type IUserSearchForm = {
   userType?: UserTypeWithAll;
   blockType?: BlockTypeWithAll;
+  searchType?: SearchType;
   searchKeyword?: string;
 };
 
 interface UserSearchFormProps extends SearchFormProps {
-  searchForm: IUseSearchForm<SearchFormValues>;
+  searchForm: IUseSearchForm<IUserSearchForm>;
   className?: string;
 }
 
@@ -32,8 +33,8 @@ function UserSearchForm({
 }: UserSearchFormProps) {
   const USER_TYPE_OPTIONS: { value: UserType | "ALL"; label: string }[] = [
     { value: "ALL", label: "전체" },
-    { value: "1", label: "모델" },
-    { value: "2", label: "디자이너" },
+    { value: "MODEL", label: "모델" },
+    { value: "DESIGNER", label: "디자이너" },
   ];
 
   const BLOCK_TYPE_OPTIONS: { value: BlockType | "ALL"; label: string }[] = [
@@ -42,9 +43,15 @@ function UserSearchForm({
     { value: "2", label: "탈퇴" },
   ];
 
+  const SEARCH_TYPE_OPTIONS: { value: SearchType; label: string }[] = [
+    { value: "UUID", label: "uuid" },
+    { value: "NICKNAME", label: "닉네임" },
+    { value: "PHONE", label: "전화번호" },
+  ];
+
   return (
     <SearchForm className={cn("user-search-form", className)} {...props}>
-      <SearchFormSelectBox<SearchFormValues>
+      <SearchFormSelectBox<IUserSearchForm>
         name="userType"
         value={searchForm.values.userType!}
         defaultValue={"ALL"}
@@ -52,7 +59,7 @@ function UserSearchForm({
         options={USER_TYPE_OPTIONS}
         title="유저타입"
       />
-      <SearchFormSelectBox<SearchFormValues>
+      <SearchFormSelectBox<IUserSearchForm>
         name="blockType"
         value={searchForm.values.blockType!}
         defaultValue={"ALL"}
@@ -60,7 +67,16 @@ function UserSearchForm({
         options={BLOCK_TYPE_OPTIONS}
         title="차단/탈퇴"
       />
+      <SearchFormSelectBox<IUserSearchForm>
+        className={cn("w-[114px] ml-[12px]")}
+        name="searchType"
+        value={searchForm.values.searchType!}
+        defaultValue={"UUID"}
+        onChange={searchForm.handleSelect}
+        options={SEARCH_TYPE_OPTIONS}
+      />
       <SearchFormInput
+        className={cn("w-[165px]")}
         name="searchKeyword"
         onChange={searchForm.handleChangeText}
         placeholder="uid/닉네임/전화번호"

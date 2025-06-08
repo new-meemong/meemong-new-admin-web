@@ -1,84 +1,92 @@
-"use client";
-
 import React from "react";
 import {
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
   ColumnDef,
   Row,
+  SortingState,
 } from "@tanstack/react-table";
-
-import {
-  Table as TableWrapper,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
-export interface CommonTableProps<TData> {
-  data: TData[];
-  columns: ColumnDef<TData>[];
-  onClickRow?: (row: Row<TData>) => void;
+export interface CommonTableProps<T> {
+  data: T[];
+  columns: ColumnDef<T>[];
+  onClickRow?: (row: Row<T>) => void;
 }
 
-function CommonTable<TData>({
+function getGridTemplate(columns: ColumnDef<any>[]) {
+  return columns
+    .map((col) => {
+      const size = (col as any).size;
+      return size ? `${size}px` : "1fr";
+    })
+    .join(" ");
+}
+
+export default function CommonTable<T>({
   data,
   columns,
   onClickRow,
-}: CommonTableProps<TData>) {
+}: CommonTableProps<T>) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+
   const table = useReactTable({
     data,
     columns,
+    state: { sorting },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
+  const columnTemplate = getGridTemplate(columns);
+
   return (
-    <TableWrapper>
-      <TableHeader>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <TableRow key={headerGroup.id} variant={"head"}>
-            {headerGroup.headers.map((header) => (
-              <TableHead key={header.id}>
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-              </TableHead>
-            ))}
-          </TableRow>
-        ))}
-      </TableHeader>
-      <TableBody>
-        {table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              className={cn("cursor-pointer")}
-              onClick={() => onClickRow?.(row)}
+    <div className="w-full border rounded-10 overflow-hidden bg-table-background text-table-foreground typo-body-2-long-regular">
+      {/* Header */}
+      {table.getHeaderGroups().map((headerGroup) => (
+        <div
+          key={headerGroup.id}
+          className="grid border-b bg-table-header-background typo-body-2-long-medium text-table-header-foreground"
+          style={{ gridTemplateColumns: columnTemplate }}
+        >
+          {headerGroup.headers.map((header) => (
+            <div
+              key={header.id}
+              onClick={header.column.getToggleSortingHandler()}
+              className={cn(
+                "px-3 py-2 truncate text-center",
+                header.column.getCanSort() && "cursor-pointer",
+              )}
             >
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))
-        ) : (
-          <TableRow>
-            <TableCell colSpan={columns.length} className="text-center">
-              데이터가 없습니다.
-            </TableCell>
-          </TableRow>
-        )}
-      </TableBody>
-    </TableWrapper>
+              {flexRender(header.column.columnDef.header, header.getContext())}
+              {{
+                asc: " ↑",
+                desc: " ↓",
+              }[header.column.getIsSorted() as string] ?? null}
+            </div>
+          ))}
+        </div>
+      ))}
+      {table.getRowModel().rows.map((row) => (
+        <div
+          key={row.id}
+          className="grid border-b last:border-b-0 hover:bg-background-label"
+          style={{ gridTemplateColumns: columnTemplate }}
+          onClick={() => onClickRow?.(row)}
+        >
+          {row.getVisibleCells().map((cell) => (
+            <div key={cell.id} className="flex items-center justify-center px-3 py-2 truncate text-center">
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </div>
+          ))}
+        </div>
+      ))}
+      {!table.getRowModel().rows.length && (
+        <div className="text-center p-4 text-gray-500">데이터가 없습니다.</div>
+      )}
+    </div>
   );
 }
-
-export default CommonTable;

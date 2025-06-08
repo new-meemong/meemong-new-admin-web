@@ -43,8 +43,8 @@ function ContentsSearchForm({
 
   const USER_TYPE_OPTIONS: { value: UserType | "ALL"; label: string }[] = [
     { value: "ALL", label: "전체" },
-    { value: "1", label: "모델" },
-    { value: "2", label: "디자이너" },
+    { value: "MODEL", label: "모델" },
+    { value: "DESIGNER", label: "디자이너" },
   ];
 
   const JOB_CATEGORY_TYPE_OPTIONS: {
@@ -160,7 +160,9 @@ function ContentsSearchForm({
   ]);
 
   useEffect(() => {
-    const categoryType = String(searchForm.values.categoryId) as ContentsCategoryType;
+    const categoryType = String(
+      searchForm.values.categoryId,
+    ) as ContentsCategoryType;
 
     if (categoryType === "0" || categoryType === "1") {
       searchForm.handleSelect({ key: "userType", value: "ALL" });
