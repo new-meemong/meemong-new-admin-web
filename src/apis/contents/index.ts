@@ -62,6 +62,7 @@ export const dummyContents: PaginatedResponse<IContents> = {
 export type GetContentsRequest = {
   categoryId: number;
   userType?: string;
+  approveType?: string;
   company?: string;
   jobCategory?: string;
   recruitment?: string;

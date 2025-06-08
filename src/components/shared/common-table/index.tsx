@@ -16,10 +16,10 @@ export interface CommonTableProps<T> {
   onClickRow?: (row: Row<T>) => void;
 }
 
-function getGridTemplate(columns: ColumnDef<any>[]) {
+function getGridTemplate<T>(columns: ColumnDef<T>[]) {
   return columns
     .map((col) => {
-      const size = (col as any).size;
+      const size = col.size;
       return size ? `${size}px` : "1fr";
     })
     .join(" ");
@@ -41,7 +41,7 @@ export default function CommonTable<T>({
     getSortedRowModel: getSortedRowModel(),
   });
 
-  const columnTemplate = getGridTemplate(columns);
+  const columnTemplate = getGridTemplate<T>(columns);
 
   return (
     <div className="w-full border rounded-10 overflow-hidden bg-table-background text-table-foreground typo-body-2-long-regular">
@@ -78,7 +78,10 @@ export default function CommonTable<T>({
           onClick={() => onClickRow?.(row)}
         >
           {row.getVisibleCells().map((cell) => (
-            <div key={cell.id} className="flex items-center justify-center px-3 py-2 truncate text-center">
+            <div
+              key={cell.id}
+              className="flex items-center justify-center px-3 py-2 truncate text-center"
+            >
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </div>
           ))}

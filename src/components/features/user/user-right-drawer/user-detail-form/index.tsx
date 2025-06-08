@@ -84,10 +84,10 @@ export default function UserDetailForm({
             label={"회원번호"}
             value={form.watch("userNumber")}
           />
-          <CommonForm.ReadonlyRow
+          <CommonForm.ReadonlyRow<UserType>
             name={"userType"}
             label={"유형"}
-            value={form.watch("userType")}
+            value={form.watch("userType") as UserType}
             formatter={(v) => {
               return USER_TYPE_MAP[v as UserType] ?? "-";
             }}
@@ -164,7 +164,7 @@ export default function UserDetailForm({
           />
         </FormGroup>
         <FormGroup title={"사진 정보"}>
-          <CommonForm.ReadonlyRow
+          <CommonForm.ReadonlyRow<{ src: string; title: string }[]>
             name={"pictureUrlList"}
             label={"사진"}
             value={form.watch("pictureUrlList")}

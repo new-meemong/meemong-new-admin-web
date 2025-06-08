@@ -9,46 +9,61 @@ import {
   SearchFormSelectBox,
 } from "@/components/shared/search-form";
 import { UserType } from "@/models/user";
-import { GetContentsRequest } from "@/apis/contents";
 import { IUseSearchForm } from "@/components/shared/search-form/useSearchForm";
 import {
-  ContentsCategoryType,
+  ApproveType,
   CostType,
   JobCategoryType,
   RecruitmentType,
 } from "@/models/contents";
+import { useContentsContext } from "@/components/contexts/contents-context";
+import { SearchType } from "@/models/common";
+
+type UserTypeWithAll = UserType | "ALL";
+type ApproveTypeWithAll = ApproveType | "ALL";
+type JobCategoryTypeWithAll = JobCategoryType | "ALL";
+type RecruitmentTypeWithAll = RecruitmentType | "ALL";
+type CostTypeWithAll = CostType | "ALL";
+
+export type IContentsSearchForm = {
+  categoryId: number;
+  userType?: UserTypeWithAll;
+  approveType?: ApproveTypeWithAll;
+  company?: string;
+  jobCategory?: JobCategoryTypeWithAll;
+  recruitment?: RecruitmentTypeWithAll;
+  costType?: CostTypeWithAll;
+  searchType?: SearchType;
+  searchKeyword?: string;
+};
 
 interface ContentsSearchFormProps extends SearchFormProps {
-  searchForm: IUseSearchForm<GetContentsRequest>;
+  searchForm: IUseSearchForm<IContentsSearchForm>;
   className?: string;
-  onChangeCategory: () => void;
 }
 
 function ContentsSearchForm({
   searchForm,
   className,
-  onChangeCategory,
   ...props
 }: ContentsSearchFormProps) {
-  const CATEGORY_TYPE_OPTIONS: {
-    value: ContentsCategoryType;
-    label: string;
-  }[] = [
-    { value: "0", label: "번개/일반" },
-    { value: "1", label: "번개/프리미엄" },
-    { value: "2", label: "구인공고" },
-    { value: "3", label: "이력서" },
-    { value: "4", label: "모집공고" },
-  ];
+  const { tabId } = useContentsContext();
 
-  const USER_TYPE_OPTIONS: { value: UserType | "ALL"; label: string }[] = [
+  const USER_TYPE_OPTIONS: { value: UserTypeWithAll; label: string }[] = [
     { value: "ALL", label: "전체" },
     { value: "MODEL", label: "모델" },
     { value: "DESIGNER", label: "디자이너" },
   ];
 
+  const APPROVE_TYPE_OPTIONS: { value: ApproveTypeWithAll; label: string }[] = [
+    { value: "ALL", label: "전체" },
+    { value: "0", label: "승인" },
+    { value: "1", label: "미승인" },
+    { value: "2", label: "승인거절" },
+  ];
+
   const JOB_CATEGORY_TYPE_OPTIONS: {
-    value: JobCategoryType | "ALL";
+    value: JobCategoryTypeWithAll;
     label: string;
   }[] = [
     { value: "ALL", label: "전체" },
@@ -57,7 +72,7 @@ function ContentsSearchForm({
   ];
 
   const RECRUITMENT_TYPE_OPTIONS: {
-    value: RecruitmentType | "ALL";
+    value: RecruitmentTypeWithAll;
     label: string;
   }[] = [
     { value: "ALL", label: "전체" },
@@ -74,7 +89,7 @@ function ContentsSearchForm({
   ];
 
   const COST_TYPE_OPTIONS: {
-    value: CostType | "ALL";
+    value: CostTypeWithAll;
     label: string;
   }[] = [
     { value: "ALL", label: "전체" },
@@ -83,12 +98,14 @@ function ContentsSearchForm({
     { value: "2", label: "모델료" },
   ];
 
-  const renderSearchForm = useCallback(() => {
-    const categoryType = String(
-      searchForm.values.categoryId,
-    ) as ContentsCategoryType;
+  const SEARCH_TYPE_OPTIONS: { value: SearchType; label: string }[] = [
+    { value: "UUID", label: "uuid" },
+    { value: "NICKNAME", label: "닉네임" },
+    { value: "PHONE", label: "전화번호" },
+  ];
 
-    if (categoryType === "2") {
+  const renderSearchForm = useCallback(() => {
+    if (tabId === "2") {
       return (
         <>
           <SearchFormInput
@@ -101,10 +118,10 @@ function ContentsSearchForm({
           />
         </>
       );
-    } else if (categoryType === "3") {
+    } else if (tabId === "3") {
       return (
         <>
-          <SearchFormSelectBox<GetContentsRequest>
+          <SearchFormSelectBox<IContentsSearchForm>
             name="jobCategory"
             className={cn("w-[130px]")}
             value={searchForm.values.jobCategory!}
@@ -114,10 +131,10 @@ function ContentsSearchForm({
           />
         </>
       );
-    } else if (categoryType === "4") {
+    } else if (tabId === "4") {
       return (
         <>
-          <SearchFormSelectBox<GetContentsRequest>
+          <SearchFormSelectBox<IContentsSearchForm>
             name="recruitment"
             className={cn("w-[130px]")}
             value={searchForm.values.recruitment!}
@@ -125,7 +142,7 @@ function ContentsSearchForm({
             options={RECRUITMENT_TYPE_OPTIONS}
             title="모집타입"
           />
-          <SearchFormSelectBox<GetContentsRequest>
+          <SearchFormSelectBox<IContentsSearchForm>
             name="costType"
             className={cn("w-[130px]")}
             value={searchForm.values.costType!}
@@ -138,18 +155,31 @@ function ContentsSearchForm({
     } else {
       return (
         <>
-          <SearchFormSelectBox<GetContentsRequest>
+          <SearchFormSelectBox<IContentsSearchForm>
             name="userType"
             className={cn("w-[130px]")}
             value={searchForm.values.userType!}
+            defaultValue={"ALL"}
             onChange={searchForm.handleSelect}
             options={USER_TYPE_OPTIONS}
             title="유저타입"
           />
+          {tabId === "1" && (
+            <SearchFormSelectBox<IContentsSearchForm>
+              name="approveType"
+              className={cn("w-[130px]")}
+              value={searchForm.values.approveType!}
+              defaultValue={"ALL"}
+              onChange={searchForm.handleSelect}
+              options={APPROVE_TYPE_OPTIONS}
+              title="승인타입"
+            />
+          )}
         </>
       );
     }
   }, [
+    tabId,
     searchForm.values,
     searchForm.handleChangeText,
     searchForm.handleSelect,
@@ -160,45 +190,41 @@ function ContentsSearchForm({
   ]);
 
   useEffect(() => {
-    const categoryType = String(
-      searchForm.values.categoryId,
-    ) as ContentsCategoryType;
-
-    if (categoryType === "0" || categoryType === "1") {
+    if (tabId === "0" || tabId === "1") {
       searchForm.handleSelect({ key: "userType", value: "ALL" });
-    } else if (categoryType === "2") {
+      if (tabId === "1" && !searchForm.values.approveType) {
+        searchForm.handleSelect({ key: "approveType", value: "ALL" });
+      }
+    } else if (tabId === "2") {
       searchForm.handleChangeText({
         target: { name: "company", value: "" },
       } as React.ChangeEvent<HTMLInputElement>);
-    } else if (categoryType === "3") {
+    } else if (tabId === "3") {
       searchForm.handleSelect({ key: "jobCategory", value: "ALL" });
-    } else if (categoryType === "4") {
+    } else if (tabId === "4") {
       searchForm.handleSelect({ key: "recruitment", value: "ALL" });
       searchForm.handleSelect({ key: "costType", value: "ALL" });
     }
     searchForm.handleChangeText({
       target: { name: "searchKeyword", value: "" },
     } as React.ChangeEvent<HTMLInputElement>);
-
-    onChangeCategory();
-  }, [searchForm.values.categoryId]);
+  }, [tabId]);
 
   return (
     <SearchForm className={cn("contents-search-form", className)} {...props}>
-      <SearchFormSelectBox<GetContentsRequest>
-        name="categoryId"
-        className={cn("w-[130px]")}
-        value={String(searchForm.values.categoryId!)}
-        onChange={searchForm.handleSelect}
-        options={CATEGORY_TYPE_OPTIONS}
-        title="카테고리"
-      />
       {renderSearchForm()}
+      <SearchFormSelectBox<IContentsSearchForm>
+        className={cn("w-[114px] ml-[10px]")}
+        name="searchType"
+        value={searchForm.values.searchType!}
+        defaultValue={"UUID"}
+        onChange={searchForm.handleSelect}
+        options={SEARCH_TYPE_OPTIONS}
+      />
       <SearchFormInput
         name="searchKeyword"
-        className={cn("w-[185px]")}
+        className={cn("w-[165px]")}
         onChange={searchForm.handleChangeText}
-        placeholder="uid/닉네임/전화번호"
         value={searchForm.values.searchKeyword}
       />
     </SearchForm>

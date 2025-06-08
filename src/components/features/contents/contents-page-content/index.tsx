@@ -1,38 +1,47 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import useSearchForm from "@/components/shared/search-form/useSearchForm";
 import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
 import { UserType } from "@/models/user";
 import { useGetContentsQuery } from "@/queries/contents";
-import { GetContentsRequest } from "@/apis/contents";
 import {
+  ApproveType,
   ContentsCategoryType,
   CostType,
   JobCategoryType,
   RecruitmentType,
 } from "@/models/contents";
-import ContentsSearchForm from "@/components/features/contents/contents-search-form";
+import ContentsSearchForm, {
+  IContentsSearchForm,
+} from "@/components/features/contents/contents-search-form";
 import ContentsTable from "@/components/features/contents/contents-table";
+import { useContentsContext } from "@/components/contexts/contents-context";
 
 interface ContentsPageContentProps {
   className?: string;
 }
 
 function ContentsPageContent({ className }: ContentsPageContentProps) {
+  const { tabId } = useContentsContext();
   const [currentPage, setCurrentPage] = useState(1);
+  const [currentSize, setCurrentSize] = useState<number>(DEFAULT_PAGE_SIZE);
 
-  const searchForm = useSearchForm<GetContentsRequest>({
-    defaultValues: {
-      categoryId: 0,
-      company: "",
-      userType: "ALL",
-      costType: "ALL",
-      recruitment: "ALL",
-      jobCategory: "ALL",
-      searchKeyword: "",
-    },
+  const DEFAULT_SEARCH_FORM: IContentsSearchForm = {
+    categoryId: Number(tabId),
+    userType: "ALL",
+    approveType: "ALL",
+    company: "",
+    jobCategory: "ALL",
+    recruitment: "ALL",
+    costType: "ALL",
+    searchType: "UUID",
+    searchKeyword: "",
+  };
+
+  const searchForm = useSearchForm<IContentsSearchForm>({
+    defaultValues: DEFAULT_SEARCH_FORM,
   });
 
   const getContentsQuery = useGetContentsQuery({
@@ -44,6 +53,10 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
       searchForm.values.userType === "ALL"
         ? undefined
         : (searchForm.values.userType as UserType),
+    approveType:
+      searchForm.values.approveType === "ALL"
+        ? undefined
+        : (searchForm.values.approveType as ApproveType),
     costType:
       searchForm.values.costType === "ALL"
         ? undefined
@@ -59,25 +72,32 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     searchKeyword: searchForm.values.searchKeyword,
   });
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [tabId]);
+
   return (
     <div className={cn("contents-page-content", className)}>
       <ContentsSearchForm
         searchForm={searchForm}
         onSubmit={() => {
-          setCurrentPage(1); // 검색 시 페이지 초기화
+          setCurrentPage(1);
         }}
-        onRefresh={() => {}}
-        onChangeCategory={() => {
+        onRefresh={() => {
+          searchForm.handleReset();
           setCurrentPage(1); // 검색 시 페이지 초기화
         }}
       />
       <ContentsTable
-        categoryId={String(searchForm.values.categoryId) as ContentsCategoryType}
+        categoryId={
+          String(searchForm.values.categoryId) as ContentsCategoryType
+        }
         data={getContentsQuery.data?.content ?? []}
         totalCount={getContentsQuery.data?.totalCount ?? 0}
         currentPage={currentPage}
+        pageSize={currentSize}
         onPageChange={setCurrentPage}
-        onSizeChange={() => {}}
+        onSizeChange={setCurrentSize}
       />
     </div>
   );

@@ -8,8 +8,9 @@ import {
   SearchFormProps,
   SearchFormSelectBox,
 } from "@/components/shared/search-form";
-import { BlockType, SearchType, UserType } from "@/models/user";
+import { BlockType, UserType } from "@/models/user";
 import { IUseSearchForm } from "@/components/shared/search-form/useSearchForm";
+import { SearchType } from "@/models/common";
 
 type UserTypeWithAll = UserType | "ALL";
 type BlockTypeWithAll = BlockType | "ALL";
@@ -68,7 +69,7 @@ function UserSearchForm({
         title="차단/탈퇴"
       />
       <SearchFormSelectBox<IUserSearchForm>
-        className={cn("w-[114px] ml-[12px]")}
+        className={cn("w-[114px] ml-[10px]")}
         name="searchType"
         value={searchForm.values.searchType!}
         defaultValue={"UUID"}
@@ -79,7 +80,6 @@ function UserSearchForm({
         className={cn("w-[165px]")}
         name="searchKeyword"
         onChange={searchForm.handleChangeText}
-        placeholder="uid/닉네임/전화번호"
         value={searchForm.values.searchKeyword}
       />
     </SearchForm>

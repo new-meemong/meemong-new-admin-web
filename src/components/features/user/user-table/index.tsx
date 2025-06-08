@@ -63,7 +63,7 @@ function UserTable({
             "cursor-pointer text-secondary-foreground hover:underline",
           )}
         >
-          {info.getValue()}
+          {info.getValue() as string}
         </span>
       ),
       enableSorting: false,

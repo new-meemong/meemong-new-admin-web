@@ -2,6 +2,8 @@ import { UserType } from "@/models/user";
 
 export type ContentsCategoryType = "0" | "1" | "2" | "3" | "4"; // 0: 번개/일반, 1: 번개/프리미엄, 2: 구인공고, 3: 이력서, 4: 모집공고
 
+export type ApproveType = "0" | "1" | "2"; // 0: 승인, 1: 미승인, 2: 승인거절
+
 export type JobCategoryType = "0" | "1" | "2"; // 0: 인턴, 1: 디자이너
 
 export type RecruitmentType =

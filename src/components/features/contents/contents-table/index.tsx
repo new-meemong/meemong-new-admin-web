@@ -18,6 +18,7 @@ import {
   RecruitmentType,
 } from "@/models/contents";
 import { UserType } from "@/models/user";
+import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
 
 interface ContentsTableProps
   extends Omit<CommonTableProps<IContents> & CommonPaginationProps, "columns"> {
@@ -31,6 +32,7 @@ function ContentsTable({
   data,
   totalCount,
   currentPage = 1,
+  pageSize = DEFAULT_PAGE_SIZE,
   onPageChange,
   onSizeChange,
   ...props
@@ -75,7 +77,8 @@ function ContentsTable({
           {
             accessorKey: "createdAt",
             header: "작성일/시간",
-            cell: (info) => formatDate(info.getValue() as string, 'YYYY.MM.DD / hh:mm'),
+            cell: (info) =>
+              formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm"),
           },
           {
             accessorKey: "isDeleted",
@@ -117,7 +120,8 @@ function ContentsTable({
           {
             accessorKey: "createdAt",
             header: "작성일/시간",
-            cell: (info) => formatDate(info.getValue() as string, 'YYYY.MM.DD / hh:mm'),
+            cell: (info) =>
+              formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm"),
           },
           {
             accessorKey: "isDeleted",
@@ -144,7 +148,8 @@ function ContentsTable({
           {
             accessorKey: "createdAt",
             header: "작성일/시간",
-            cell: (info) => formatDate(info.getValue() as string, 'YYYY.MM.DD / hh:mm'),
+            cell: (info) =>
+              formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm"),
           },
           {
             accessorKey: "isDeleted",
@@ -194,7 +199,8 @@ function ContentsTable({
           {
             accessorKey: "createdAt",
             header: "작성일/시간",
-            cell: (info) => formatDate(info.getValue() as string, 'YYYY.MM.DD / hh:mm'),
+            cell: (info) =>
+              formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm"),
           },
         ];
       default:
@@ -209,6 +215,7 @@ function ContentsTable({
       <CommonTable<IContents> data={data || []} columns={columns} />
       <CommonPagination
         currentPage={currentPage || 1}
+        pageSize={pageSize}
         totalCount={totalCount ?? 0}
         onPageChange={onPageChange}
         onSizeChange={onSizeChange}

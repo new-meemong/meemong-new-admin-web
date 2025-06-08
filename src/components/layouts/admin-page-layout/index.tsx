@@ -11,20 +11,30 @@ interface AdminPageLayoutProps {
 function AdminPageLayout({ children, className }: AdminPageLayoutProps) {
   return (
     <div
-      className={cn("admin-page-layout w-full min-w-[1036px] px-[36px] py-[54px]", className)}
+      className={cn(
+        "admin-page-layout w-full min-w-[1036px] px-[36px] py-[54px]",
+        className,
+      )}
     >
       {children}
     </div>
   );
 }
 
-const AdminPageLayoutHeader = ({ title }: { title: string }) => (
+const AdminPageLayoutHeader = ({
+  title,
+  children,
+}: {
+  title: string;
+  children?: React.ReactNode;
+}) => (
   <h1
     className={cn(
-      "admin-page-layout-header typo-title-1-bold text-black mb-[16px]",
+      "admin-page-layout-header typo-title-1-bold text-black mb-[16px] flex flex-row gap-[20px]",
     )}
   >
     {title}
+    {children}
   </h1>
 );
 

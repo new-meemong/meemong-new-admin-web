@@ -6,8 +6,6 @@ export type BlockType = "0" | "1" | "2"; // 0: 전체, 1: 차단, 2: 탈퇴
 
 export type JoinType = "0" | "1"; // 0: 일반 가입, 1: SNS 가입
 
-export type SearchType = "UUID" | "NICKNAME" | "PHONE"; // 검색 키워드 타입
-
 export type BlockInfo = {
   isBlocked: boolean;
   blockedAt: string;
