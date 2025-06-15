@@ -8,7 +8,6 @@ import { UserType } from "@/models/user";
 import { useGetContentsQuery } from "@/queries/contents";
 import {
   ApproveType,
-  ContentsCategoryType,
   CostType,
   JobCategoryType,
   RecruitmentType,
@@ -89,9 +88,6 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
         }}
       />
       <ContentsTable
-        categoryId={
-          String(searchForm.values.categoryId) as ContentsCategoryType
-        }
         data={getContentsQuery.data?.content ?? []}
         totalCount={getContentsQuery.data?.totalCount ?? 0}
         currentPage={currentPage}

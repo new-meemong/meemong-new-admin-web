@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import CommonTable, {
@@ -19,16 +19,17 @@ import {
 } from "@/models/contents";
 import { UserType } from "@/models/user";
 import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import { useContentsContext } from "@/components/contexts/contents-context";
+import { useModal } from "@/components/shared/modal/useModal";
+import ContentsDetailModal from "@/components/features/contents/contents-detail-modal";
 
 interface ContentsTableProps
   extends Omit<CommonTableProps<IContents> & CommonPaginationProps, "columns"> {
   className?: string;
-  categoryId: ContentsCategoryType;
 }
 
 function ContentsTable({
   className,
-  categoryId,
   data,
   totalCount,
   currentPage = 1,
@@ -37,6 +38,14 @@ function ContentsTable({
   onSizeChange,
   ...props
 }: ContentsTableProps) {
+  const modal = useModal();
+
+  const { tabId } = useContentsContext();
+
+  const [selectedContents, setSelectedContents] = useState<IContents | null>(
+    null,
+  );
+
   const getColumnsByCategory = (
     category: ContentsCategoryType,
   ): ColumnDef<IContents>[] => {
@@ -45,11 +54,15 @@ function ContentsTable({
         accessorKey: "id",
         header: "No",
         cell: (info) => info.getValue(),
+        size: 80,
+        enableSorting: false,
       },
       {
         accessorKey: "nickname",
         header: "닉네임",
         cell: (info) => info.getValue(),
+        size: 180,
+        enableSorting: false,
       },
     ];
 
@@ -68,22 +81,38 @@ function ContentsTable({
                   ? "디자이너"
                   : "-";
             },
+            size: 120,
+            enableSorting: false,
           },
           {
             accessorKey: "title",
             header: "제목",
-            cell: (info) => info.getValue(),
+            cell: (info) => (
+              <span
+                className={cn(
+                  "cursor-pointer text-secondary-foreground hover:underline",
+                )}
+                onClick={() => handleClickRow(info.row.original)}
+              >
+                {info.getValue() as string}
+              </span>
+            ),
+            enableSorting: false,
           },
           {
             accessorKey: "createdAt",
             header: "작성일/시간",
             cell: (info) =>
               formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm"),
+            size: 150,
+            enableSorting: true,
           },
           {
             accessorKey: "isDeleted",
             header: "삭제여부",
             cell: (info) => (info.getValue() ? <span>삭제</span> : "-"),
+            size: 80,
+            enableSorting: false,
           },
         ];
       case "1":
@@ -102,6 +131,8 @@ function ContentsTable({
               ) : (
                 "-"
               ),
+            size: 80,
+            enableSorting: false,
           },
         ];
       case "2":
@@ -111,22 +142,38 @@ function ContentsTable({
             accessorKey: "company",
             header: "업체명",
             cell: (info) => info.getValue(),
+            size: 180,
+            enableSorting: false,
           },
           {
             accessorKey: "title",
             header: "제목",
-            cell: (info) => info.getValue(),
+            cell: (info) => (
+              <span
+                className={cn(
+                  "cursor-pointer text-secondary-foreground hover:underline",
+                )}
+                onClick={() => handleClickRow(info.row.original)}
+              >
+                {info.getValue() as string}
+              </span>
+            ),
+            enableSorting: false,
           },
           {
             accessorKey: "createdAt",
             header: "작성일/시간",
             cell: (info) =>
               formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm"),
+            size: 150,
+            enableSorting: true,
           },
           {
             accessorKey: "isDeleted",
             header: "삭제여부",
             cell: (info) => (info.getValue() ? <span>삭제</span> : "-"),
+            size: 80,
+            enableSorting: false,
           },
         ];
       case "3":
@@ -139,22 +186,38 @@ function ContentsTable({
               const val = info.getValue() as JobCategoryType;
               return val === "0" ? "인턴" : val === "1" ? "디자이너" : "-";
             },
+            size: 120,
+            enableSorting: false,
           },
           {
             accessorKey: "title",
             header: "제목",
-            cell: (info) => info.getValue(),
+            cell: (info) => (
+              <span
+                className={cn(
+                  "cursor-pointer text-secondary-foreground hover:underline",
+                )}
+                onClick={() => handleClickRow(info.row.original)}
+              >
+                {info.getValue() as string}
+              </span>
+            ),
+            enableSorting: false,
           },
           {
             accessorKey: "createdAt",
             header: "작성일/시간",
             cell: (info) =>
               formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm"),
+            size: 150,
+            enableSorting: true,
           },
           {
             accessorKey: "isDeleted",
             header: "삭제여부",
             cell: (info) => (info.getValue() ? <span>삭제</span> : "-"),
+            size: 80,
+            enableSorting: false,
           },
         ];
       case "4":
@@ -178,6 +241,8 @@ function ContentsTable({
               };
               return map[info.getValue() as RecruitmentType] || "-";
             },
+            size: 120,
+            enableSorting: false,
           },
           {
             accessorKey: "costType",
@@ -190,17 +255,31 @@ function ContentsTable({
               };
               return map[info.getValue() as CostType] || "-";
             },
+            size: 120,
+            enableSorting: false,
           },
           {
             accessorKey: "title",
             header: "제목",
-            cell: (info) => info.getValue(),
+            cell: (info) => (
+              <span
+                className={cn(
+                  "cursor-pointer text-secondary-foreground hover:underline",
+                )}
+                onClick={() => handleClickRow(info.row.original)}
+              >
+                {info.getValue() as string}
+              </span>
+            ),
+            enableSorting: false,
           },
           {
             accessorKey: "createdAt",
             header: "작성일/시간",
             cell: (info) =>
               formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm"),
+            size: 150,
+            enableSorting: true,
           },
         ];
       default:
@@ -208,7 +287,12 @@ function ContentsTable({
     }
   };
 
-  const columns = getColumnsByCategory(categoryId);
+  const columns = getColumnsByCategory(tabId as ContentsCategoryType);
+
+  const handleClickRow = useCallback((selectedContents: IContents) => {
+    setSelectedContents(selectedContents);
+    modal.open();
+  }, []);
 
   return (
     <div className={cn("contents-table-wrapper", className)} {...props}>
@@ -219,6 +303,12 @@ function ContentsTable({
         totalCount={totalCount ?? 0}
         onPageChange={onPageChange}
         onSizeChange={onSizeChange}
+      />
+      <ContentsDetailModal
+        isOpen={modal.isOpen}
+        onClose={modal.close}
+        contents={selectedContents!}
+        categoryId={tabId as ContentsCategoryType}
       />
     </div>
   );

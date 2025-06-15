@@ -65,10 +65,12 @@ function SearchForm({
 
 function SearchFormInput<T>({
   name,
+  title,
   ...props
 }: InputProps & { name: keyof T & string; title?: string }) {
   return (
     <SearchFormWrapper className={cn("search-form-input")}>
+      {title && <Label className="mr-[8px]">{title}</Label>}
       <Input name={name} size={"sm"} className={cn("w-[185px]")} {...props} />
     </SearchFormWrapper>
   );

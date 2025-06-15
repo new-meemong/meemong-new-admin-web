@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ColumnDef, Row } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 import { IUser, UserType } from "@/models/user";
 import UserRightDrawer from "@/components/features/user/user-right-drawer";
 import CommonTable, {
@@ -62,6 +62,7 @@ function UserTable({
           className={cn(
             "cursor-pointer text-secondary-foreground hover:underline",
           )}
+          onClick={() => handleClickRow(info.row.original.id)}
         >
           {info.getValue() as string}
         </span>
@@ -128,18 +129,14 @@ function UserTable({
     },
   ];
 
-  const handleClickRow = useCallback((row: Row<IUser>) => {
-    setSelectedUserId(row.getValue("id"));
+  const handleClickRow = useCallback((userId: number) => {
+    setSelectedUserId(userId);
     openDrawer();
   }, []);
 
   return (
     <div className={cn("user-table-wrapper", className)} {...props}>
-      <CommonTable<IUser>
-        data={data || []}
-        columns={columns}
-        onClickRow={handleClickRow}
-      />
+      <CommonTable<IUser> data={data || []} columns={columns} />
       <CommonPagination
         currentPage={currentPage || 1}
         pageSize={pageSize}

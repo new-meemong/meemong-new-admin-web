@@ -56,6 +56,7 @@ export default function UserBlockInfoList({
       const confirmed = await dialog.confirm(
         `${user?.nickname}(${user?.name}) 님을 ${isBlocked ? "차단 해제" : "차단"}하시겠습니까?`,
       );
+
       if (confirmed) {
         console.log("제출");
       }

@@ -23,10 +23,15 @@ export type CostType = "0" | "1" | "2"; // 0: 무료, 1: 재료비, 2: 모델료
 
 export interface IContents {
   id: number;
+  userId: number; // 작성자 ID
   nickname: string; // 닉네임
   userType: UserType; // 작성자 타입
   title: string; // 제목
   company?: string; // 업체명
+  noticeId?: number; // 게시물 ID
+  jobId?: number; // 구인공고 ID
+  resumeId?: number; // 이력서 ID
+  recruitmentId?: number; // 모집공고 ID
   jobCategory?: JobCategoryType; // 구직타입
   recruitment?: RecruitmentType; // 모집타입
   costType?: CostType; // 비용타입

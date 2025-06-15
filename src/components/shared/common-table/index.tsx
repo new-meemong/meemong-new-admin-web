@@ -45,7 +45,6 @@ export default function CommonTable<T>({
 
   return (
     <div className="w-full border rounded-10 overflow-hidden bg-table-background text-table-foreground typo-body-2-long-regular">
-      {/* Header */}
       {table.getHeaderGroups().map((headerGroup) => (
         <div
           key={headerGroup.id}

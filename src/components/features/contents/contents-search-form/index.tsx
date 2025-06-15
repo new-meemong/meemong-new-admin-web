@@ -116,6 +116,14 @@ function ContentsSearchForm({
             value={searchForm.values.company}
             title="업체명"
           />
+          <SearchFormSelectBox<IContentsSearchForm>
+            name="jobCategory"
+            className={cn("w-[130px]")}
+            value={searchForm.values.jobCategory!}
+            onChange={searchForm.handleSelect}
+            options={JOB_CATEGORY_TYPE_OPTIONS}
+            title="모집타입"
+          />
         </>
       );
     } else if (tabId === "3") {
@@ -199,6 +207,7 @@ function ContentsSearchForm({
       searchForm.handleChangeText({
         target: { name: "company", value: "" },
       } as React.ChangeEvent<HTMLInputElement>);
+      searchForm.handleSelect({ key: "jobCategory", value: "ALL" });
     } else if (tabId === "3") {
       searchForm.handleSelect({ key: "jobCategory", value: "ALL" });
     } else if (tabId === "4") {

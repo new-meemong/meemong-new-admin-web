@@ -80,12 +80,10 @@ export default function UserDetailForm({
       <form onSubmit={onSubmit}>
         <FormGroup title={"기본 정보"}>
           <CommonForm.ReadonlyRow
-            name={"userNumber"}
             label={"회원번호"}
             value={form.watch("userNumber")}
           />
           <CommonForm.ReadonlyRow<UserType>
-            name={"userType"}
             label={"유형"}
             value={form.watch("userType") as UserType}
             formatter={(v) => {
@@ -93,17 +91,14 @@ export default function UserDetailForm({
             }}
           />
           <CommonForm.ReadonlyRow
-            name={"nickname"}
             label={"닉네임"}
             value={form.watch("nickname")}
           />
           <CommonForm.ReadonlyRow
-            name={"name"}
             label={"이름"}
             value={form.watch("name")}
           />
           <CommonForm.ReadonlyRow
-            name={"joinType"}
             label={"가입형태"}
             value={form.watch("joinType")}
             formatter={(v) => {
@@ -111,7 +106,6 @@ export default function UserDetailForm({
             }}
           />
           <CommonForm.ReadonlyRow
-            name={"createdAt"}
             label={"가입일"}
             value={form.watch("createdAt")}
             formatter={(v) => {
@@ -119,7 +113,6 @@ export default function UserDetailForm({
             }}
           />
           <CommonForm.ReadonlyRow
-            name={"recentLoggedInAt"}
             label={"최근 로그인"}
             value={form.watch("recentLoggedInAt")}
             formatter={(v) => {
@@ -127,7 +120,6 @@ export default function UserDetailForm({
             }}
           />
           <CommonForm.ReadonlyRow
-            name={"isWithdraw"}
             label={"탈퇴여부"}
             value={form.watch("isWithdraw")}
             formatter={(v) => {
@@ -140,7 +132,6 @@ export default function UserDetailForm({
         </FormGroup>
         <FormGroup title={"프로필 정보"}>
           <CommonForm.ReadonlyRow
-            name={"profileUrl"}
             label={"프로필 이미지"}
             value={form.watch("profileUrl")}
             formatter={(v) => {
@@ -148,24 +139,20 @@ export default function UserDetailForm({
             }}
           />
           <CommonForm.ReadonlyRow
-            name={"phoneNumber"}
             label={"휴대폰 번호"}
             value={form.watch("phoneNumber")}
           />
           <CommonForm.ReadonlyRow
-            name={"email"}
             label={"이메일"}
             value={form.watch("email")}
           />
           <CommonForm.ReadonlyRow
-            name={"intro"}
             label={"소개글"}
             value={form.watch("intro")}
           />
         </FormGroup>
         <FormGroup title={"사진 정보"}>
           <CommonForm.ReadonlyRow<{ src: string; title: string }[]>
-            name={"pictureUrlList"}
             label={"사진"}
             value={form.watch("pictureUrlList")}
             formatter={(urlList) => {

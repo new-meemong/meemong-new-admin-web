@@ -16,6 +16,7 @@ export const dummyContents: PaginatedResponse<IContents> = {
   content: [
     {
       id: 1,
+      userId: 1,
       nickname: "모델김",
       userType: "MODEL",
       title: "번개 알바 구합니다",
@@ -25,6 +26,7 @@ export const dummyContents: PaginatedResponse<IContents> = {
     },
     {
       id: 2,
+      userId: 2,
       nickname: "디자이너최",
       userType: "DESIGNER",
       title: "디자인 프리미엄 번개 모집",
@@ -34,6 +36,7 @@ export const dummyContents: PaginatedResponse<IContents> = {
     },
     {
       id: 3,
+      userId: 3,
       nickname: "홍디자",
       userType: "MODEL",
       title: "강남 스튜디오 디자이너 모집",
@@ -44,6 +47,7 @@ export const dummyContents: PaginatedResponse<IContents> = {
     },
     {
       id: 4,
+      userId: 4,
       nickname: "모집짱",
       userType: "DESIGNER",
       title: "대형 촬영 모집 공고",
@@ -71,7 +75,9 @@ export type GetContentsRequest = {
   page?: number;
   size?: number;
 };
+
 export type GetContentsResponse = PaginatedResponse<IContents>;
+
 
 export const contentsAPI = {
   getAll: ({
@@ -84,7 +90,7 @@ export const contentsAPI = {
     searchKeyword,
     page = 1,
     size = DEFAULT_PAGE_SIZE,
-  }: GetContentsRequest): Promise<PaginatedResponse<IContents>> =>
+  }: GetContentsRequest): Promise<GetContentsResponse> =>
     mockFetch(dummyContents, {
       categoryId,
       userType,

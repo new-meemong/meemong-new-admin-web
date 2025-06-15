@@ -13,8 +13,11 @@ export function FormGroup({
   ...props
 }: FormGroupProps) {
   return (
-    <div className={cn("h-full form-group flex flex-row items-center", className)} {...props}>
-      {(title) && (
+    <div
+      className={cn("form-group flex flex-row items-start", className)}
+      {...props}
+    >
+      {title && (
         <div className="flex flex-row self-start min-w-[80px] w-[15%] h-full form-group-title mt-[10px] typo-title-2-semibold text-foreground">
           <span>{title}</span>
         </div>
