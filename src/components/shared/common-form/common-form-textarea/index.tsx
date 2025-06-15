@@ -31,10 +31,12 @@ export function CommonFormTextarea<TFieldValues extends FieldValues>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("flex flex-row border-b py-[6px]", className)}>
-          <FormLabel>{label}</FormLabel>
+        <FormItem className={cn("flex flex-col mt-[20px]", className)}>
+          <FormLabel className="w-full shrink-0 text-foreground-strong">
+            {label}
+          </FormLabel>
           <FormControl>
-            <Textarea {...field} {...props} />
+            <Textarea className={cn('w-full')} {...field} {...props} />
           </FormControl>
         </FormItem>
       )}

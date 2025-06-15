@@ -26,7 +26,7 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
           label={"컨텐츠 관리"}
         />
         <SideNavItem
-          href={"/report"}
+          href={"/declaration"}
           icon={<IcReportMenu />}
           label={"신고 관리"}
         />

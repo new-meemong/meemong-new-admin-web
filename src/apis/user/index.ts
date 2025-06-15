@@ -70,6 +70,7 @@ const dummyUserDetail: IUserForm = {
 export type GetUsersRequest = {
   userType?: UserType;
   blockType?: BlockType;
+  searchType?: string;
   searchKeyword?: string;
   page?: number;
   size?: number;

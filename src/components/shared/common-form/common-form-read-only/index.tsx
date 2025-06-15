@@ -10,30 +10,32 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 
-interface CommonFormReadonlyProps {
+interface CommonFormReadonlyProps<T> {
   name: string;
   label: string;
-  value?: string | number | boolean;
-  formatter?: (value: string | number | boolean) => React.ReactNode;
+  value?: T;
+  formatter?: (value: T) => React.ReactNode;
   className?: string;
 }
 
-export function CommonFormReadonly({
+export function CommonFormReadonly<T>({
   name,
   label,
   value,
   formatter,
   className,
-}: CommonFormReadonlyProps) {
+}: CommonFormReadonlyProps<T>) {
   return (
     <FormField
       name={name}
       render={() => (
         <FormItem className={cn("flex flex-col mt-[20px]", className)}>
-          <FormLabel className="w-full shrink-0 text-foreground-strong">{label}</FormLabel>
+          <FormLabel className="w-full shrink-0 text-foreground-strong">
+            {label}
+          </FormLabel>
           <FormControl>
             <div className="typo-body-2-regular">
-              {formatter && value ? formatter(value) : String(value ?? "-")}
+              {formatter ? formatter(value as T) : String(value ?? "-")}
             </div>
           </FormControl>
         </FormItem>

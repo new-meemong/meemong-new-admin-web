@@ -16,6 +16,7 @@ interface BannerPageContentProps {
 
 function BannerPageContent({ className }: BannerPageContentProps) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [currentSize, setCurrentSize] = useState<number>(DEFAULT_PAGE_SIZE);
 
   const searchForm = useSearchForm<BannerSearchFormValues>({
     defaultValues: {
@@ -42,8 +43,9 @@ function BannerPageContent({ className }: BannerPageContentProps) {
         data={getBannersQuery.data?.content ?? []}
         totalCount={getBannersQuery.data?.totalCount ?? 0}
         currentPage={currentPage}
+        pageSize={currentSize}
         onPageChange={setCurrentPage}
-        onSizeChange={() => {}}
+        onSizeChange={setCurrentSize}
       />
     </div>
   );

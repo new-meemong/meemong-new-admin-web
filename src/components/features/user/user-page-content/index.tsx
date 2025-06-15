@@ -42,6 +42,7 @@ function UserPageContent({ className }: UserPageContentProps) {
         searchForm.values.blockType === "ALL"
           ? undefined
           : (searchForm.values.blockType as BlockType),
+      searchType: searchForm.values.searchType,
       searchKeyword: searchForm.values.searchKeyword,
     },
     {

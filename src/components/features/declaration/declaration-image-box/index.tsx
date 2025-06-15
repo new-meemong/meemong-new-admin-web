@@ -1,0 +1,40 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+
+interface DeclarationImageBoxProps {
+  src: string;
+  alt?: string;
+  width?: number;
+  height?: number;
+  className?: string;
+}
+
+export default function DeclarationImageBox({
+  src,
+  alt = "image",
+  width = 203,
+  height = 65,
+  className,
+}: DeclarationImageBoxProps) {
+  return (
+    <div className={cn("banner-image-box flex justify-center")}>
+      <div
+        className={cn(
+          "flex items-center justify-center overflow-hidden bg-gray-300",
+          className,
+        )}
+        style={{ width, height }}
+      >
+        <Image
+          src={src}
+          alt={alt!}
+          width={width}
+          height={height}
+          className="object-cover"
+        />
+      </div>
+    </div>
+  );
+}
