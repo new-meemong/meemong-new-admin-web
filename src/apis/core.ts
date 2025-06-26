@@ -6,7 +6,7 @@ export interface FetcherOptions extends RequestInit {
 
 export async function fetcher<T>(
   endpoint: string,
-  { baseUrl = "", query, headers, ...options }: FetcherOptions = {},
+  { baseUrl = process.env.NEXT_PUBLIC_API_URL, query, headers, ...options }: FetcherOptions = {},
 ): Promise<T> {
   const url = new URL(baseUrl + endpoint, window.location.origin);
 

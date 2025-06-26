@@ -55,7 +55,7 @@ function UserTable({
       enableSorting: false,
     },
     {
-      accessorKey: "nickname",
+      accessorKey: "displayName",
       header: "닉네임",
       cell: (info) => (
         <span

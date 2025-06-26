@@ -3,7 +3,7 @@ import { fetcher } from "@/apis/core";
 import { PaginatedResponse } from "@/apis/types";
 import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
 
-const BASE_URL = "/api/admin/users";
+const BASE_URL = "/api/v1/admins/users";
 
 // TODO: 실제 api 값으로 변경
 
@@ -78,10 +78,25 @@ export type GetUsersRequest = {
 export type GetUsersResponse = PaginatedResponse<IUser>;
 
 export const userAPI = {
-  /*  getAll: () => fetcher<IUser[]>(BASE_URL),
-
-  getById: (id: number) => fetcher<IUserForm>(`${BASE_URL}/${id}`),*/
+  /*  getAll: () => fetcher<IUser[]>(BASE_URL),*/
   getAll: ({
+    userType,
+    blockType,
+    searchKeyword,
+    searchType,
+    page = 1,
+    size = DEFAULT_PAGE_SIZE,
+  }: GetUsersRequest) =>
+    fetcher<IUser[]>(BASE_URL, {
+      query: {
+        ...(userType && { userType }),
+        ...(blockType && { blockType }),
+        ...(searchKeyword && searchType && { searchKeyword, searchType }),
+        page,
+        size,
+      },
+    }),
+  /*getAll: ({
     userType,
     blockType,
     searchKeyword,
@@ -94,10 +109,13 @@ export const userAPI = {
       searchKeyword,
       page,
       size,
-    }),
+    }),*/
   getById: ({ userId }: { userId: number }): Promise<IUserForm> => {
     return mockFetch(dummyUserDetail, { userId });
   },
+  /*
+  getById: (id: number) => fetcher<IUserForm>(`${BASE_URL}/${id}`),
+*/
   create: (user: Omit<IUserForm, "id">) =>
     fetcher<IUser>(BASE_URL, {
       method: "POST",
