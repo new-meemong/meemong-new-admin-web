@@ -1,7 +1,8 @@
-import { BlockType, IUser, IUserForm, UserType } from "@/models/user";
+import { BlockType, IUser, IUserForm, UserRoleType } from "@/models/user";
 import { fetcher } from "@/apis/core";
 import { PaginatedResponse } from "@/apis/types";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import { SearchType } from "@/models/common";
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 
 const BASE_URL = "/api/v1/admins/users";
 
@@ -13,23 +14,24 @@ function mockFetch<T>(data: T, params?: unknown, delay = 300): Promise<T> {
 }
 
 // 더미 목록 데이터
+/*
 const dummyUsers: PaginatedResponse<IUser> = {
   content: [
     {
       id: 1,
-      userType: "MODEL",
+      role: 1,
       nickname: "모델유저",
       createdAt: "2024-01-10T12:34:56",
-      recentLoggedInAt: "2025-05-29T10:00:00",
+      recentLoginTime: "2025-05-29T10:00:00",
       isWithdraw: true,
       isBlocked: false,
     },
     {
       id: 2,
-      userType: "DESIGNER",
+      role: 2,
       nickname: "디자이너홍",
       createdAt: "2023-11-22T08:10:30",
-      recentLoggedInAt: "2025-05-25T15:44:12",
+      recentLoginTime: "2025-05-25T15:44:12",
       isWithdraw: false,
       isBlocked: true,
     },
@@ -38,14 +40,15 @@ const dummyUsers: PaginatedResponse<IUser> = {
   page: 1, // 현재 페이지
   size: 10, // 페이지당 10개
 };
+*/
 
 // 더미 상세 데이터
 const dummyUserDetail: IUserForm = {
   id: 1,
-  userType: "MODEL",
+  role: 1,
   nickname: "모델유저",
   createdAt: "2024-01-10T12:34:56",
-  recentLoggedInAt: "2025-05-29T10:00:00",
+  recentLoginTime: "2025-05-29T10:00:00",
   isWithdraw: false,
   isBlocked: false,
   userNumber: "M123456",
@@ -68,9 +71,9 @@ const dummyUserDetail: IUserForm = {
 };
 
 export type GetUsersRequest = {
-  userType?: UserType;
+  role?: UserRoleType;
   blockType?: BlockType;
-  searchType?: string;
+  searchType?: SearchType;
   searchKeyword?: string;
   page?: number;
   size?: number;
@@ -80,16 +83,16 @@ export type GetUsersResponse = PaginatedResponse<IUser>;
 export const userAPI = {
   /*  getAll: () => fetcher<IUser[]>(BASE_URL),*/
   getAll: ({
-    userType,
+    role,
     blockType,
     searchKeyword,
     searchType,
-    page = 1,
-    size = DEFAULT_PAGE_SIZE,
+    page = DEFAULT_PAGINATION.page,
+    size = DEFAULT_PAGINATION.size,
   }: GetUsersRequest) =>
-    fetcher<IUser[]>(BASE_URL, {
+    fetcher<GetUsersResponse>(BASE_URL, {
       query: {
-        ...(userType && { userType }),
+        ...(role && { role }),
         ...(blockType && { blockType }),
         ...(searchKeyword && searchType && { searchKeyword, searchType }),
         page,
@@ -97,14 +100,14 @@ export const userAPI = {
       },
     }),
   /*getAll: ({
-    userType,
+    role,
     blockType,
     searchKeyword,
     page = 1,
     size = DEFAULT_PAGE_SIZE,
   }: GetUsersRequest): Promise<GetUsersResponse> =>
     mockFetch(dummyUsers, {
-      userType,
+      role,
       blockType,
       searchKeyword,
       page,

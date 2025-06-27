@@ -1,5 +1,5 @@
 import { PaginatedResponse } from "@/apis/types";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { IDeclaration, IDeclarationForm } from "@/models/declaration";
 import { DeclarationStatusType } from "@/constants/declaration";
 import { SearchType } from "@/models/common";
@@ -74,8 +74,8 @@ export const declarationAPI = {
     status,
     searchType,
     searchKeyword,
-    page = 1,
-    size = DEFAULT_PAGE_SIZE,
+    page = DEFAULT_PAGINATION.page,
+    size = DEFAULT_PAGINATION.size,
   }: GetDeclarationsRequest): Promise<GetDeclarationsResponse> =>
     mockFetch(dummyBanners, {
       status,

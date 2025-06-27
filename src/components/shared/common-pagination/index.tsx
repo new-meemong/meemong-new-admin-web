@@ -8,9 +8,9 @@ import {
   PaginationNext,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
 import SelectBox from "@/components/shared/select-box";
 import { cn } from "@/lib/utils";
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 
 export interface CommonPaginationProps {
   currentPage: number;
@@ -28,7 +28,7 @@ function range(start: number, end: number): number[] {
 export default function CommonPagination({
   currentPage,
   totalCount,
-  pageSize = DEFAULT_PAGE_SIZE,
+  pageSize = DEFAULT_PAGINATION.size,
   onPageChange,
   onSizeChange,
   siblingCount = 1,

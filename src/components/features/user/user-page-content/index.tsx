@@ -1,51 +1,51 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import UserSearchForm, {
-  IUserSearchForm,
+  IUserSearchParams,
 } from "@/components/features/user/user-search-form";
-import useSearchForm from "@/components/shared/search-form/useSearchForm";
+import useSearchMethods from "@/components/shared/search-form/useSearchMethods";
 import UserTable from "@/components/features/user/user-table";
 import { useGetUsersQuery } from "@/queries/users";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
-import { BlockType, UserType } from "@/models/user";
-
-const DEFAULT_SEARCH_FORM: IUserSearchForm = {
-  userType: "ALL",
-  blockType: "ALL",
-  searchType: "UUID",
-  searchKeyword: "",
-};
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
+import { BlockType, UserRoleType } from "@/models/user";
 
 interface UserPageContentProps {
   className?: string;
 }
 
 function UserPageContent({ className }: UserPageContentProps) {
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [currentSize, setCurrentSize] = useState<number>(DEFAULT_PAGE_SIZE);
-  const [searchParams, setSearchParams] =
-    useState<IUserSearchForm>(DEFAULT_SEARCH_FORM);
+  const DEFAULT_SEARCH_PARAMS: IUserSearchParams = {
+    role: "ALL",
+    blockType: "ALL",
+    searchType: "UID",
+    searchKeyword: "",
+    ...DEFAULT_PAGINATION,
+  };
 
-  const searchForm = useSearchForm<IUserSearchForm>({
-    defaultValues: DEFAULT_SEARCH_FORM,
+  const [searchParams, setSearchParams] = useState<IUserSearchParams>(
+    DEFAULT_SEARCH_PARAMS,
+  );
+
+  const methods = useSearchMethods<IUserSearchParams>({
+    defaultValues: DEFAULT_SEARCH_PARAMS,
   });
 
   const getUsersQuery = useGetUsersQuery(
     {
-      page: currentPage,
-      size: currentSize,
-      userType:
-        searchParams.userType === "ALL"
+      role:
+        searchParams.role === "ALL"
           ? undefined
-          : (searchParams.userType as UserType),
+          : (Number(searchParams.role) as UserRoleType),
       blockType:
         searchParams.blockType === "ALL"
           ? undefined
           : (searchParams.blockType as BlockType),
       searchType: searchParams.searchType,
       searchKeyword: searchParams.searchKeyword,
+      page: searchParams.page,
+      size: searchParams.size,
     },
     {
       enabled: false,
@@ -54,27 +54,38 @@ function UserPageContent({ className }: UserPageContentProps) {
 
   useEffect(() => {
     getUsersQuery.refetch();
-  }, [currentPage, currentSize, searchParams]);
+  }, [searchParams]);
 
   return (
     <div className={cn("user-page-content", className)}>
       <UserSearchForm
-        searchForm={searchForm}
+        methods={methods}
         onSubmit={() => {
-          setSearchParams({ ...searchForm.values }); // 검색 조건을 state로 저장
-          setCurrentPage(1); // 검색 시 페이지 초기화
+          setSearchParams({ ...methods.values, page: 1 });
         }}
         onRefresh={() => {
-          searchForm.handleReset();
+          methods.handleReset();
+          setSearchParams({ ...DEFAULT_SEARCH_PARAMS });
         }}
       />
       <UserTable
         data={getUsersQuery.data?.content ?? []}
         totalCount={getUsersQuery.data?.totalCount ?? 0}
-        currentPage={currentPage}
-        pageSize={currentSize}
-        onPageChange={setCurrentPage}
-        onSizeChange={setCurrentSize}
+        currentPage={searchParams.page}
+        pageSize={searchParams.size}
+        onPageChange={(page) => {
+          setSearchParams({
+            ...searchParams,
+            page,
+          });
+        }}
+        onSizeChange={(size) => {
+          setSearchParams({
+            ...searchParams,
+            page: 1,
+            size,
+          });
+        }}
       />
     </div>
   );

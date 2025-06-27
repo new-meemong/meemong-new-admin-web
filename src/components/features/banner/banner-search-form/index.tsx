@@ -7,19 +7,20 @@ import {
   SearchFormInput,
   SearchFormProps,
 } from "@/components/shared/search-form";
-import { IUseSearchForm } from "@/components/shared/search-form/useSearchForm";
+import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMethods";
+import { PaginationType } from "@/models/common";
 
-export type BannerSearchFormValues = {
+export type IBannerSearchParams = {
   searchKeyword?: string;
-};
+} & PaginationType;
 
 interface BannerSearchFormProps extends SearchFormProps {
-  searchForm: IUseSearchForm<BannerSearchFormValues>;
+  methods: IUseSearchMethods<IBannerSearchParams>;
   className?: string;
 }
 
 function BannerSearchForm({
-  searchForm,
+  methods,
   className,
   ...props
 }: BannerSearchFormProps) {
@@ -27,9 +28,9 @@ function BannerSearchForm({
     <SearchForm className={cn("banner-search-form", className)} {...props}>
       <SearchFormInput
         name="searchKeyword"
-        onChange={searchForm.handleChangeText}
+        onChange={methods.handleChangeText}
         placeholder="고객사명"
-        value={searchForm.values.searchKeyword}
+        value={methods.values.searchKeyword}
       />
     </SearchForm>
   );

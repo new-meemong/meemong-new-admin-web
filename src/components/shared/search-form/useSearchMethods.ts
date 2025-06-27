@@ -1,12 +1,12 @@
 import { ChangeEventHandler, useState } from "react";
 
-interface IUseSearchFormParams<
+interface IUseSearchMethodsParams<
   T extends Record<string, string | number | string[]>,
 > {
   defaultValues: T;
 }
 
-export interface IUseSearchForm<
+export interface IUseSearchMethods<
   T extends Record<string, string | number | string[]>,
 > {
   values: T;
@@ -16,9 +16,9 @@ export interface IUseSearchForm<
   handleSelect: (params: { key: keyof T; value: T[keyof T] }) => void;
 }
 
-export default function useSearchForm<
+export default function useSearchMethods<
   T extends Record<string, string | number | string[]>,
->(params: IUseSearchFormParams<T>): IUseSearchForm<T> {
+>(params: IUseSearchMethodsParams<T>): IUseSearchMethods<T> {
   const [values, setValues] = useState<T>(params.defaultValues);
 
   const handleSubmit = () => {

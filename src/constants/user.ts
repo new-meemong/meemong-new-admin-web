@@ -1,8 +1,8 @@
-import { JoinType, UserType } from "@/models/user";
+import { JoinType, UserRoleType } from "@/models/user";
 
-export const USER_TYPE_MAP: Record<UserType, string> = {
-  MODEL: "모델",
-  DESIGNER: "디자이너",
+export const USER_TYPE_MAP: Record<UserRoleType, string> = {
+  1: "모델",
+  2: "디자이너",
 } as const;
 
 export const JOIN_TYPE_MAP: Record<JoinType, string> = {

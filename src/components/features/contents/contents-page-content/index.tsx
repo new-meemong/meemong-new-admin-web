@@ -2,9 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import useSearchForm from "@/components/shared/search-form/useSearchForm";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
-import { UserType } from "@/models/user";
+import useSearchMethods from "@/components/shared/search-form/useSearchMethods";
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { useGetContentsQuery } from "@/queries/contents";
 import {
   ApproveType,
@@ -13,10 +12,11 @@ import {
   RecruitmentType,
 } from "@/models/contents";
 import ContentsSearchForm, {
-  IContentsSearchForm,
+  IContentsSearchParams,
 } from "@/components/features/contents/contents-search-form";
 import ContentsTable from "@/components/features/contents/contents-table";
 import { useContentsContext } from "@/components/contexts/contents-context";
+import { UserRoleType } from "@/models/user";
 
 interface ContentsPageContentProps {
   className?: string;
@@ -24,76 +24,93 @@ interface ContentsPageContentProps {
 
 function ContentsPageContent({ className }: ContentsPageContentProps) {
   const { tabId } = useContentsContext();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [currentSize, setCurrentSize] = useState<number>(DEFAULT_PAGE_SIZE);
 
-  const DEFAULT_SEARCH_FORM: IContentsSearchForm = {
+  const DEFAULT_SEARCH_PARAMS: IContentsSearchParams = {
     categoryId: Number(tabId),
-    userType: "ALL",
+    role: "ALL",
     approveType: "ALL",
     company: "",
     jobCategory: "ALL",
     recruitment: "ALL",
     costType: "ALL",
-    searchType: "UUID",
+    searchType: "UID",
     searchKeyword: "",
+    ...DEFAULT_PAGINATION,
   };
 
-  const searchForm = useSearchForm<IContentsSearchForm>({
-    defaultValues: DEFAULT_SEARCH_FORM,
+  const [searchParams, setSearchParams] = useState<IContentsSearchParams>(
+    DEFAULT_SEARCH_PARAMS,
+  );
+
+  const methods = useSearchMethods<IContentsSearchParams>({
+    defaultValues: DEFAULT_SEARCH_PARAMS,
   });
 
   const getContentsQuery = useGetContentsQuery({
-    page: currentPage - 1,
-    size: DEFAULT_PAGE_SIZE,
-    categoryId: searchForm.values.categoryId,
-    company: searchForm.values.company ?? "",
-    userType:
-      searchForm.values.userType === "ALL"
+    categoryId: searchParams.categoryId,
+    company: searchParams.company ?? "",
+    role:
+      searchParams.role === "ALL"
         ? undefined
-        : (searchForm.values.userType as UserType),
+        : (Number(searchParams.role) as UserRoleType),
     approveType:
-      searchForm.values.approveType === "ALL"
+      searchParams.approveType === "ALL"
         ? undefined
-        : (searchForm.values.approveType as ApproveType),
+        : (searchParams.approveType as ApproveType),
     costType:
-      searchForm.values.costType === "ALL"
+      searchParams.costType === "ALL"
         ? undefined
-        : (searchForm.values.costType as CostType),
+        : (searchParams.costType as CostType),
     recruitment:
-      searchForm.values.recruitment === "ALL"
+      searchParams.recruitment === "ALL"
         ? undefined
-        : (searchForm.values.recruitment as RecruitmentType),
+        : (searchParams.recruitment as RecruitmentType),
     jobCategory:
-      searchForm.values.jobCategory === "ALL"
+      searchParams.jobCategory === "ALL"
         ? undefined
-        : (searchForm.values.jobCategory as JobCategoryType),
-    searchKeyword: searchForm.values.searchKeyword,
+        : (searchParams.jobCategory as JobCategoryType),
+    searchKeyword: searchParams.searchKeyword,
+    page: searchParams.page,
+    size: searchParams.size,
   });
 
   useEffect(() => {
-    setCurrentPage(1);
+    setSearchParams({
+      ...searchParams,
+      page: 1,
+    });
   }, [tabId]);
 
   return (
     <div className={cn("contents-page-content", className)}>
       <ContentsSearchForm
-        searchForm={searchForm}
+        methods={methods}
         onSubmit={() => {
-          setCurrentPage(1);
+          setSearchParams({ ...methods.values, page: 1 });
         }}
         onRefresh={() => {
-          searchForm.handleReset();
-          setCurrentPage(1); // 검색 시 페이지 초기화
+          methods.handleReset();
+          setSearchParams({ ...DEFAULT_SEARCH_PARAMS });
         }}
       />
       <ContentsTable
         data={getContentsQuery.data?.content ?? []}
         totalCount={getContentsQuery.data?.totalCount ?? 0}
-        currentPage={currentPage}
-        pageSize={currentSize}
-        onPageChange={setCurrentPage}
-        onSizeChange={setCurrentSize}
+        currentPage={searchParams.page}
+        pageSize={searchParams.size}
+        onPageChange={(page) => {
+          setSearchParams({
+            ...searchParams,
+            page,
+          });
+        }}
+        onSizeChange={(size) => {
+          setSearchParams({
+            ...searchParams,
+            page: 1,
+            size,
+          });
+        }}
       />
     </div>
   );

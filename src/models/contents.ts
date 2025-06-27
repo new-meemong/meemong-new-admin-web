@@ -1,4 +1,4 @@
-import { UserType } from "@/models/user";
+import { UserRoleType } from "@/models/user";
 
 export type ContentsCategoryType = "0" | "1" | "2" | "3" | "4"; // 0: 번개/일반, 1: 번개/프리미엄, 2: 구인공고, 3: 이력서, 4: 모집공고
 
@@ -25,7 +25,7 @@ export interface IContents {
   id: number;
   userId: number; // 작성자 ID
   nickname: string; // 닉네임
-  userType: UserType; // 작성자 타입
+  role: UserRoleType; // 작성자 타입
   title: string; // 제목
   company?: string; // 업체명
   noticeId?: number; // 게시물 ID

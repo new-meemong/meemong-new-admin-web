@@ -2,42 +2,44 @@
 
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import useSearchForm from "@/components/shared/search-form/useSearchForm";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import useSearchForm from "@/components/shared/search-form/useSearchMethods";
 import DeclarationSearchForm, {
-  IDeclarationSearchForm,
+  IDeclarationSearchParams,
 } from "@/components/features/declaration/declaration-search-form";
 import { useGetDeclarationsQuery } from "@/queries/declaration";
 import DeclarationTable from "@/components/features/declaration/declaration-table";
 import { DeclarationStatusType } from "@/constants/declaration";
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 
 interface DeclarationPageContentProps {
   className?: string;
 }
 
 function DeclarationPageContent({ className }: DeclarationPageContentProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [currentSize, setCurrentSize] = useState<number>(DEFAULT_PAGE_SIZE);
-
-  const DEFAULT_SEARCH_FORM: IDeclarationSearchForm = {
+  const DEFAULT_SEARCH_PARAMS: IDeclarationSearchParams = {
     status: "ALL",
-    searchType: "UUID",
+    searchType: "UID",
     searchKeyword: "",
+    ...DEFAULT_PAGINATION,
   };
 
-  const searchForm = useSearchForm<IDeclarationSearchForm>({
-    defaultValues: DEFAULT_SEARCH_FORM,
+  const [searchParams, setSearchParams] = useState<IDeclarationSearchParams>(
+    DEFAULT_SEARCH_PARAMS,
+  );
+
+  const searchForm = useSearchForm<IDeclarationSearchParams>({
+    defaultValues: DEFAULT_SEARCH_PARAMS,
   });
 
   const getDeclarationsQuery = useGetDeclarationsQuery({
-    page: currentPage - 1,
-    size: currentSize,
     status:
-      searchForm.values.status === "ALL"
+      searchParams.status === "ALL"
         ? undefined
-        : (searchForm.values.status as DeclarationStatusType),
-    searchType: searchForm.values.searchType,
-    searchKeyword: searchForm.values.searchKeyword,
+        : (searchParams.status as DeclarationStatusType),
+    searchType: searchParams.searchType,
+    searchKeyword: searchParams.searchKeyword,
+    page: searchParams.page,
+    size: searchParams.size,
   });
 
   return (
@@ -45,20 +47,31 @@ function DeclarationPageContent({ className }: DeclarationPageContentProps) {
       <DeclarationSearchForm
         searchForm={searchForm}
         onSubmit={() => {
-          setCurrentPage(1);
+          setSearchParams({ ...searchParams, page: 1 });
         }}
         onRefresh={() => {
           searchForm.handleReset();
-          setCurrentPage(1); // 검색 시 페이지 초기화
+          setSearchParams({ ...DEFAULT_SEARCH_PARAMS });
         }}
       />
       <DeclarationTable
         data={getDeclarationsQuery.data?.content ?? []}
         totalCount={getDeclarationsQuery.data?.totalCount ?? 0}
-        currentPage={currentPage}
-        pageSize={currentSize}
-        onPageChange={setCurrentPage}
-        onSizeChange={setCurrentSize}
+        currentPage={searchParams.page}
+        pageSize={searchParams.size}
+        onPageChange={(page) => {
+          setSearchParams({
+            ...searchParams,
+            page,
+          });
+        }}
+        onSizeChange={(size) => {
+          setSearchParams({
+            ...searchParams,
+            page: 1,
+            size,
+          });
+        }}
       />
     </div>
   );

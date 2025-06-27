@@ -1,6 +1,7 @@
 import { PaginatedResponse } from "@/apis/types";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
 import { IContents } from "@/models/contents";
+import { UserRoleType } from "@/models/user";
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 
 //const BASE_URL = "/api/admin/contents";
 
@@ -18,7 +19,7 @@ export const dummyContents: PaginatedResponse<IContents> = {
       id: 1,
       userId: 1,
       nickname: "모델김",
-      userType: "MODEL",
+      role: 1,
       title: "번개 알바 구합니다",
       createdAt: "2024-05-01T10:00:00",
       isDeleted: false,
@@ -28,7 +29,7 @@ export const dummyContents: PaginatedResponse<IContents> = {
       id: 2,
       userId: 2,
       nickname: "디자이너최",
-      userType: "DESIGNER",
+      role: 2,
       title: "디자인 프리미엄 번개 모집",
       createdAt: "2024-05-02T14:00:00",
       isDeleted: false,
@@ -38,7 +39,7 @@ export const dummyContents: PaginatedResponse<IContents> = {
       id: 3,
       userId: 3,
       nickname: "홍디자",
-      userType: "MODEL",
+      role: 1,
       title: "강남 스튜디오 디자이너 모집",
       company: "디자인하우스",
       createdAt: "2024-04-29T11:20:00",
@@ -49,7 +50,7 @@ export const dummyContents: PaginatedResponse<IContents> = {
       id: 4,
       userId: 4,
       nickname: "모집짱",
-      userType: "DESIGNER",
+      role: 2,
       title: "대형 촬영 모집 공고",
       recruitment: "1",
       costType: "2",
@@ -65,7 +66,7 @@ export const dummyContents: PaginatedResponse<IContents> = {
 
 export type GetContentsRequest = {
   categoryId: number;
-  userType?: string;
+  role?: UserRoleType;
   approveType?: string;
   company?: string;
   jobCategory?: string;
@@ -82,18 +83,18 @@ export type GetContentsResponse = PaginatedResponse<IContents>;
 export const contentsAPI = {
   getAll: ({
     categoryId,
-    userType,
+    role,
     company,
     jobCategory,
     recruitment,
     costType,
     searchKeyword,
-    page = 1,
-    size = DEFAULT_PAGE_SIZE,
+    page = DEFAULT_PAGINATION.page,
+    size = DEFAULT_PAGINATION.size,
   }: GetContentsRequest): Promise<GetContentsResponse> =>
     mockFetch(dummyContents, {
       categoryId,
-      userType,
+      role,
       company,
       jobCategory,
       recruitment,

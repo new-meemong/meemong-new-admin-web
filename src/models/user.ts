@@ -1,6 +1,6 @@
 // TODO: 실제 스키마 기준으로 변경 필요
 
-export type UserType = "MODEL" | "DESIGNER"; // 유저 타입
+export type UserRoleType = 1 | 2; // 유저 타입
 
 export type BlockType = "0" | "1" | "2"; // 0: 전체, 1: 차단, 2: 탈퇴
 
@@ -14,10 +14,10 @@ export type BlockInfo = {
 
 export interface IUser {
   id: number;
-  userType: UserType; // 유형
+  role: UserRoleType; // 유형
   nickname: string; // 닉네임
   createdAt: string; // 가입일
-  recentLoggedInAt: string; // 최근 접속일
+  recentLoginTime: string; // 최근 접속일
   isWithdraw: boolean; // 탈퇴여부
   isBlocked: boolean; // 차단여부
 }

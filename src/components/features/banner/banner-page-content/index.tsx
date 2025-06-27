@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import useSearchForm from "@/components/shared/search-form/useSearchForm";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import useSearchMethods from "@/components/shared/search-form/useSearchMethods";
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import BannerSearchForm, {
-  BannerSearchFormValues,
+  IBannerSearchParams,
 } from "@/components/features/banner/banner-search-form";
 import BannerTable from "@/components/features/banner/banner-table";
 import { useGetBannersQuery } from "@/queries/banner";
@@ -15,37 +15,55 @@ interface BannerPageContentProps {
 }
 
 function BannerPageContent({ className }: BannerPageContentProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [currentSize, setCurrentSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const DEFAULT_SEARCH_PARAMS: IBannerSearchParams = {
+    searchKeyword: "",
+    ...DEFAULT_PAGINATION,
+  };
 
-  const searchForm = useSearchForm<BannerSearchFormValues>({
-    defaultValues: {
-      searchKeyword: "",
-    },
+  const [searchParams, setSearchParams] = useState<IBannerSearchParams>(
+    DEFAULT_SEARCH_PARAMS,
+  );
+
+  const methods = useSearchMethods<IBannerSearchParams>({
+    defaultValues: DEFAULT_SEARCH_PARAMS,
   });
 
   const getBannersQuery = useGetBannersQuery({
-    page: currentPage - 1,
-    size: DEFAULT_PAGE_SIZE,
-    searchKeyword: searchForm.values.searchKeyword,
+    searchKeyword: searchParams.searchKeyword,
+    page: searchParams.page,
+    size: searchParams.size,
   });
 
   return (
     <div className={cn("banner-page-content", className)}>
       <BannerSearchForm
-        searchForm={searchForm}
+        methods={methods}
         onSubmit={() => {
-          setCurrentPage(1); // 검색 시 페이지 초기화
+          setSearchParams({ ...methods.values, page: 1 });
         }}
-        onRefresh={() => {}}
+        onRefresh={() => {
+          methods.handleReset();
+          setSearchParams({ ...DEFAULT_SEARCH_PARAMS });
+        }}
       />
       <BannerTable
         data={getBannersQuery.data?.content ?? []}
         totalCount={getBannersQuery.data?.totalCount ?? 0}
-        currentPage={currentPage}
-        pageSize={currentSize}
-        onPageChange={setCurrentPage}
-        onSizeChange={setCurrentSize}
+        currentPage={searchParams.page}
+        pageSize={searchParams.size}
+        onPageChange={(page) => {
+          setSearchParams({
+            ...searchParams,
+            page,
+          });
+        }}
+        onSizeChange={(size) => {
+          setSearchParams({
+            ...searchParams,
+            page: 1,
+            size,
+          });
+        }}
       />
     </div>
   );

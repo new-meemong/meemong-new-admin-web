@@ -8,20 +8,20 @@ import {
   SearchFormProps,
   SearchFormSelectBox,
 } from "@/components/shared/search-form";
-import { IUseSearchForm } from "@/components/shared/search-form/useSearchForm";
-import { SearchType } from "@/models/common";
+import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMethods";
+import { PaginationType, SearchType } from "@/models/common";
 import { DeclarationStatusType } from "@/constants/declaration";
 
 type DeclarationStatusWithAll = DeclarationStatusType | "ALL";
 
-export type IDeclarationSearchForm = {
+export type IDeclarationSearchParams = {
   status?: DeclarationStatusWithAll;
   searchType?: SearchType;
   searchKeyword?: string;
-};
+} & PaginationType;
 
 interface DeclarationSearchFormProps extends SearchFormProps {
-  searchForm: IUseSearchForm<IDeclarationSearchForm>;
+  searchForm: IUseSearchMethods<IDeclarationSearchParams>;
   className?: string;
 }
 
@@ -42,14 +42,14 @@ function DeclarationSearchForm({
   ];
 
   const SEARCH_TYPE_OPTIONS: { value: SearchType; label: string }[] = [
-    { value: "UUID", label: "uuid" },
-    { value: "NICKNAME", label: "닉네임" },
+    { value: "UID", label: "uuid" },
+    { value: "NAME", label: "닉네임" },
     { value: "PHONE", label: "전화번호" },
   ];
 
   return (
     <SearchForm className={cn("declaration-search-form", className)} {...props}>
-      <SearchFormSelectBox<IDeclarationSearchForm>
+      <SearchFormSelectBox<IDeclarationSearchParams>
         name="status"
         value={searchForm.values.status!}
         defaultValue={"ALL"}
@@ -57,7 +57,7 @@ function DeclarationSearchForm({
         options={STATUS_TYPE_OPTIONS}
         title="처리상태"
       />
-      <SearchFormSelectBox<IDeclarationSearchForm>
+      <SearchFormSelectBox<IDeclarationSearchParams>
         className={cn("w-[114px] ml-[10px]")}
         name="searchType"
         value={searchForm.values.searchType!}

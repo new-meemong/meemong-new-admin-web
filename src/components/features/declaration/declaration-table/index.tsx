@@ -12,7 +12,7 @@ import CommonPagination, {
 import { formatDate } from "@/utils/date";
 import { IDeclaration } from "@/models/declaration";
 import { DeclarationStatusType } from "@/constants/declaration";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { useModal } from "@/components/shared/modal/useModal";
 import DeclarationDetailModal from "@/components/features/declaration/declaration-detail-modal";
 
@@ -28,8 +28,8 @@ function DeclarationTable({
   className,
   data,
   totalCount,
-  currentPage = 1,
-  pageSize = DEFAULT_PAGE_SIZE,
+  currentPage = DEFAULT_PAGINATION.page,
+  pageSize = DEFAULT_PAGINATION.size,
   onPageChange,
   onSizeChange,
   ...props

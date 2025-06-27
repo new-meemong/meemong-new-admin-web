@@ -8,8 +8,7 @@ import {
   SearchFormProps,
   SearchFormSelectBox,
 } from "@/components/shared/search-form";
-import { UserType } from "@/models/user";
-import { IUseSearchForm } from "@/components/shared/search-form/useSearchForm";
+import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMethods";
 import {
   ApproveType,
   CostType,
@@ -17,17 +16,16 @@ import {
   RecruitmentType,
 } from "@/models/contents";
 import { useContentsContext } from "@/components/contexts/contents-context";
-import { SearchType } from "@/models/common";
+import { PaginationType, SearchType } from "@/models/common";
 
-type UserTypeWithAll = UserType | "ALL";
 type ApproveTypeWithAll = ApproveType | "ALL";
 type JobCategoryTypeWithAll = JobCategoryType | "ALL";
 type RecruitmentTypeWithAll = RecruitmentType | "ALL";
 type CostTypeWithAll = CostType | "ALL";
 
-export type IContentsSearchForm = {
+export type IContentsSearchParams = {
   categoryId: number;
-  userType?: UserTypeWithAll;
+  role?: string;
   approveType?: ApproveTypeWithAll;
   company?: string;
   jobCategory?: JobCategoryTypeWithAll;
@@ -35,21 +33,21 @@ export type IContentsSearchForm = {
   costType?: CostTypeWithAll;
   searchType?: SearchType;
   searchKeyword?: string;
-};
+} & PaginationType;
 
 interface ContentsSearchFormProps extends SearchFormProps {
-  searchForm: IUseSearchForm<IContentsSearchForm>;
+  methods: IUseSearchMethods<IContentsSearchParams>;
   className?: string;
 }
 
 function ContentsSearchForm({
-  searchForm,
+  methods,
   className,
   ...props
 }: ContentsSearchFormProps) {
   const { tabId } = useContentsContext();
 
-  const USER_TYPE_OPTIONS: { value: UserTypeWithAll; label: string }[] = [
+  const USER_TYPE_OPTIONS: { value: string; label: string }[] = [
     { value: "ALL", label: "전체" },
     { value: "MODEL", label: "모델" },
     { value: "DESIGNER", label: "디자이너" },
@@ -98,10 +96,10 @@ function ContentsSearchForm({
     { value: "2", label: "모델료" },
   ];
 
-  const SEARCH_TYPE_OPTIONS: { value: SearchType; label: string }[] = [
-    { value: "UUID", label: "uuid" },
-    { value: "NICKNAME", label: "닉네임" },
-    { value: "PHONE", label: "전화번호" },
+  const SEARCH_TYPE_OPTIONS: { value: string; label: string }[] = [
+    { value: "uuid", label: "uuid" },
+    { value: "displayName", label: "닉네임" },
+    { value: "phone", label: "전화번호" },
   ];
 
   const renderSearchForm = useCallback(() => {
@@ -111,16 +109,16 @@ function ContentsSearchForm({
           <SearchFormInput
             name="company"
             className={cn("w-[130px]")}
-            onChange={searchForm.handleChangeText}
+            onChange={methods.handleChangeText}
             placeholder="업체명"
-            value={searchForm.values.company}
+            value={methods.values.company}
             title="업체명"
           />
-          <SearchFormSelectBox<IContentsSearchForm>
+          <SearchFormSelectBox<IContentsSearchParams>
             name="jobCategory"
             className={cn("w-[130px]")}
-            value={searchForm.values.jobCategory!}
-            onChange={searchForm.handleSelect}
+            value={methods.values.jobCategory!}
+            onChange={methods.handleSelect}
             options={JOB_CATEGORY_TYPE_OPTIONS}
             title="모집타입"
           />
@@ -129,11 +127,11 @@ function ContentsSearchForm({
     } else if (tabId === "3") {
       return (
         <>
-          <SearchFormSelectBox<IContentsSearchForm>
+          <SearchFormSelectBox<IContentsSearchParams>
             name="jobCategory"
             className={cn("w-[130px]")}
-            value={searchForm.values.jobCategory!}
-            onChange={searchForm.handleSelect}
+            value={methods.values.jobCategory!}
+            onChange={methods.handleSelect}
             options={JOB_CATEGORY_TYPE_OPTIONS}
             title="구직타입"
           />
@@ -142,19 +140,19 @@ function ContentsSearchForm({
     } else if (tabId === "4") {
       return (
         <>
-          <SearchFormSelectBox<IContentsSearchForm>
+          <SearchFormSelectBox<IContentsSearchParams>
             name="recruitment"
             className={cn("w-[130px]")}
-            value={searchForm.values.recruitment!}
-            onChange={searchForm.handleSelect}
+            value={methods.values.recruitment!}
+            onChange={methods.handleSelect}
             options={RECRUITMENT_TYPE_OPTIONS}
             title="모집타입"
           />
-          <SearchFormSelectBox<IContentsSearchForm>
+          <SearchFormSelectBox<IContentsSearchParams>
             name="costType"
             className={cn("w-[130px]")}
-            value={searchForm.values.costType!}
-            onChange={searchForm.handleSelect}
+            value={methods.values.costType!}
+            onChange={methods.handleSelect}
             options={COST_TYPE_OPTIONS}
             title="비용타입"
           />
@@ -163,22 +161,22 @@ function ContentsSearchForm({
     } else {
       return (
         <>
-          <SearchFormSelectBox<IContentsSearchForm>
-            name="userType"
+          <SearchFormSelectBox<IContentsSearchParams>
+            name="role"
             className={cn("w-[130px]")}
-            value={searchForm.values.userType!}
+            value={String(methods.values.role!)}
             defaultValue={"ALL"}
-            onChange={searchForm.handleSelect}
+            onChange={methods.handleSelect}
             options={USER_TYPE_OPTIONS}
             title="유저타입"
           />
           {tabId === "1" && (
-            <SearchFormSelectBox<IContentsSearchForm>
+            <SearchFormSelectBox<IContentsSearchParams>
               name="approveType"
               className={cn("w-[130px]")}
-              value={searchForm.values.approveType!}
+              value={methods.values.approveType!}
               defaultValue={"ALL"}
-              onChange={searchForm.handleSelect}
+              onChange={methods.handleSelect}
               options={APPROVE_TYPE_OPTIONS}
               title="승인타입"
             />
@@ -188,9 +186,9 @@ function ContentsSearchForm({
     }
   }, [
     tabId,
-    searchForm.values,
-    searchForm.handleChangeText,
-    searchForm.handleSelect,
+    methods.values,
+    methods.handleChangeText,
+    methods.handleSelect,
     COST_TYPE_OPTIONS,
     JOB_CATEGORY_TYPE_OPTIONS,
     RECRUITMENT_TYPE_OPTIONS,
@@ -199,22 +197,22 @@ function ContentsSearchForm({
 
   useEffect(() => {
     if (tabId === "0" || tabId === "1") {
-      searchForm.handleSelect({ key: "userType", value: "ALL" });
-      if (tabId === "1" && !searchForm.values.approveType) {
-        searchForm.handleSelect({ key: "approveType", value: "ALL" });
+      methods.handleSelect({ key: "role", value: "ALL" });
+      if (tabId === "1" && !methods.values.approveType) {
+        methods.handleSelect({ key: "approveType", value: "ALL" });
       }
     } else if (tabId === "2") {
-      searchForm.handleChangeText({
+      methods.handleChangeText({
         target: { name: "company", value: "" },
       } as React.ChangeEvent<HTMLInputElement>);
-      searchForm.handleSelect({ key: "jobCategory", value: "ALL" });
+      methods.handleSelect({ key: "jobCategory", value: "ALL" });
     } else if (tabId === "3") {
-      searchForm.handleSelect({ key: "jobCategory", value: "ALL" });
+      methods.handleSelect({ key: "jobCategory", value: "ALL" });
     } else if (tabId === "4") {
-      searchForm.handleSelect({ key: "recruitment", value: "ALL" });
-      searchForm.handleSelect({ key: "costType", value: "ALL" });
+      methods.handleSelect({ key: "recruitment", value: "ALL" });
+      methods.handleSelect({ key: "costType", value: "ALL" });
     }
-    searchForm.handleChangeText({
+    methods.handleChangeText({
       target: { name: "searchKeyword", value: "" },
     } as React.ChangeEvent<HTMLInputElement>);
   }, [tabId]);
@@ -222,19 +220,19 @@ function ContentsSearchForm({
   return (
     <SearchForm className={cn("contents-search-form", className)} {...props}>
       {renderSearchForm()}
-      <SearchFormSelectBox<IContentsSearchForm>
+      <SearchFormSelectBox<IContentsSearchParams>
         className={cn("w-[114px] ml-[10px]")}
         name="searchType"
-        value={searchForm.values.searchType!}
+        value={methods.values.searchType!}
         defaultValue={"UUID"}
-        onChange={searchForm.handleSelect}
+        onChange={methods.handleSelect}
         options={SEARCH_TYPE_OPTIONS}
       />
       <SearchFormInput
         name="searchKeyword"
         className={cn("w-[165px]")}
-        onChange={searchForm.handleChangeText}
-        value={searchForm.values.searchKeyword}
+        onChange={methods.handleChangeText}
+        value={methods.values.searchKeyword}
       />
     </SearchForm>
   );

@@ -8,34 +8,29 @@ import {
   SearchFormProps,
   SearchFormSelectBox,
 } from "@/components/shared/search-form";
-import { BlockType, UserType } from "@/models/user";
-import { IUseSearchForm } from "@/components/shared/search-form/useSearchForm";
-import { SearchType } from "@/models/common";
+import { BlockType } from "@/models/user";
+import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMethods";
+import { PaginationType, SearchType } from "@/models/common";
 
-type UserTypeWithAll = UserType | "ALL";
 type BlockTypeWithAll = BlockType | "ALL";
 
-export type IUserSearchForm = {
-  userType?: UserTypeWithAll;
+export type IUserSearchParams = {
+  role?: string;
   blockType?: BlockTypeWithAll;
   searchType?: SearchType;
   searchKeyword?: string;
-};
+} & PaginationType;
 
 interface UserSearchFormProps extends SearchFormProps {
-  searchForm: IUseSearchForm<IUserSearchForm>;
+  methods: IUseSearchMethods<IUserSearchParams>;
   className?: string;
 }
 
-function UserSearchForm({
-  searchForm,
-  className,
-  ...props
-}: UserSearchFormProps) {
-  const USER_TYPE_OPTIONS: { value: UserType | "ALL"; label: string }[] = [
+function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
+  const USER_TYPE_OPTIONS: { value: string; label: string }[] = [
     { value: "ALL", label: "전체" },
-    { value: "MODEL", label: "모델" },
-    { value: "DESIGNER", label: "디자이너" },
+    { value: "1", label: "모델" },
+    { value: "2", label: "디자이너" },
   ];
 
   const BLOCK_TYPE_OPTIONS: { value: BlockType | "ALL"; label: string }[] = [
@@ -44,43 +39,43 @@ function UserSearchForm({
     { value: "2", label: "탈퇴" },
   ];
 
-  const SEARCH_TYPE_OPTIONS: { value: SearchType; label: string }[] = [
-    { value: "UUID", label: "uuid" },
-    { value: "NICKNAME", label: "닉네임" },
+  const SEARCH_TYPE_OPTIONS: { value: string; label: string }[] = [
+    { value: "UID", label: "uuid" },
+    { value: "NAME", label: "닉네임" },
     { value: "PHONE", label: "전화번호" },
   ];
 
   return (
     <SearchForm className={cn("user-search-form", className)} {...props}>
-      <SearchFormSelectBox<IUserSearchForm>
-        name="userType"
-        value={searchForm.values.userType!}
+      <SearchFormSelectBox<IUserSearchParams>
+        name="role"
+        value={String(methods.values.role!)}
         defaultValue={"ALL"}
-        onChange={searchForm.handleSelect}
+        onChange={methods.handleSelect}
         options={USER_TYPE_OPTIONS}
         title="유저타입"
       />
-      <SearchFormSelectBox<IUserSearchForm>
+      <SearchFormSelectBox<IUserSearchParams>
         name="blockType"
-        value={searchForm.values.blockType!}
+        value={methods.values.blockType!}
         defaultValue={"ALL"}
-        onChange={searchForm.handleSelect}
+        onChange={methods.handleSelect}
         options={BLOCK_TYPE_OPTIONS}
         title="차단/탈퇴"
       />
-      <SearchFormSelectBox<IUserSearchForm>
+      <SearchFormSelectBox<IUserSearchParams>
         className={cn("w-[114px] ml-[10px]")}
         name="searchType"
-        value={searchForm.values.searchType!}
-        defaultValue={"UUID"}
-        onChange={searchForm.handleSelect}
+        value={methods.values.searchType!}
+        defaultValue={"UID"}
+        onChange={methods.handleSelect}
         options={SEARCH_TYPE_OPTIONS}
       />
       <SearchFormInput
         className={cn("w-[165px]")}
         name="searchKeyword"
-        onChange={searchForm.handleChangeText}
-        value={searchForm.values.searchKeyword}
+        onChange={methods.handleChangeText}
+        value={methods.values.searchKeyword}
       />
     </SearchForm>
   );

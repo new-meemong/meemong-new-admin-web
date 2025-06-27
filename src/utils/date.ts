@@ -9,6 +9,10 @@ import dayjs from "dayjs";
 export function formatDate(
   date: string | number | Date | dayjs.Dayjs,
   format = "YYYY-MM-DD HH:mm:ss",
-): string {
+): string | undefined {
+  if (!date) {
+    return
+  }
+
   return dayjs(date).format(format);
 }

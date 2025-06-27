@@ -7,7 +7,7 @@ import { FormGroup } from "@/components/ui/form-group";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
-import { IUserForm, JoinType, UserType } from "@/models/user";
+import { IUserForm, JoinType, UserRoleType } from "@/models/user";
 import { CommonForm } from "@/components/shared/common-form";
 import { JOIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/user";
 import UserImageBox from "@/components/features/user/user-image-box";
@@ -25,7 +25,7 @@ export default function UserDetailForm({
 }: UserDetailFormProps) {
   const formSchema = z.object({
     userNumber: z.string(),
-    userType: z.string(),
+    role: z.number(),
     nickname: z.string(),
     name: z.string(),
     joinType: z.string(),
@@ -49,7 +49,7 @@ export default function UserDetailForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       userNumber: "",
-      userType: "",
+      role: undefined,
       nickname: "",
       name: "",
       joinType: "",
@@ -83,11 +83,11 @@ export default function UserDetailForm({
             label={"회원번호"}
             value={form.watch("userNumber")}
           />
-          <CommonForm.ReadonlyRow<UserType>
+          <CommonForm.ReadonlyRow<UserRoleType>
             label={"유형"}
-            value={form.watch("userType") as UserType}
+            value={form.watch("role") as UserRoleType}
             formatter={(v) => {
-              return USER_TYPE_MAP[v as UserType] ?? "-";
+              return USER_TYPE_MAP[v as UserRoleType] ?? "-";
             }}
           />
           <CommonForm.ReadonlyRow

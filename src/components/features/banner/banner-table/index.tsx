@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import BannerImageBox from "@/components/features/banner/banner-image-box";
 import { useDrawer } from "@/components/shared/right-drawer/useDrawer";
 import BannerRightDrawer from "@/components/features/banner/banner-right-drawer";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 
 interface BannerTableProps
   extends Omit<CommonTableProps<IBanner> & CommonPaginationProps, "columns"> {
@@ -28,7 +28,7 @@ function BannerTable({
   data,
   totalCount,
   currentPage = 1,
-  pageSize = DEFAULT_PAGE_SIZE,
+  pageSize = DEFAULT_PAGINATION.size,
   onPageChange,
   onSizeChange,
   ...props

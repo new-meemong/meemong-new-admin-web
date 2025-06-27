@@ -1,1 +1,6 @@
-export const DEFAULT_PAGE_SIZE = 10
+import { PaginationType } from "@/models/common";
+
+export const DEFAULT_PAGINATION: PaginationType = {
+  page: 1,
+  size: 10,
+};

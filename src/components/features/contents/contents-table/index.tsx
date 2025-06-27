@@ -17,11 +17,11 @@ import {
   JobCategoryType,
   RecruitmentType,
 } from "@/models/contents";
-import { UserType } from "@/models/user";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import { UserRoleType } from "@/models/user";
 import { useContentsContext } from "@/components/contexts/contents-context";
 import { useModal } from "@/components/shared/modal/useModal";
 import ContentsDetailModal from "@/components/features/contents/contents-detail-modal";
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 
 interface ContentsTableProps
   extends Omit<CommonTableProps<IContents> & CommonPaginationProps, "columns"> {
@@ -32,8 +32,8 @@ function ContentsTable({
   className,
   data,
   totalCount,
-  currentPage = 1,
-  pageSize = DEFAULT_PAGE_SIZE,
+  currentPage = DEFAULT_PAGINATION.page,
+  pageSize = DEFAULT_PAGINATION.size,
   onPageChange,
   onSizeChange,
   ...props
@@ -71,15 +71,11 @@ function ContentsTable({
         return [
           ...baseColumns,
           {
-            accessorKey: "userType",
+            accessorKey: "role",
             header: "작성자타입",
             cell: (info) => {
-              const userType = info.getValue() as UserType;
-              return userType === "MODEL"
-                ? "모델"
-                : userType === "DESIGNER"
-                  ? "디자이너"
-                  : "-";
+              const role = info.getValue() as UserRoleType;
+              return role === 1 ? "모델" : role === 2 ? "디자이너" : "-";
             },
             size: 120,
             enableSorting: false,

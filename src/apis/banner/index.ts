@@ -1,5 +1,5 @@
 import { PaginatedResponse } from "@/apis/types";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { IBanner, IBannerForm } from "@/models/banner";
 
 //const BASE_URL = "/api/admin/banners";
@@ -80,8 +80,8 @@ export type GetBannersResponse = PaginatedResponse<IBanner>;
 export const bannerAPI = {
   getAll: ({
     searchKeyword,
-    page = 1,
-    size = DEFAULT_PAGE_SIZE,
+    page = DEFAULT_PAGINATION.page,
+    size = DEFAULT_PAGINATION.size,
   }: GetBannersRequest): Promise<GetBannersResponse> =>
     mockFetch(dummyContents, {
       searchKeyword,

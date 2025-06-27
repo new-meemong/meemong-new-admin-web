@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
-import { IUser, UserType } from "@/models/user";
+import { IUser, UserRoleType } from "@/models/user";
 import UserRightDrawer from "@/components/features/user/user-right-drawer";
 import CommonTable, {
   CommonTableProps,
@@ -12,7 +12,7 @@ import CommonPagination, {
   CommonPaginationProps,
 } from "@/components/shared/common-pagination";
 import { formatDate } from "@/utils/date";
-import { DEFAULT_PAGE_SIZE } from "@/components/shared/common-pagination/contants";
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { useDrawer } from "@/components/shared/right-drawer/useDrawer";
 
 interface UserTableProps
@@ -24,8 +24,8 @@ function UserTable({
   className,
   data,
   totalCount,
-  currentPage = 1,
-  pageSize = DEFAULT_PAGE_SIZE,
+  currentPage = DEFAULT_PAGINATION.page,
+  pageSize = DEFAULT_PAGINATION.size,
   onPageChange,
   onSizeChange,
   ...props
@@ -39,13 +39,13 @@ function UserTable({
       accessorKey: "id",
       header: "No",
       cell: (info) => {
-        const userType = info.row.original.userType;
+        const role = info.row.original.role;
 
         let cellValue = info.getValue() as string;
 
-        if (userType === "MODEL") {
+        if (role === 1) {
           cellValue = `M-${cellValue}`;
-        } else if (userType === "DESIGNER") {
+        } else if (role === 2) {
           cellValue = `D-${cellValue}`;
         }
 
@@ -70,13 +70,13 @@ function UserTable({
       enableSorting: false,
     },
     {
-      accessorKey: "userType",
+      accessorKey: "role",
       header: "유저타입",
       cell: (info) => {
-        const userType = info.getValue() as UserType;
-        if (userType === "MODEL") {
+        const role = info.getValue() as UserRoleType;
+        if (role === 1) {
           return "모델";
-        } else if (userType === "DESIGNER") {
+        } else if (role === 2) {
           return "디자이너";
         } else {
           return "-";
@@ -93,9 +93,10 @@ function UserTable({
       enableSorting: true,
     },
     {
-      accessorKey: "recentLoggedInAt",
+      accessorKey: "recentLoginTime",
       header: "최근접속",
-      cell: (info) => formatDate(info.getValue() as string, "YYYY.MM.DD"),
+      cell: (info) =>
+        formatDate(info.getValue() as string, "YYYY.MM.DD") || "-",
       size: 120,
       enableSorting: true,
     },
