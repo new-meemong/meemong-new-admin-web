@@ -36,8 +36,7 @@ function UserRightDrawer({
       {getUserDetailQuery.data ? (
         <UserDetailForm
           formData={getUserDetailQuery.data!}
-          onSubmit={(form) => {
-            console.log(form);
+          onSubmit={() => {
             closeDrawer();
           }}
         />

@@ -26,7 +26,7 @@ export const useGetUserDetailQuery = (
 ): UseQueryResult<IUserForm, Error> =>
   useQuery<IUserForm, Error>({
     queryKey: ["GET_USER_DETAIL", userId],
-    queryFn: () => userAPI.getById({ userId }),
+    queryFn: () => userAPI.getById(userId),
     enabled: Boolean(userId),
     ...config,
   });

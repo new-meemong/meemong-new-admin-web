@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import UserSearchForm, {
   IUserSearchParams,
@@ -24,28 +24,24 @@ function UserPageContent({ className }: UserPageContentProps) {
     ...DEFAULT_PAGINATION,
   };
 
-  const [searchParams, setSearchParams] = useState<IUserSearchParams>(
-    DEFAULT_SEARCH_PARAMS,
-  );
-
   const methods = useSearchMethods<IUserSearchParams>({
-    defaultValues: DEFAULT_SEARCH_PARAMS,
+    defaultParams: DEFAULT_SEARCH_PARAMS,
   });
 
   const getUsersQuery = useGetUsersQuery(
     {
       role:
-        searchParams.role === "ALL"
+        methods.params.role === "ALL"
           ? undefined
-          : (Number(searchParams.role) as UserRoleType),
+          : (Number(methods.params.role) as UserRoleType),
       blockType:
-        searchParams.blockType === "ALL"
+        methods.params.blockType === "ALL"
           ? undefined
-          : (searchParams.blockType as BlockType),
-      searchType: searchParams.searchType,
-      searchKeyword: searchParams.searchKeyword,
-      page: searchParams.page,
-      size: searchParams.size,
+          : (methods.params.blockType as BlockType),
+      searchType: methods.params.searchType,
+      searchKeyword: methods.params.searchKeyword,
+      page: methods.params.page,
+      size: methods.params.size,
     },
     {
       enabled: false,
@@ -54,37 +50,29 @@ function UserPageContent({ className }: UserPageContentProps) {
 
   useEffect(() => {
     getUsersQuery.refetch();
-  }, [searchParams]);
+  }, [methods.params]);
 
   return (
     <div className={cn("user-page-content", className)}>
       <UserSearchForm
         methods={methods}
         onSubmit={() => {
-          setSearchParams({ ...methods.values, page: 1 });
+          methods.handleSubmit();
         }}
         onRefresh={() => {
           methods.handleReset();
-          setSearchParams({ ...DEFAULT_SEARCH_PARAMS });
         }}
       />
       <UserTable
         data={getUsersQuery.data?.content ?? []}
         totalCount={getUsersQuery.data?.totalCount ?? 0}
-        currentPage={searchParams.page}
-        pageSize={searchParams.size}
+        currentPage={methods.params.page}
+        pageSize={methods.params.size}
         onPageChange={(page) => {
-          setSearchParams({
-            ...searchParams,
-            page,
-          });
+          methods.handleChangePage(page);
         }}
         onSizeChange={(size) => {
-          setSearchParams({
-            ...searchParams,
-            page: 1,
-            size,
-          });
+          methods.handleChangeSize(size);
         }}
       />
     </div>

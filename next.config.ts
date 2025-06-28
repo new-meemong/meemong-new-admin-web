@@ -20,7 +20,10 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
-    remotePatterns: [new URL("https://images.unsplash.com/**")],
+    remotePatterns: [
+      new URL("https://images.unsplash.com/**"),
+      new URL("https://meemong-uploads.s3.ap-northeast-2.amazonaws.com/**"),
+    ],
   },
 };
 

@@ -6,16 +6,22 @@ export type BlockType = "0" | "1" | "2"; // 0: 전체, 1: 차단, 2: 탈퇴
 
 export type JoinType = "0" | "1"; // 0: 일반 가입, 1: SNS 가입
 
-export type BlockInfo = {
+export type BlockInfoType = {
   isBlocked: boolean;
   blockedAt: string;
   description: string;
 };
 
+export type UserPhotoType = {
+  id: number;
+  s3Path: string;
+  fileType: string;
+};
+
 export interface IUser {
   id: number;
   role: UserRoleType; // 유형
-  nickname: string; // 닉네임
+  displayName: string; // 닉네임
   createdAt: string; // 가입일
   recentLoginTime: string; // 최근 접속일
   isWithdraw: boolean; // 탈퇴여부
@@ -23,17 +29,16 @@ export interface IUser {
 }
 
 export interface IUserForm extends IUser {
-  userNumber: string; // 회원번호
   name: string; // 이름
   joinType: JoinType; // 가입형태
-  profileUrl: string; // 프로필 url
-  phoneNumber: string; // 전화번호
+  profilePictureURL: string; // 프로필 url
+  phone: string; // 전화번호
   email: string; // 이메일
-  intro: string; // 소개
-  pictureUrlList: { src: string; title: string }[]; // 사진 정보 목록
+  description: string; // 소개
+  userPhotos: UserPhotoType[]; // 사진 정보 목록
 }
 
 export interface IUserBlockDetail {
   isBlocked: boolean;
-  blockInfoList: BlockInfo[];
+  blockInfoList: BlockInfoType[];
 }

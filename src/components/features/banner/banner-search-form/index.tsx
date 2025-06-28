@@ -30,7 +30,7 @@ function BannerSearchForm({
         name="searchKeyword"
         onChange={methods.handleChangeText}
         placeholder="고객사명"
-        value={methods.values.searchKeyword}
+        value={methods.params.searchKeyword}
       />
     </SearchForm>
   );

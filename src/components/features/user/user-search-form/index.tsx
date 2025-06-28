@@ -49,7 +49,7 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
     <SearchForm className={cn("user-search-form", className)} {...props}>
       <SearchFormSelectBox<IUserSearchParams>
         name="role"
-        value={String(methods.values.role!)}
+        value={String(methods.params.role!)}
         defaultValue={"ALL"}
         onChange={methods.handleSelect}
         options={USER_TYPE_OPTIONS}
@@ -57,7 +57,7 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
       />
       <SearchFormSelectBox<IUserSearchParams>
         name="blockType"
-        value={methods.values.blockType!}
+        value={methods.params.blockType!}
         defaultValue={"ALL"}
         onChange={methods.handleSelect}
         options={BLOCK_TYPE_OPTIONS}
@@ -66,7 +66,7 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
       <SearchFormSelectBox<IUserSearchParams>
         className={cn("w-[114px] ml-[10px]")}
         name="searchType"
-        value={methods.values.searchType!}
+        value={methods.params.searchType!}
         defaultValue={"UID"}
         onChange={methods.handleSelect}
         options={SEARCH_TYPE_OPTIONS}
@@ -75,7 +75,7 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
         className={cn("w-[165px]")}
         name="searchKeyword"
         onChange={methods.handleChangeText}
-        value={methods.values.searchKeyword}
+        value={methods.params.searchKeyword}
       />
     </SearchForm>
   );

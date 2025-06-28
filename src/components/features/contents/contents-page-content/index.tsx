@@ -43,7 +43,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
   );
 
   const methods = useSearchMethods<IContentsSearchParams>({
-    defaultValues: DEFAULT_SEARCH_PARAMS,
+    defaultParams: DEFAULT_SEARCH_PARAMS,
   });
 
   const getContentsQuery = useGetContentsQuery({
@@ -86,7 +86,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
       <ContentsSearchForm
         methods={methods}
         onSubmit={() => {
-          setSearchParams({ ...methods.values, page: 1 });
+          setSearchParams({ ...methods.params, page: 1 });
         }}
         onRefresh={() => {
           methods.handleReset();

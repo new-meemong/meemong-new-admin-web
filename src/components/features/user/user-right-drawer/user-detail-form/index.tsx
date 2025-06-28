@@ -1,13 +1,18 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { FormEvent, useEffect } from "react";
+import { FormEvent, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { FormGroup } from "@/components/ui/form-group";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
-import { IUserForm, JoinType, UserRoleType } from "@/models/user";
+import {
+  IUserForm,
+  JoinType,
+  UserPhotoType,
+  UserRoleType,
+} from "@/models/user";
 import { CommonForm } from "@/components/shared/common-form";
 import { JOIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/user";
 import UserImageBox from "@/components/features/user/user-image-box";
@@ -24,44 +29,56 @@ export default function UserDetailForm({
   onSubmit,
 }: UserDetailFormProps) {
   const formSchema = z.object({
-    userNumber: z.string(),
+    id: z.number(),
     role: z.number(),
-    nickname: z.string(),
+    displayName: z.string(),
     name: z.string(),
     joinType: z.string(),
     createdAt: z.string(),
-    recentLoggedInAt: z.string(),
-    profileUrl: z.string(),
+    recentLoginTime: z.string(),
+    profilePictureURL: z.string(),
     isWithdraw: z.boolean(),
-    pictureUrlList: z.array(
+    userPhotos: z.array(
       z.object({
-        src: z.string(),
-        title: z.string(),
+        id: z.number(),
+        s3Path: z.string(),
+        fileType: z.string(),
       }),
     ),
-    phoneNumber: z.string(),
+    phone: z.string(),
     email: z.string(),
-    intro: z.string(),
+    description: z.string(),
     isBlocked: z.boolean(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      userNumber: "",
+      id: undefined,
       role: undefined,
-      nickname: "",
+      displayName: "",
       name: "",
       joinType: "",
       createdAt: "",
-      recentLoggedInAt: "",
+      recentLoginTime: "",
       isWithdraw: undefined,
-      pictureUrlList: [],
-      phoneNumber: "",
+      userPhotos: [],
+      phone: "",
       email: "",
-      intro: "",
+      description: "",
     },
   });
+
+  const userId: string = useMemo(() => {
+    let _userId: string = String(form.watch("id"));
+    if (form.watch("role") === 1) {
+      _userId = `M-${form.watch("id")}`;
+    } else if (form.watch("role") === 2) {
+      _userId = `D-${form.watch("id")}`;
+    }
+
+    return _userId;
+  }, [form.watch("role"), form.watch("id")]);
 
   useEffect(() => {
     if (formData) {
@@ -79,10 +96,7 @@ export default function UserDetailForm({
     <Form {...form}>
       <form onSubmit={onSubmit}>
         <FormGroup title={"기본 정보"}>
-          <CommonForm.ReadonlyRow
-            label={"회원번호"}
-            value={form.watch("userNumber")}
-          />
+          <CommonForm.ReadonlyRow label={"회원번호"} value={userId} />
           <CommonForm.ReadonlyRow<UserRoleType>
             label={"유형"}
             value={form.watch("role") as UserRoleType}
@@ -92,31 +106,31 @@ export default function UserDetailForm({
           />
           <CommonForm.ReadonlyRow
             label={"닉네임"}
-            value={form.watch("nickname")}
+            value={form.watch("displayName") || "-"}
           />
           <CommonForm.ReadonlyRow
             label={"이름"}
-            value={form.watch("name")}
+            value={form.watch("name") || "-"}
           />
           <CommonForm.ReadonlyRow
             label={"가입형태"}
             value={form.watch("joinType")}
             formatter={(v) => {
-              return JOIN_TYPE_MAP[v as JoinType];
+              return JOIN_TYPE_MAP[v as JoinType] || "-";
             }}
           />
           <CommonForm.ReadonlyRow
             label={"가입일"}
             value={form.watch("createdAt")}
             formatter={(v) => {
-              return v ? formatDate(v as string) : "";
+              return v ? formatDate(v as string) : "-";
             }}
           />
           <CommonForm.ReadonlyRow
             label={"최근 로그인"}
-            value={form.watch("recentLoggedInAt")}
+            value={form.watch("recentLoginTime")}
             formatter={(v) => {
-              return v ? formatDate(v as string) : "";
+              return v ? formatDate(v as string) : "-";
             }}
           />
           <CommonForm.ReadonlyRow
@@ -124,7 +138,7 @@ export default function UserDetailForm({
             value={form.watch("isWithdraw")}
             formatter={(v) => {
               if (typeof v === "undefined") {
-                return "";
+                return "-";
               }
               return v ? "Y" : "N";
             }}
@@ -133,40 +147,40 @@ export default function UserDetailForm({
         <FormGroup title={"프로필 정보"}>
           <CommonForm.ReadonlyRow
             label={"프로필 이미지"}
-            value={form.watch("profileUrl")}
+            value={form.watch("profilePictureURL")}
             formatter={(v) => {
-              return v ? <UserImageBox src={v as string} /> : "";
+              return v ? <UserImageBox src={v as string} /> : "-";
             }}
           />
           <CommonForm.ReadonlyRow
             label={"휴대폰 번호"}
-            value={form.watch("phoneNumber")}
+            value={form.watch("phone") || "-"}
           />
           <CommonForm.ReadonlyRow
             label={"이메일"}
-            value={form.watch("email")}
+            value={form.watch("email") || "-"}
           />
           <CommonForm.ReadonlyRow
             label={"소개글"}
-            value={form.watch("intro")}
+            value={form.watch("description") || "-"}
           />
         </FormGroup>
         <FormGroup title={"사진 정보"}>
-          <CommonForm.ReadonlyRow<{ src: string; title: string }[]>
+          <CommonForm.ReadonlyRow<UserPhotoType[]>
             label={"사진"}
-            value={form.watch("pictureUrlList")}
-            formatter={(urlList) => {
+            value={form.watch("userPhotos")}
+            formatter={(userPhotos) => {
               return (
                 <div className={cn("flex flex-wrap gap-4 py-[6px]")}>
-                  {urlList && Array.isArray(urlList)
-                    ? urlList.map((urlItem, index) => (
+                  {userPhotos && Array.isArray(userPhotos)
+                    ? userPhotos.map((userPhoto) => (
                         <UserImageBox
-                          key={`picture-url-${index}`}
-                          src={urlItem.src as string}
-                          title={urlItem.title}
+                          key={`picture-url-${userPhoto.id}`}
+                          src={userPhoto.s3Path as string}
+                          title={userPhoto.fileType}
                         />
                       ))
-                    : ""}
+                    : "-"}
                 </div>
               );
             }}

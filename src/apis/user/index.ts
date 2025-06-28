@@ -9,9 +9,9 @@ const BASE_URL = "/api/v1/admins/users";
 // TODO: 실제 api 값으로 변경
 
 // 실제 API 대체용 더미 fetcher
-function mockFetch<T>(data: T, params?: unknown, delay = 300): Promise<T> {
+/*function mockFetch<T>(data: T, params?: unknown, delay = 300): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), delay));
-}
+}*/
 
 // 더미 목록 데이터
 /*
@@ -43,6 +43,7 @@ const dummyUsers: PaginatedResponse<IUser> = {
 */
 
 // 더미 상세 데이터
+/*
 const dummyUserDetail: IUserForm = {
   id: 1,
   role: 1,
@@ -69,6 +70,7 @@ const dummyUserDetail: IUserForm = {
     },
   ],
 };
+*/
 
 export type GetUsersRequest = {
   role?: UserRoleType;
@@ -79,6 +81,10 @@ export type GetUsersRequest = {
   size?: number;
 };
 export type GetUsersResponse = PaginatedResponse<IUser>;
+
+export type GetUserDetailResponse = {
+  data: IUserForm;
+};
 
 export const userAPI = {
   /*  getAll: () => fetcher<IUser[]>(BASE_URL),*/
@@ -113,12 +119,15 @@ export const userAPI = {
       page,
       size,
     }),*/
-  getById: ({ userId }: { userId: number }): Promise<IUserForm> => {
+  /*  getById: ({ userId }: { userId: number }): Promise<IUserForm> => {
     return mockFetch(dummyUserDetail, { userId });
+  },*/
+  getById: async (userId: number) => {
+    const response = await fetcher<GetUserDetailResponse>(
+      `${BASE_URL}/${userId}`,
+    );
+    return response.data;
   },
-  /*
-  getById: (id: number) => fetcher<IUserForm>(`${BASE_URL}/${id}`),
-*/
   create: (user: Omit<IUserForm, "id">) =>
     fetcher<IUser>(BASE_URL, {
       method: "POST",

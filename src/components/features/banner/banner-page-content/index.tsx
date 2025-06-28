@@ -25,7 +25,7 @@ function BannerPageContent({ className }: BannerPageContentProps) {
   );
 
   const methods = useSearchMethods<IBannerSearchParams>({
-    defaultValues: DEFAULT_SEARCH_PARAMS,
+    defaultParams: DEFAULT_SEARCH_PARAMS,
   });
 
   const getBannersQuery = useGetBannersQuery({
@@ -39,7 +39,7 @@ function BannerPageContent({ className }: BannerPageContentProps) {
       <BannerSearchForm
         methods={methods}
         onSubmit={() => {
-          setSearchParams({ ...methods.values, page: 1 });
+          setSearchParams({ ...methods.params, page: 1 });
         }}
         onRefresh={() => {
           methods.handleReset();

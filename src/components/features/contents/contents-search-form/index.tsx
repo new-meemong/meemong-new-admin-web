@@ -111,13 +111,13 @@ function ContentsSearchForm({
             className={cn("w-[130px]")}
             onChange={methods.handleChangeText}
             placeholder="업체명"
-            value={methods.values.company}
+            value={methods.params.company}
             title="업체명"
           />
           <SearchFormSelectBox<IContentsSearchParams>
             name="jobCategory"
             className={cn("w-[130px]")}
-            value={methods.values.jobCategory!}
+            value={methods.params.jobCategory!}
             onChange={methods.handleSelect}
             options={JOB_CATEGORY_TYPE_OPTIONS}
             title="모집타입"
@@ -130,7 +130,7 @@ function ContentsSearchForm({
           <SearchFormSelectBox<IContentsSearchParams>
             name="jobCategory"
             className={cn("w-[130px]")}
-            value={methods.values.jobCategory!}
+            value={methods.params.jobCategory!}
             onChange={methods.handleSelect}
             options={JOB_CATEGORY_TYPE_OPTIONS}
             title="구직타입"
@@ -143,7 +143,7 @@ function ContentsSearchForm({
           <SearchFormSelectBox<IContentsSearchParams>
             name="recruitment"
             className={cn("w-[130px]")}
-            value={methods.values.recruitment!}
+            value={methods.params.recruitment!}
             onChange={methods.handleSelect}
             options={RECRUITMENT_TYPE_OPTIONS}
             title="모집타입"
@@ -151,7 +151,7 @@ function ContentsSearchForm({
           <SearchFormSelectBox<IContentsSearchParams>
             name="costType"
             className={cn("w-[130px]")}
-            value={methods.values.costType!}
+            value={methods.params.costType!}
             onChange={methods.handleSelect}
             options={COST_TYPE_OPTIONS}
             title="비용타입"
@@ -164,7 +164,7 @@ function ContentsSearchForm({
           <SearchFormSelectBox<IContentsSearchParams>
             name="role"
             className={cn("w-[130px]")}
-            value={String(methods.values.role!)}
+            value={String(methods.params.role!)}
             defaultValue={"ALL"}
             onChange={methods.handleSelect}
             options={USER_TYPE_OPTIONS}
@@ -174,7 +174,7 @@ function ContentsSearchForm({
             <SearchFormSelectBox<IContentsSearchParams>
               name="approveType"
               className={cn("w-[130px]")}
-              value={methods.values.approveType!}
+              value={methods.params.approveType!}
               defaultValue={"ALL"}
               onChange={methods.handleSelect}
               options={APPROVE_TYPE_OPTIONS}
@@ -186,7 +186,7 @@ function ContentsSearchForm({
     }
   }, [
     tabId,
-    methods.values,
+    methods.params,
     methods.handleChangeText,
     methods.handleSelect,
     COST_TYPE_OPTIONS,
@@ -198,7 +198,7 @@ function ContentsSearchForm({
   useEffect(() => {
     if (tabId === "0" || tabId === "1") {
       methods.handleSelect({ key: "role", value: "ALL" });
-      if (tabId === "1" && !methods.values.approveType) {
+      if (tabId === "1" && !methods.params.approveType) {
         methods.handleSelect({ key: "approveType", value: "ALL" });
       }
     } else if (tabId === "2") {
@@ -223,7 +223,7 @@ function ContentsSearchForm({
       <SearchFormSelectBox<IContentsSearchParams>
         className={cn("w-[114px] ml-[10px]")}
         name="searchType"
-        value={methods.values.searchType!}
+        value={methods.params.searchType!}
         defaultValue={"UUID"}
         onChange={methods.handleSelect}
         options={SEARCH_TYPE_OPTIONS}
@@ -232,7 +232,7 @@ function ContentsSearchForm({
         name="searchKeyword"
         className={cn("w-[165px]")}
         onChange={methods.handleChangeText}
-        value={methods.values.searchKeyword}
+        value={methods.params.searchKeyword}
       />
     </SearchForm>
   );

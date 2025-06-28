@@ -1,39 +1,50 @@
 import { ChangeEventHandler, useState } from "react";
 
-interface IUseSearchMethodsParams<
+interface IUseSearchMethodsProps<
   T extends Record<string, string | number | string[]>,
 > {
-  defaultValues: T;
+  defaultParams: T;
 }
 
 export interface IUseSearchMethods<
   T extends Record<string, string | number | string[]>,
 > {
-  values: T;
+  params: T;
+  setParams: (value: T) => void;
+  searchParams: T;
   handleSubmit: () => T;
   handleReset: () => void;
   handleChangeText: ChangeEventHandler<HTMLInputElement>;
   handleSelect: (params: { key: keyof T; value: T[keyof T] }) => void;
+  handleChangePage: (page: number) => void;
+  handleChangeSize: (size: number) => void;
 }
 
 export default function useSearchMethods<
   T extends Record<string, string | number | string[]>,
->(params: IUseSearchMethodsParams<T>): IUseSearchMethods<T> {
-  const [values, setValues] = useState<T>(params.defaultValues);
+>(props: IUseSearchMethodsProps<T>): IUseSearchMethods<T> {
+  const [params, setParams] = useState<T>(props.defaultParams);
+  const [searchParams, setSearchParams] = useState<T>(props.defaultParams);
 
   const handleSubmit = () => {
-    const newValues = { ...values };
-    setValues(newValues);
-    return newValues;
+    setParams({ ...params, page: 1 });
+    return params;
   };
 
   const handleReset = () => {
-    setValues(params.defaultValues);
+    setParams({
+      ...props.defaultParams,
+      size: params.size,
+    });
+    setSearchParams({
+      ...props.defaultParams,
+      size: params.size,
+    });
   };
 
   const handleChangeText: ChangeEventHandler<HTMLInputElement> = (e) => {
     const { name, value } = e.target;
-    setValues((prev) => ({ ...prev, [name]: value }) as T);
+    setParams((prev) => ({ ...prev, [name]: value }) as T);
   };
 
   const handleSelect = ({
@@ -43,14 +54,42 @@ export default function useSearchMethods<
     key: keyof T;
     value: T[keyof T];
   }) => {
-    setValues((prev) => ({ ...prev, [key]: value }));
+    setParams((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleChangePage = (page: number) => {
+    setParams({
+      ...params,
+      page,
+    });
+    setSearchParams({
+      ...params,
+      page,
+    });
+  };
+
+  const handleChangeSize = (size: number) => {
+    setParams({
+      ...params,
+      page: 1,
+      size,
+    });
+    setSearchParams({
+      ...params,
+      page: 1,
+      size,
+    });
   };
 
   return {
-    values,
+    params,
+    setParams,
+    searchParams,
     handleSubmit,
     handleReset,
     handleChangeText,
     handleSelect,
+    handleChangePage,
+    handleChangeSize,
   };
 }

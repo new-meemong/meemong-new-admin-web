@@ -28,7 +28,7 @@ function DeclarationPageContent({ className }: DeclarationPageContentProps) {
   );
 
   const searchForm = useSearchForm<IDeclarationSearchParams>({
-    defaultValues: DEFAULT_SEARCH_PARAMS,
+    defaultParams: DEFAULT_SEARCH_PARAMS,
   });
 
   const getDeclarationsQuery = useGetDeclarationsQuery({

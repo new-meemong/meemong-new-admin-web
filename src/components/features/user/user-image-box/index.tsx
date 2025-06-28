@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 
 interface UserImageBoxProps {
   src: string;
@@ -27,7 +26,7 @@ export default function UserImageBox({
         )}
         style={{ width: size, height: size }}
       >
-        <Image
+        <img
           src={src}
           alt={alt!}
           width={size}

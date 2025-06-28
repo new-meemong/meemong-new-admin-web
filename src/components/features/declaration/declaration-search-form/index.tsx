@@ -51,7 +51,7 @@ function DeclarationSearchForm({
     <SearchForm className={cn("declaration-search-form", className)} {...props}>
       <SearchFormSelectBox<IDeclarationSearchParams>
         name="status"
-        value={searchForm.values.status!}
+        value={searchForm.params.status!}
         defaultValue={"ALL"}
         onChange={searchForm.handleSelect}
         options={STATUS_TYPE_OPTIONS}
@@ -60,7 +60,7 @@ function DeclarationSearchForm({
       <SearchFormSelectBox<IDeclarationSearchParams>
         className={cn("w-[114px] ml-[10px]")}
         name="searchType"
-        value={searchForm.values.searchType!}
+        value={searchForm.params.searchType!}
         defaultValue={"UUID"}
         onChange={searchForm.handleSelect}
         options={SEARCH_TYPE_OPTIONS}
@@ -69,7 +69,7 @@ function DeclarationSearchForm({
         className={cn("w-[165px]")}
         name="searchKeyword"
         onChange={searchForm.handleChangeText}
-        value={searchForm.values.searchKeyword}
+        value={searchForm.params.searchKeyword}
       />
     </SearchForm>
   );
