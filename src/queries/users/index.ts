@@ -3,7 +3,7 @@ import {
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
-import { IUserBlockDetail, IUserForm } from "@/models/user";
+import { IUserBlockDetail, IUserForm } from "@/models/users";
 import { GetUsersRequest, GetUsersResponse, userAPI } from "@/apis/user";
 import { userBlockAPI } from "@/apis/user/[userId]/block";
 

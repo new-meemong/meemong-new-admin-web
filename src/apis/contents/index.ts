@@ -1,6 +1,6 @@
 import { PaginatedResponse } from "@/apis/types";
 import { IContents } from "@/models/contents";
-import { UserRoleType } from "@/models/user";
+import { UserRoleType } from "@/models/users";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 
 //const BASE_URL = "/api/admin/contents";

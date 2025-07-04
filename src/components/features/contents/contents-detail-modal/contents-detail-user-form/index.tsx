@@ -6,9 +6,9 @@ import { FormGroup } from "@/components/ui/form-group";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CommonForm } from "@/components/shared/common-form";
-import { JOIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/user";
+import { JOIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/users";
 import { formatDate } from "@/utils/date";
-import { IUserForm, JoinType, UserRoleType } from "@/models/user";
+import { IUserForm, JoinType, UserRoleType } from "@/models/users";
 
 interface ContentsDetailUserFormProps {
   formData: IUserForm;

@@ -17,7 +17,7 @@ import {
   JobCategoryType,
   RecruitmentType,
 } from "@/models/contents";
-import { UserRoleType } from "@/models/user";
+import { UserRoleType } from "@/models/users";
 import { useContentsContext } from "@/components/contexts/contents-context";
 import { useModal } from "@/components/shared/modal/useModal";
 import ContentsDetailModal from "@/components/features/contents/contents-detail-modal";
@@ -58,7 +58,7 @@ function ContentsTable({
         enableSorting: false,
       },
       {
-        accessorKey: "nickname",
+        accessorKey: "userInfo.displayName",
         header: "닉네임",
         cell: (info) => info.getValue(),
         size: 180,
@@ -71,7 +71,7 @@ function ContentsTable({
         return [
           ...baseColumns,
           {
-            accessorKey: "role",
+            accessorKey: "userInfo.role",
             header: "작성자타입",
             cell: (info) => {
               const role = info.getValue() as UserRoleType;
@@ -104,7 +104,7 @@ function ContentsTable({
             enableSorting: true,
           },
           {
-            accessorKey: "isDeleted",
+            accessorKey: "deletedAt",
             header: "삭제여부",
             cell: (info) => (info.getValue() ? <span>삭제</span> : "-"),
             size: 80,

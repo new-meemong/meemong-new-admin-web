@@ -1,4 +1,4 @@
-import { BlockType, IUser, IUserForm, UserRoleType } from "@/models/user";
+import { BlockType, IUser, IUserForm, UserRoleType } from "@/models/users";
 import { fetcher } from "@/apis/core";
 import { PaginatedResponse } from "@/apis/types";
 import { SearchType } from "@/models/common";

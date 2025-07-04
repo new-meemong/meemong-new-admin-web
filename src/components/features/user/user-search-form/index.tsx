@@ -8,9 +8,10 @@ import {
   SearchFormProps,
   SearchFormSelectBox,
 } from "@/components/shared/search-form";
-import { BlockType } from "@/models/user";
+import { BlockType } from "@/models/users";
 import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMethods";
 import { PaginationType, SearchType } from "@/models/common";
+import { SEARCH_TYPE_OPTIONS } from "@/constants/common";
 
 type BlockTypeWithAll = BlockType | "ALL";
 
@@ -27,7 +28,7 @@ interface UserSearchFormProps extends SearchFormProps {
 }
 
 function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
-  const USER_TYPE_OPTIONS: { value: string; label: string }[] = [
+  const USER_ROLE_TYPE_OPTIONS: { value: string; label: string }[] = [
     { value: "ALL", label: "전체" },
     { value: "1", label: "모델" },
     { value: "2", label: "디자이너" },
@@ -39,12 +40,6 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
     { value: "2", label: "탈퇴" },
   ];
 
-  const SEARCH_TYPE_OPTIONS: { value: string; label: string }[] = [
-    { value: "UID", label: "uuid" },
-    { value: "NAME", label: "닉네임" },
-    { value: "PHONE", label: "전화번호" },
-  ];
-
   return (
     <SearchForm className={cn("user-search-form", className)} {...props}>
       <SearchFormSelectBox<IUserSearchParams>
@@ -52,7 +47,7 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
         value={String(methods.params.role!)}
         defaultValue={"ALL"}
         onChange={methods.handleSelect}
-        options={USER_TYPE_OPTIONS}
+        options={USER_ROLE_TYPE_OPTIONS}
         title="유저타입"
       />
       <SearchFormSelectBox<IUserSearchParams>

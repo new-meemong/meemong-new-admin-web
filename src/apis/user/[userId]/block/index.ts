@@ -1,4 +1,4 @@
-import { IUserBlockDetail } from "@/models/user";
+import { IUserBlockDetail } from "@/models/users";
 import { fetcher } from "@/apis/core";
 
 const BASE_URL = "/api/admin/users";

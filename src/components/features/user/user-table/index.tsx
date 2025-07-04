@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
-import { IUser, UserRoleType } from "@/models/user";
+import { IUser, UserRoleType } from "@/models/users";
 import UserRightDrawer from "@/components/features/user/user-right-drawer";
 import CommonTable, {
   CommonTableProps,

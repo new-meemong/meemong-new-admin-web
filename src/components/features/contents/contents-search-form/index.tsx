@@ -17,6 +17,7 @@ import {
 } from "@/models/contents";
 import { useContentsContext } from "@/components/contexts/contents-context";
 import { PaginationType, SearchType } from "@/models/common";
+import { SEARCH_TYPE_OPTIONS } from "@/constants/common";
 
 type ApproveTypeWithAll = ApproveType | "ALL";
 type JobCategoryTypeWithAll = JobCategoryType | "ALL";
@@ -24,7 +25,6 @@ type RecruitmentTypeWithAll = RecruitmentType | "ALL";
 type CostTypeWithAll = CostType | "ALL";
 
 export type IContentsSearchParams = {
-  categoryId: number;
   role?: string;
   approveType?: ApproveTypeWithAll;
   company?: string;
@@ -47,10 +47,10 @@ function ContentsSearchForm({
 }: ContentsSearchFormProps) {
   const { tabId } = useContentsContext();
 
-  const USER_TYPE_OPTIONS: { value: string; label: string }[] = [
+  const USER_ROLE_TYPE_OPTIONS: { value: string; label: string }[] = [
     { value: "ALL", label: "전체" },
-    { value: "MODEL", label: "모델" },
-    { value: "DESIGNER", label: "디자이너" },
+    { value: "1", label: "모델" },
+    { value: "2", label: "디자이너" },
   ];
 
   const APPROVE_TYPE_OPTIONS: { value: ApproveTypeWithAll; label: string }[] = [
@@ -94,12 +94,6 @@ function ContentsSearchForm({
     { value: "0", label: "무료" },
     { value: "1", label: "재료비" },
     { value: "2", label: "모델료" },
-  ];
-
-  const SEARCH_TYPE_OPTIONS: { value: string; label: string }[] = [
-    { value: "uuid", label: "uuid" },
-    { value: "displayName", label: "닉네임" },
-    { value: "phone", label: "전화번호" },
   ];
 
   const renderSearchForm = useCallback(() => {
@@ -167,7 +161,7 @@ function ContentsSearchForm({
             value={String(methods.params.role!)}
             defaultValue={"ALL"}
             onChange={methods.handleSelect}
-            options={USER_TYPE_OPTIONS}
+            options={USER_ROLE_TYPE_OPTIONS}
             title="유저타입"
           />
           {tabId === "1" && (
@@ -192,10 +186,11 @@ function ContentsSearchForm({
     COST_TYPE_OPTIONS,
     JOB_CATEGORY_TYPE_OPTIONS,
     RECRUITMENT_TYPE_OPTIONS,
-    USER_TYPE_OPTIONS,
+    USER_ROLE_TYPE_OPTIONS,
   ]);
 
   useEffect(() => {
+    console.log('efect')
     if (tabId === "0" || tabId === "1") {
       methods.handleSelect({ key: "role", value: "ALL" });
       if (tabId === "1" && !methods.params.approveType) {
@@ -224,7 +219,7 @@ function ContentsSearchForm({
         className={cn("w-[114px] ml-[10px]")}
         name="searchType"
         value={methods.params.searchType!}
-        defaultValue={"UUID"}
+        defaultValue={"UID"}
         onChange={methods.handleSelect}
         options={SEARCH_TYPE_OPTIONS}
       />

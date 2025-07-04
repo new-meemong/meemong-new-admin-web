@@ -12,7 +12,7 @@ export interface IUseSearchMethods<
   params: T;
   setParams: (value: T) => void;
   searchParams: T;
-  handleSubmit: () => T;
+  handleSubmit: () => void;
   handleReset: () => void;
   handleChangeText: ChangeEventHandler<HTMLInputElement>;
   handleSelect: (params: { key: keyof T; value: T[keyof T] }) => void;
@@ -28,7 +28,10 @@ export default function useSearchMethods<
 
   const handleSubmit = () => {
     setParams({ ...params, page: 1 });
-    return params;
+    setSearchParams({
+      ...params,
+      page: 1,
+    });
   };
 
   const handleReset = () => {
@@ -58,6 +61,9 @@ export default function useSearchMethods<
   };
 
   const handleChangePage = (page: number) => {
+    if (page === params.page) {
+      return;
+    }
     setParams({
       ...params,
       page,

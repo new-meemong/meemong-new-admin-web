@@ -1,22 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 import useSearchMethods from "@/components/shared/search-form/useSearchMethods";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
-import { useGetContentsQuery } from "@/queries/contents";
-import {
-  ApproveType,
-  CostType,
-  JobCategoryType,
-  RecruitmentType,
-} from "@/models/contents";
 import ContentsSearchForm, {
   IContentsSearchParams,
 } from "@/components/features/contents/contents-search-form";
 import ContentsTable from "@/components/features/contents/contents-table";
 import { useContentsContext } from "@/components/contexts/contents-context";
-import { UserRoleType } from "@/models/user";
+import { UserRoleType } from "@/models/users";
+import { useGetThunderAnnouncementsQuery } from "@/queries/thunderAnnouncements";
+import { IContents } from "@/models/contents";
 
 interface ContentsPageContentProps {
   className?: string;
@@ -24,9 +19,9 @@ interface ContentsPageContentProps {
 
 function ContentsPageContent({ className }: ContentsPageContentProps) {
   const { tabId } = useContentsContext();
+  const isTabChangeRef = useRef(false);
 
   const DEFAULT_SEARCH_PARAMS: IContentsSearchParams = {
-    categoryId: Number(tabId),
     role: "ALL",
     approveType: "ALL",
     company: "",
@@ -38,78 +33,96 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     ...DEFAULT_PAGINATION,
   };
 
-  const [searchParams, setSearchParams] = useState<IContentsSearchParams>(
-    DEFAULT_SEARCH_PARAMS,
-  );
-
   const methods = useSearchMethods<IContentsSearchParams>({
     defaultParams: DEFAULT_SEARCH_PARAMS,
   });
 
-  const getContentsQuery = useGetContentsQuery({
-    categoryId: searchParams.categoryId,
-    company: searchParams.company ?? "",
-    role:
-      searchParams.role === "ALL"
-        ? undefined
-        : (Number(searchParams.role) as UserRoleType),
-    approveType:
-      searchParams.approveType === "ALL"
-        ? undefined
-        : (searchParams.approveType as ApproveType),
-    costType:
-      searchParams.costType === "ALL"
-        ? undefined
-        : (searchParams.costType as CostType),
-    recruitment:
-      searchParams.recruitment === "ALL"
-        ? undefined
-        : (searchParams.recruitment as RecruitmentType),
-    jobCategory:
-      searchParams.jobCategory === "ALL"
-        ? undefined
-        : (searchParams.jobCategory as JobCategoryType),
-    searchKeyword: searchParams.searchKeyword,
-    page: searchParams.page,
-    size: searchParams.size,
-  });
+  const getThunderAnnouncementsQuery = useGetThunderAnnouncementsQuery(
+    {
+      role:
+        methods.params.role === "ALL"
+          ? undefined
+          : (Number(methods.params.role) as UserRoleType),
+      isPremium: tabId === "1",
+      searchType: methods.params.searchType,
+      searchKeyword: methods.params.searchKeyword,
+      page: methods.params.page,
+      size: methods.params.size,
+    },
+    {
+      enabled: false,
+    },
+  );
+
+  const parseContentsData = useCallback((data: unknown): IContents[] => {
+    return data as IContents[];
+  }, []);
+
+  // === 공통 반환 데이터 추출 ===
+  const contentsData: {
+    data: IContents[];
+    totalCount: number;
+    isLoading: boolean;
+    refetch: () => void;
+  } = useMemo(() => {
+    if (tabId === "0" || tabId === "1") {
+      return {
+        data:
+          parseContentsData(getThunderAnnouncementsQuery.data?.content) ?? [],
+        totalCount: getThunderAnnouncementsQuery.data?.totalCount ?? 0,
+        isLoading: getThunderAnnouncementsQuery.isLoading,
+        refetch: getThunderAnnouncementsQuery.refetch,
+      };
+    }
+
+    // if (tabId === "2") return { data: ..., totalCount: ..., refetch: ... }
+    return {
+      data: [] as IContents[],
+      totalCount: 0,
+      isLoading: false,
+      refetch: () => {},
+    };
+  }, [
+    tabId,
+    getThunderAnnouncementsQuery.data,
+    getThunderAnnouncementsQuery.isLoading,
+  ]);
 
   useEffect(() => {
-    setSearchParams({
-      ...searchParams,
-      page: 1,
-    });
+    if (methods.params.page !== 1) {
+      isTabChangeRef.current = true;
+      methods.handleChangePage(1);
+    } else {
+      contentsData.refetch();
+    }
   }, [tabId]);
+
+
+  useEffect(() => {
+    contentsData.refetch();
+  }, [methods.searchParams]);
 
   return (
     <div className={cn("contents-page-content", className)}>
       <ContentsSearchForm
         methods={methods}
         onSubmit={() => {
-          setSearchParams({ ...methods.params, page: 1 });
+          methods.handleSubmit();
         }}
         onRefresh={() => {
           methods.handleReset();
-          setSearchParams({ ...DEFAULT_SEARCH_PARAMS });
         }}
       />
       <ContentsTable
-        data={getContentsQuery.data?.content ?? []}
-        totalCount={getContentsQuery.data?.totalCount ?? 0}
-        currentPage={searchParams.page}
-        pageSize={searchParams.size}
+        data={contentsData.data ?? []}
+        totalCount={getThunderAnnouncementsQuery.data?.totalCount ?? 0}
+        currentPage={methods.params.page}
+        pageSize={methods.params.size}
         onPageChange={(page) => {
-          setSearchParams({
-            ...searchParams,
-            page,
-          });
+          methods.handleChangePage(page);
         }}
         onSizeChange={(size) => {
-          setSearchParams({
-            ...searchParams,
-            page: 1,
-            size,
-          });
+          methods.handleChangeSize(size);
         }}
       />
     </div>

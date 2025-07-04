@@ -9,7 +9,7 @@ import useSearchMethods from "@/components/shared/search-form/useSearchMethods";
 import UserTable from "@/components/features/user/user-table";
 import { useGetUsersQuery } from "@/queries/users";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
-import { BlockType, UserRoleType } from "@/models/user";
+import { BlockType, UserRoleType } from "@/models/users";
 
 interface UserPageContentProps {
   className?: string;
@@ -50,7 +50,7 @@ function UserPageContent({ className }: UserPageContentProps) {
 
   useEffect(() => {
     getUsersQuery.refetch();
-  }, [methods.params]);
+  }, [methods.searchParams]);
 
   return (
     <div className={cn("user-page-content", className)}>

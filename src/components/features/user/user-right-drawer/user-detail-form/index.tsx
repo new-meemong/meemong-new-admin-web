@@ -12,9 +12,9 @@ import {
   JoinType,
   UserPhotoType,
   UserRoleType,
-} from "@/models/user";
+} from "@/models/users";
 import { CommonForm } from "@/components/shared/common-form";
-import { JOIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/user";
+import { JOIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/users";
 import UserImageBox from "@/components/features/user/user-image-box";
 import { formatDate } from "@/utils/date";
 import UserBlockInfoList from "@/components/features/user/user-right-drawer/user-block-info-list";

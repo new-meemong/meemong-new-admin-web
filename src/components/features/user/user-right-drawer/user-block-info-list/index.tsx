@@ -6,7 +6,7 @@ import React, { ChangeEventHandler, useCallback, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDate } from "@/utils/date";
 import { useDialog } from "@/components/shared/dialog/context";
-import { IUserForm } from "@/models/user";
+import { IUserForm } from "@/models/users";
 import { useGetUserBlockDetailQuery } from "@/queries/users";
 
 interface UserBlockInfoListProps {
