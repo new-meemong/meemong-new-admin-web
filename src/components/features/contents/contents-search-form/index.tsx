@@ -25,6 +25,7 @@ type RecruitmentTypeWithAll = RecruitmentType | "ALL";
 type CostTypeWithAll = CostType | "ALL";
 
 export type IContentsSearchParams = {
+  tabId?: string
   role?: string;
   jobPostingRole?: string;
   approveType?: ApproveTypeWithAll;

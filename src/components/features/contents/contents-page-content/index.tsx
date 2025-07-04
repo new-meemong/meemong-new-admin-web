@@ -24,6 +24,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
   const isFirstRenderRef = useRef(true);
 
   const DEFAULT_SEARCH_PARAMS: IContentsSearchParams = {
+    tabId,
     role: "ALL",
     jobPostingRole: "ALL",
     approveType: "ALL",
@@ -128,11 +129,13 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     methods.setParams({
       ...DEFAULT_SEARCH_PARAMS,
       size,
+      tabId,
       page: 1,
     });
     methods.setSearchParams({
       ...DEFAULT_SEARCH_PARAMS,
       size,
+      tabId,
       page: 1,
     });
   }, [tabId]);
