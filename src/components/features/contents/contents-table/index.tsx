@@ -60,7 +60,7 @@ function ContentsTable({
       {
         accessorKey: "userInfo.displayName",
         header: "닉네임",
-        cell: (info) => info.getValue(),
+        cell: (info) => info.getValue() || "-",
         size: 180,
         enableSorting: false,
       },
@@ -135,14 +135,14 @@ function ContentsTable({
         return [
           ...baseColumns,
           {
-            accessorKey: "company",
+            accessorKey: "storeName",
             header: "업체명",
-            cell: (info) => info.getValue(),
+            cell: (info) => info.getValue() || "-",
             size: 180,
             enableSorting: false,
           },
           {
-            accessorKey: "title",
+            accessorKey: "postingTitle",
             header: "제목",
             cell: (info) => (
               <span
@@ -151,7 +151,7 @@ function ContentsTable({
                 )}
                 onClick={() => handleClickRow(info.row.original)}
               >
-                {info.getValue() as string}
+                {(info.getValue() as string) || "-"}
               </span>
             ),
             enableSorting: false,
@@ -160,12 +160,13 @@ function ContentsTable({
             accessorKey: "createdAt",
             header: "작성일/시간",
             cell: (info) =>
-              formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm"),
+              formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm") ||
+              "-",
             size: 150,
             enableSorting: true,
           },
           {
-            accessorKey: "isDeleted",
+            accessorKey: "deletedAt",
             header: "삭제여부",
             cell: (info) => (info.getValue() ? <span>삭제</span> : "-"),
             size: 80,

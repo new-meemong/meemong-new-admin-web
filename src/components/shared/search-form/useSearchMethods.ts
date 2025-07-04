@@ -12,6 +12,7 @@ export interface IUseSearchMethods<
   params: T;
   setParams: (value: T) => void;
   searchParams: T;
+  setSearchParams: (value: T) => void;
   handleSubmit: () => void;
   handleReset: () => void;
   handleChangeText: ChangeEventHandler<HTMLInputElement>;
@@ -91,6 +92,7 @@ export default function useSearchMethods<
     params,
     setParams,
     searchParams,
+    setSearchParams,
     handleSubmit,
     handleReset,
     handleChangeText,

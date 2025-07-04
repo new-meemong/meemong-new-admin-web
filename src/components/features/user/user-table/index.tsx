@@ -88,7 +88,8 @@ function UserTable({
     {
       accessorKey: "createdAt",
       header: "가입일",
-      cell: (info) => formatDate(info.getValue() as string, "YYYY.MM.DD"),
+      cell: (info) =>
+        formatDate(info.getValue() as string, "YYYY.MM.DD") || "-",
       size: 120,
       enableSorting: true,
     },

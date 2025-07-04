@@ -26,8 +26,9 @@ type CostTypeWithAll = CostType | "ALL";
 
 export type IContentsSearchParams = {
   role?: string;
+  jobPostingRole?: string;
   approveType?: ApproveTypeWithAll;
-  company?: string;
+  storeName?: string;
   jobCategory?: JobCategoryTypeWithAll;
   recruitment?: RecruitmentTypeWithAll;
   costType?: CostTypeWithAll;
@@ -60,13 +61,13 @@ function ContentsSearchForm({
     { value: "2", label: "승인거절" },
   ];
 
-  const JOB_CATEGORY_TYPE_OPTIONS: {
-    value: JobCategoryTypeWithAll;
+  const JOB_POSTING_ROLE_TYPE_OPTIONS: {
+    value: string;
     label: string;
   }[] = [
     { value: "ALL", label: "전체" },
-    { value: "0", label: "인턴" },
-    { value: "1", label: "디자이너" },
+    { value: "인턴", label: "인턴" },
+    { value: "디자이너", label: "디자이너" },
   ];
 
   const RECRUITMENT_TYPE_OPTIONS: {
@@ -101,19 +102,19 @@ function ContentsSearchForm({
       return (
         <>
           <SearchFormInput
-            name="company"
+            name="storeName"
             className={cn("w-[130px]")}
             onChange={methods.handleChangeText}
             placeholder="업체명"
-            value={methods.params.company}
+            value={methods.params.storeName}
             title="업체명"
           />
           <SearchFormSelectBox<IContentsSearchParams>
-            name="jobCategory"
+            name="jobPostingRole"
             className={cn("w-[130px]")}
-            value={methods.params.jobCategory!}
+            value={methods.params.jobPostingRole!}
             onChange={methods.handleSelect}
-            options={JOB_CATEGORY_TYPE_OPTIONS}
+            options={JOB_POSTING_ROLE_TYPE_OPTIONS}
             title="모집타입"
           />
         </>
@@ -126,7 +127,7 @@ function ContentsSearchForm({
             className={cn("w-[130px]")}
             value={methods.params.jobCategory!}
             onChange={methods.handleSelect}
-            options={JOB_CATEGORY_TYPE_OPTIONS}
+            options={JOB_POSTING_ROLE_TYPE_OPTIONS}
             title="구직타입"
           />
         </>
@@ -184,13 +185,12 @@ function ContentsSearchForm({
     methods.handleChangeText,
     methods.handleSelect,
     COST_TYPE_OPTIONS,
-    JOB_CATEGORY_TYPE_OPTIONS,
+    JOB_POSTING_ROLE_TYPE_OPTIONS,
     RECRUITMENT_TYPE_OPTIONS,
     USER_ROLE_TYPE_OPTIONS,
   ]);
 
   useEffect(() => {
-    console.log('efect')
     if (tabId === "0" || tabId === "1") {
       methods.handleSelect({ key: "role", value: "ALL" });
       if (tabId === "1" && !methods.params.approveType) {

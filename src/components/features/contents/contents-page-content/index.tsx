@@ -12,6 +12,8 @@ import { useContentsContext } from "@/components/contexts/contents-context";
 import { UserRoleType } from "@/models/users";
 import { useGetThunderAnnouncementsQuery } from "@/queries/thunderAnnouncements";
 import { IContents } from "@/models/contents";
+import { useGetJobPostingsQuery } from "@/queries/jobPostings";
+import { JobPostingRoleType } from "@/models/jobPostings";
 
 interface ContentsPageContentProps {
   className?: string;
@@ -19,12 +21,13 @@ interface ContentsPageContentProps {
 
 function ContentsPageContent({ className }: ContentsPageContentProps) {
   const { tabId } = useContentsContext();
-  const isTabChangeRef = useRef(false);
+  const isFirstRenderRef = useRef(true);
 
   const DEFAULT_SEARCH_PARAMS: IContentsSearchParams = {
     role: "ALL",
+    jobPostingRole: "ALL",
     approveType: "ALL",
-    company: "",
+    storeName: "",
     jobCategory: "ALL",
     recruitment: "ALL",
     costType: "ALL",
@@ -43,7 +46,24 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
         methods.params.role === "ALL"
           ? undefined
           : (Number(methods.params.role) as UserRoleType),
+      searchType: methods.params.searchType,
+      searchKeyword: methods.params.searchKeyword,
       isPremium: tabId === "1",
+      page: methods.params.page,
+      size: methods.params.size,
+    },
+    {
+      enabled: false,
+    },
+  );
+
+  const getJobPostingsQuery = useGetJobPostingsQuery(
+    {
+      storeName: methods.params.storeName,
+      role:
+        methods.params.jobPostingRole === "ALL"
+          ? undefined
+          : (methods.params.jobPostingRole as JobPostingRoleType),
       searchType: methods.params.searchType,
       searchKeyword: methods.params.searchKeyword,
       page: methods.params.page,
@@ -73,9 +93,15 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
         isLoading: getThunderAnnouncementsQuery.isLoading,
         refetch: getThunderAnnouncementsQuery.refetch,
       };
+    } else if (tabId === "2") {
+      return {
+        data: parseContentsData(getJobPostingsQuery.data?.content) ?? [],
+        totalCount: getJobPostingsQuery.data?.totalCount ?? 0,
+        isLoading: getJobPostingsQuery.isLoading,
+        refetch: getJobPostingsQuery.refetch,
+      };
     }
 
-    // if (tabId === "2") return { data: ..., totalCount: ..., refetch: ... }
     return {
       data: [] as IContents[],
       totalCount: 0,
@@ -86,20 +112,36 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     tabId,
     getThunderAnnouncementsQuery.data,
     getThunderAnnouncementsQuery.isLoading,
+    getJobPostingsQuery.data,
+    getJobPostingsQuery.isLoading,
   ]);
 
   useEffect(() => {
-    if (methods.params.page !== 1) {
-      isTabChangeRef.current = true;
-      methods.handleChangePage(1);
-    } else {
-      contentsData.refetch();
+    const { size } = methods.params;
+
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+
+      return;
     }
+
+    methods.setParams({
+      ...DEFAULT_SEARCH_PARAMS,
+      size,
+      page: 1,
+    });
+    methods.setSearchParams({
+      ...DEFAULT_SEARCH_PARAMS,
+      size,
+      page: 1,
+    });
   }, [tabId]);
 
-
   useEffect(() => {
-    contentsData.refetch();
+    // 최초 렌더 이후부터만 refetch 작동
+    if (!isFirstRenderRef.current) {
+      contentsData.refetch();
+    }
   }, [methods.searchParams]);
 
   return (
@@ -115,7 +157,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
       />
       <ContentsTable
         data={contentsData.data ?? []}
-        totalCount={getThunderAnnouncementsQuery.data?.totalCount ?? 0}
+        totalCount={contentsData.totalCount ?? 0}
         currentPage={methods.params.page}
         pageSize={methods.params.size}
         onPageChange={(page) => {
