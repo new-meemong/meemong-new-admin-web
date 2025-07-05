@@ -21,7 +21,7 @@ export const useGetUsersQuery = (
   });
 
 export const useGetUserDetailQuery = (
-  userId: number,
+  userId?: number,
   config?: UseQueryOptions<IUserForm, Error>,
 ): UseQueryResult<IUserForm, Error> =>
   useQuery<IUserForm, Error>({

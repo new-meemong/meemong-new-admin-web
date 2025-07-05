@@ -9,12 +9,12 @@ import { z } from "zod";
 import { Form } from "@/components/ui/form";
 import {
   IUserForm,
-  JoinType,
+  LoginType,
   UserPhotoType,
   UserRoleType,
 } from "@/models/users";
 import { CommonForm } from "@/components/shared/common-form";
-import { JOIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/users";
+import { LOGIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/users";
 import UserImageBox from "@/components/features/user/user-image-box";
 import { formatDate } from "@/utils/date";
 import UserBlockInfoList from "@/components/features/user/user-right-drawer/user-block-info-list";
@@ -33,7 +33,7 @@ export default function UserDetailForm({
     role: z.number(),
     displayName: z.string(),
     name: z.string(),
-    joinType: z.string(),
+    loginType: z.string(),
     createdAt: z.string(),
     recentLoginTime: z.string(),
     profilePictureURL: z.string(),
@@ -58,7 +58,7 @@ export default function UserDetailForm({
       role: undefined,
       displayName: "",
       name: "",
-      joinType: "",
+      loginType: "",
       createdAt: "",
       recentLoginTime: "",
       isWithdraw: undefined,
@@ -114,9 +114,9 @@ export default function UserDetailForm({
           />
           <CommonForm.ReadonlyRow
             label={"가입형태"}
-            value={form.watch("joinType")}
+            value={form.watch("loginType")}
             formatter={(v) => {
-              return JOIN_TYPE_MAP[v as JoinType] || "-";
+              return LOGIN_TYPE_MAP[v as LoginType] || "-";
             }}
           />
           <CommonForm.ReadonlyRow

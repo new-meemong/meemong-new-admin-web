@@ -1,14 +1,14 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { FormGroup } from "@/components/ui/form-group";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CommonForm } from "@/components/shared/common-form";
-import { JOIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/users";
+import { LOGIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/users";
 import { formatDate } from "@/utils/date";
-import { IUserForm, JoinType, UserRoleType } from "@/models/users";
+import { IUserForm, LoginType, UserRoleType } from "@/models/users";
 
 interface ContentsDetailUserFormProps {
   formData: IUserForm;
@@ -18,13 +18,13 @@ export default function ContentsDetailUserForm({
   formData,
 }: ContentsDetailUserFormProps) {
   const formSchema = z.object({
-    userNumber: z.string(),
+    id: z.string(),
     role: z.number(),
-    nickname: z.string(),
+    displayName: z.string(),
     name: z.string(),
-    joinType: z.string(),
+    loginType: z.string(),
     createdAt: z.string(),
-    recentLoggedInAt: z.string(),
+    recentLoginTime: z.string(),
     profileUrl: z.string(),
     isWithdraw: z.boolean(),
   });
@@ -32,24 +32,38 @@ export default function ContentsDetailUserForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      userNumber: "",
+      id: "",
       role: undefined,
-      nickname: "",
+      displayName: "",
       name: "",
-      joinType: "",
+      loginType: "",
       createdAt: "",
-      recentLoggedInAt: "",
+      recentLoginTime: "",
       isWithdraw: undefined,
     },
   });
+
+  const userId: string = useMemo(() => {
+    let _userId: string = String(form.watch("id"));
+    if (form.watch("role") === 1) {
+      _userId = `M-${form.watch("id")}`;
+    } else if (form.watch("role") === 2) {
+      _userId = `D-${form.watch("id")}`;
+    }
+
+    return _userId;
+  }, [form.watch("role"), form.watch("id")]);
 
   useEffect(() => {
     if (formData) {
       form.reset({
         ...formData,
+        id: String(formData.id),
+        role: Number(formData.role),
+        isWithdraw: Boolean(formData.isWithdraw),
       });
     }
-  }, [formData, form]);
+  }, [formData]);
 
   if (!formData) {
     return "...loading";
@@ -57,10 +71,7 @@ export default function ContentsDetailUserForm({
 
   return (
     <FormGroup title={"기본 정보"}>
-      <CommonForm.ReadonlyRow
-        label={"회원번호"}
-        value={form.watch("userNumber")}
-      />
+      <CommonForm.ReadonlyRow label={"회원번호"} value={userId} />
       <CommonForm.ReadonlyRow<UserRoleType>
         label={"유형"}
         value={form.watch("role") as UserRoleType}
@@ -68,27 +79,30 @@ export default function ContentsDetailUserForm({
           return USER_TYPE_MAP[v as UserRoleType] ?? "-";
         }}
       />
-      <CommonForm.ReadonlyRow label={"닉네임"} value={form.watch("nickname")} />
+      <CommonForm.ReadonlyRow
+        label={"닉네임"}
+        value={form.watch("displayName")}
+      />
       <CommonForm.ReadonlyRow label={"이름"} value={form.watch("name")} />
       <CommonForm.ReadonlyRow
         label={"가입형태"}
-        value={form.watch("joinType")}
+        value={form.watch("loginType")}
         formatter={(v) => {
-          return JOIN_TYPE_MAP[v as JoinType];
+          return LOGIN_TYPE_MAP[v as LoginType] || "-";
         }}
       />
       <CommonForm.ReadonlyRow
         label={"가입일"}
         value={form.watch("createdAt")}
         formatter={(v) => {
-          return v ? formatDate(v as string) : "";
+          return v ? formatDate(v as string) : "-";
         }}
       />
       <CommonForm.ReadonlyRow
         label={"최근 로그인"}
-        value={form.watch("recentLoggedInAt")}
+        value={form.watch("recentLoginTime")}
         formatter={(v) => {
-          return v ? formatDate(v as string) : "";
+          return v ? formatDate(v as string) : "-";
         }}
       />
       <CommonForm.ReadonlyRow
@@ -96,7 +110,7 @@ export default function ContentsDetailUserForm({
         value={form.watch("isWithdraw")}
         formatter={(v) => {
           if (typeof v === "undefined") {
-            return "";
+            return "-";
           }
           return v ? "Y" : "N";
         }}

@@ -23,7 +23,7 @@ export default function ContentsDetailModal({
   contents,
   categoryId,
 }: ContentsDetailModalProps) {
-  const getUserDetailQuery = useGetUserDetailQuery(contents?.userId);
+  const getUserDetailQuery = useGetUserDetailQuery(contents?.userInfo?.userId);
 
   const renderFormGroup = useCallback(() => {
     if (categoryId === "2") {
@@ -36,8 +36,6 @@ export default function ContentsDetailModal({
       return <>1</>;
     }
   }, [categoryId]);
-
-  if (!contents?.id) return null;
 
   return (
     <Modal isOpen={isOpen} size="md">

@@ -94,8 +94,27 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     },
   );
 
-  const parseContentsData = useCallback((data: unknown): IContents[] => {
-    return data as IContents[];
+  const parseContentsData = useCallback((data: unknown[]): IContents[] => {
+    if (!data) {
+      return [];
+    }
+
+    return data.map((item) => {
+      const contentsItem = item as IContents;
+
+      return {
+        id: contentsItem?.id,
+        userInfo: contentsItem?.userInfo,
+        title: contentsItem?.title,
+        postingTitle: contentsItem?.postingTitle,
+        shortDescription: contentsItem?.shortDescription,
+        appliedRole: contentsItem?.appliedRole,
+        jobPostingRole: contentsItem?.jobPostingRole,
+        storeName: contentsItem?.storeName,
+        createdAt: contentsItem?.createdAt,
+        deletedAt: contentsItem?.deletedAt,
+      };
+    }) as IContents[];
   }, []);
 
   // === 공통 반환 데이터 추출 ===
@@ -108,21 +127,22 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     if (tabId === "0" || tabId === "1") {
       return {
         data:
-          parseContentsData(getThunderAnnouncementsQuery.data?.content) ?? [],
+          parseContentsData(getThunderAnnouncementsQuery.data?.content || []) ??
+          [],
         totalCount: getThunderAnnouncementsQuery.data?.totalCount ?? 0,
         isLoading: getThunderAnnouncementsQuery.isLoading,
         refetch: getThunderAnnouncementsQuery.refetch,
       };
     } else if (tabId === "2") {
       return {
-        data: parseContentsData(getJobPostingsQuery.data?.content) ?? [],
+        data: parseContentsData(getJobPostingsQuery.data?.content || []) ?? [],
         totalCount: getJobPostingsQuery.data?.totalCount ?? 0,
         isLoading: getJobPostingsQuery.isLoading,
         refetch: getJobPostingsQuery.refetch,
       };
     } else if (tabId === "3") {
       return {
-        data: parseContentsData(getResumesQuery.data?.content) ?? [],
+        data: parseContentsData(getResumesQuery.data?.content || []) ?? [],
         totalCount: getResumesQuery.data?.totalCount ?? 0,
         isLoading: getResumesQuery.isLoading,
         refetch: getResumesQuery.refetch,

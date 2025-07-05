@@ -1,5 +1,3 @@
-import { UserRoleType } from "@/models/users";
-
 export type ContentsCategoryType = "0" | "1" | "2" | "3" | "4"; // 0: 번개/일반, 1: 번개/프리미엄, 2: 구인공고, 3: 이력서, 4: 모집공고
 
 export type ApproveType = "0" | "1" | "2"; // 0: 승인, 1: 미승인, 2: 승인거절
@@ -23,19 +21,18 @@ export type CostType = "0" | "1" | "2"; // 0: 무료, 1: 재료비, 2: 모델료
 
 export interface IContents {
   id: number;
-  userId: number; // 작성자 ID
-  nickname: string; // 닉네임
-  role: UserRoleType; // 작성자 타입
-  title: string; // 제목
-  company?: string; // 업체명
-  noticeId?: number; // 게시물 ID
-  jobId?: number; // 구인공고 ID
-  resumeId?: number; // 이력서 ID
-  recruitmentId?: number; // 모집공고 ID
-  jobCategory?: JobCategoryType; // 구직타입
-  recruitment?: RecruitmentType; // 모집타입
+  userInfo?: {
+    userId: number; // 작성자 ID
+    displayName: string; // 닉네임
+    role?: string; // 유저의 직업 타입 (인턴, 디자이너)
+  };
+  jobPostingRole?: string; // 모집공고 구직 타입 (인턴, 디자이너)
+  appliedRole?: string; // 이력서 구직 타입 (인턴, 디자이너)
+  title?: string; // 제목
+  postingTitle?: string; // 구인공고 제목
+  shortDescription?: string; // 이력서 제목
+  storeName?: string; // 업체명
   costType?: CostType; // 비용타입
   createdAt: string; // 작성일/시간
-  isDeleted: boolean; // 삭제여부
-  isApproved: boolean; // 승인여부
+  deletedAt: string; // 삭제여부
 }

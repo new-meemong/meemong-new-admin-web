@@ -4,7 +4,7 @@ export type UserRoleType = 1 | 2; // 유저 타입
 
 export type BlockType = "0" | "1" | "2"; // 0: 전체, 1: 차단, 2: 탈퇴
 
-export type JoinType = "0" | "1"; // 0: 일반 가입, 1: SNS 가입
+export type LoginType = "APPLE" | "KAKAO" | "GOOGLE";
 
 export type BlockInfoType = {
   isBlocked: boolean;
@@ -30,7 +30,7 @@ export interface IUser {
 
 export interface IUserForm extends IUser {
   name: string; // 이름
-  joinType: JoinType; // 가입형태
+  loginType: LoginType; // 가입형태
   profilePictureURL: string; // 프로필 url
   phone: string; // 전화번호
   email: string; // 이메일

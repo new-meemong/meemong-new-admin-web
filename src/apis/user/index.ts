@@ -122,7 +122,7 @@ export const userAPI = {
   /*  getById: ({ userId }: { userId: number }): Promise<IUserForm> => {
     return mockFetch(dummyUserDetail, { userId });
   },*/
-  getById: async (userId: number) => {
+  getById: async (userId?: number) => {
     const response = await fetcher<GetUserDetailResponse>(
       `${BASE_URL}/${userId}`,
     );
