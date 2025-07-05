@@ -14,6 +14,8 @@ import { useGetThunderAnnouncementsQuery } from "@/queries/thunderAnnouncements"
 import { IContents } from "@/models/contents";
 import { useGetJobPostingsQuery } from "@/queries/jobPostings";
 import { JobPostingRoleType } from "@/models/jobPostings";
+import { useGetResumeListQuery } from "@/queries/resumes";
+import { ResumeRoleType } from "@/models/resumes";
 
 interface ContentsPageContentProps {
   className?: string;
@@ -27,6 +29,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     tabId,
     role: "ALL",
     jobPostingRole: "ALL",
+    resumeRole: "ALL",
     approveType: "ALL",
     storeName: "",
     jobCategory: "ALL",
@@ -75,6 +78,22 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     },
   );
 
+  const getResumesQuery = useGetResumeListQuery(
+    {
+      role:
+        methods.params.resumeRole === "ALL"
+          ? undefined
+          : (methods.params.resumeRole as ResumeRoleType),
+      searchType: methods.params.searchType,
+      searchKeyword: methods.params.searchKeyword,
+      page: methods.params.page,
+      size: methods.params.size,
+    },
+    {
+      enabled: false,
+    },
+  );
+
   const parseContentsData = useCallback((data: unknown): IContents[] => {
     return data as IContents[];
   }, []);
@@ -101,6 +120,13 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
         isLoading: getJobPostingsQuery.isLoading,
         refetch: getJobPostingsQuery.refetch,
       };
+    } else if (tabId === "3") {
+      return {
+        data: parseContentsData(getResumesQuery.data?.content) ?? [],
+        totalCount: getResumesQuery.data?.totalCount ?? 0,
+        isLoading: getResumesQuery.isLoading,
+        refetch: getResumesQuery.refetch,
+      };
     }
 
     return {
@@ -115,6 +141,8 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     getThunderAnnouncementsQuery.isLoading,
     getJobPostingsQuery.data,
     getJobPostingsQuery.isLoading,
+    getResumesQuery.data,
+    getResumesQuery.isLoading,
   ]);
 
   useEffect(() => {

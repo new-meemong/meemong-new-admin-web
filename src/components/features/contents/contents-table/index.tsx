@@ -14,7 +14,6 @@ import {
   ContentsCategoryType,
   CostType,
   IContents,
-  JobCategoryType,
   RecruitmentType,
 } from "@/models/contents";
 import { UserRoleType } from "@/models/users";
@@ -22,6 +21,7 @@ import { useContentsContext } from "@/components/contexts/contents-context";
 import { useModal } from "@/components/shared/modal/useModal";
 import ContentsDetailModal from "@/components/features/contents/contents-detail-modal";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
+import { ResumeRoleType } from "@/models/resumes";
 
 interface ContentsTableProps
   extends Omit<CommonTableProps<IContents> & CommonPaginationProps, "columns"> {
@@ -177,17 +177,16 @@ function ContentsTable({
         return [
           ...baseColumns,
           {
-            accessorKey: "jobCategory",
+            accessorKey: "appliedRole",
             header: "구직타입",
             cell: (info) => {
-              const val = info.getValue() as JobCategoryType;
-              return val === "0" ? "인턴" : val === "1" ? "디자이너" : "-";
+              return (info.getValue() as ResumeRoleType) || "-";
             },
             size: 120,
             enableSorting: false,
           },
           {
-            accessorKey: "title",
+            accessorKey: "shortDescription",
             header: "제목",
             cell: (info) => (
               <span
@@ -210,7 +209,7 @@ function ContentsTable({
             enableSorting: true,
           },
           {
-            accessorKey: "isDeleted",
+            accessorKey: "deletedAt",
             header: "삭제여부",
             cell: (info) => (info.getValue() ? <span>삭제</span> : "-"),
             size: 80,

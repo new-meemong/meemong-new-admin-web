@@ -28,6 +28,7 @@ export type IContentsSearchParams = {
   tabId?: string
   role?: string;
   jobPostingRole?: string;
+  resumeRole?: string;
   approveType?: ApproveTypeWithAll;
   storeName?: string;
   jobCategory?: JobCategoryTypeWithAll;
@@ -63,6 +64,15 @@ function ContentsSearchForm({
   ];
 
   const JOB_POSTING_ROLE_TYPE_OPTIONS: {
+    value: string;
+    label: string;
+  }[] = [
+    { value: "ALL", label: "전체" },
+    { value: "인턴", label: "인턴" },
+    { value: "디자이너", label: "디자이너" },
+  ];
+
+  const RESUME_ROLE_TYPE_OPTIONS: {
     value: string;
     label: string;
   }[] = [
@@ -124,11 +134,11 @@ function ContentsSearchForm({
       return (
         <>
           <SearchFormSelectBox<IContentsSearchParams>
-            name="jobCategory"
+            name="resumeRole"
             className={cn("w-[130px]")}
-            value={methods.params.jobCategory!}
+            value={methods.params.resumeRole!}
             onChange={methods.handleSelect}
-            options={JOB_POSTING_ROLE_TYPE_OPTIONS}
+            options={RESUME_ROLE_TYPE_OPTIONS}
             title="구직타입"
           />
         </>
