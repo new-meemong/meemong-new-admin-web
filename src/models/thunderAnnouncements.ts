@@ -1,5 +1,12 @@
 import { UserRoleType } from "@/models/users";
 
+export type ThunderAnnouncementType =
+  | "NORMAL"
+  | "PREMIUM"
+  | "PREMIUM_APPROVED"
+  | "PREMIUM_UNAPPROVED"
+  | "PREMIUM_REJECTED";
+
 export interface IThunderAnnouncement {
   id: number;
   title: string;

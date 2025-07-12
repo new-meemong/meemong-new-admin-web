@@ -17,6 +17,7 @@ import { JobPostingRoleType } from "@/models/jobPostings";
 import { useGetResumeListQuery } from "@/queries/resumes";
 import { ResumeRoleType } from "@/models/resumes";
 import { useGetAnnouncementsQuery } from "@/queries/announcements";
+import { ThunderAnnouncementType } from "@/models/thunderAnnouncements";
 
 interface ContentsPageContentProps {
   className?: string;
@@ -45,6 +46,16 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     defaultParams: DEFAULT_SEARCH_PARAMS,
   });
 
+  const thunderAnnouncementType: string | undefined = useMemo(() => {
+    if (tabId === "1") {
+      const approveType = methods.params.approveType;
+
+      return approveType === "ALL" ? "PREMIUM" : approveType;
+    } else {
+      return "NORMAL";
+    }
+  }, [methods.params.approveType, tabId]);
+
   const getThunderAnnouncementsQuery = useGetThunderAnnouncementsQuery(
     {
       role:
@@ -53,7 +64,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
           : (Number(methods.params.role) as UserRoleType),
       searchType: methods.params.searchType,
       searchKeyword: methods.params.searchKeyword,
-      isPremium: tabId === "1",
+      type: thunderAnnouncementType as ThunderAnnouncementType,
       page: methods.params.page,
       size: methods.params.size,
     },

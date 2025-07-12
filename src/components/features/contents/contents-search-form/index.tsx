@@ -9,12 +9,11 @@ import {
   SearchFormSelectBox,
 } from "@/components/shared/search-form";
 import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMethods";
-import { ApproveType, JobCategoryType } from "@/models/contents";
+import { JobCategoryType } from "@/models/contents";
 import { useContentsContext } from "@/components/contexts/contents-context";
 import { PaginationType, SearchType } from "@/models/common";
 import { SEARCH_TYPE_OPTIONS } from "@/constants/common";
 
-type ApproveTypeWithAll = ApproveType | "ALL";
 type JobCategoryTypeWithAll = JobCategoryType | "ALL";
 
 export type IContentsSearchParams = {
@@ -22,7 +21,7 @@ export type IContentsSearchParams = {
   role?: string;
   jobPostingRole?: string;
   resumeRole?: string;
-  approveType?: ApproveTypeWithAll;
+  approveType?: string;
   storeName?: string;
   jobCategory?: JobCategoryTypeWithAll;
   announcementCategory?: string;
@@ -49,11 +48,11 @@ function ContentsSearchForm({
     { value: "2", label: "디자이너" },
   ];
 
-  const APPROVE_TYPE_OPTIONS: { value: ApproveTypeWithAll; label: string }[] = [
+  const APPROVE_TYPE_OPTIONS: { value: string; label: string }[] = [
     { value: "ALL", label: "전체" },
-    { value: "0", label: "승인" },
-    { value: "1", label: "미승인" },
-    { value: "2", label: "승인거절" },
+    { value: "PREMIUM_APPROVED", label: "승인" },
+    { value: "PREMIUM_UNAPPROVED", label: "미승인" },
+    { value: "PREMIUM_REJECTED", label: "승인거절" },
   ];
 
   const JOB_POSTING_ROLE_TYPE_OPTIONS: {
