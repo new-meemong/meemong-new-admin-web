@@ -4,7 +4,7 @@ import { SearchType } from "@/models/common";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { IJobPosting, JobPostingRoleType } from "@/models/jobPostings";
 
-const BASE_URL = "/api/v1/admins/jobPostings";
+const BASE_URL = "/api/v1/admins/job-contacts";
 
 export type GetJobPostingsRequest = {
   storeName?: string;

@@ -15,7 +15,7 @@ export type RecruitmentType =
   | "7"
   | "8"
   | "9";
-// 0: 펌, 1: 탈색, 2: 메이크업, 3: 속눈썹, 4: 커트, 5: 염색, 6: 클리닉, 7: 매직, 8: 드라이, 9: 붙임머리
+// 0: 펌, 1: 탈색, 2: 메이크업, 3: 속눈썹, 4: 컷트, 5: 염색, 6: 클리닉, 7: 매직, 8: 드라이, 9: 붙임머리
 
 export type CostType = "0" | "1" | "2"; // 0: 무료, 1: 재료비, 2: 모델료
 
@@ -32,7 +32,9 @@ export interface IContents {
   postingTitle?: string; // 구인공고 제목
   shortDescription?: string; // 이력서 제목
   storeName?: string; // 업체명
-  costType?: CostType; // 비용타입
+  description?: string; // 모집공고 제목
+  category?: string; // 모집공고 모집타입
+  priceType?: string; // 모집공고 비용타입
   createdAt: string; // 작성일/시간
   deletedAt: string; // 삭제여부
 }

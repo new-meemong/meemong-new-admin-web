@@ -16,6 +16,7 @@ import { useGetJobPostingsQuery } from "@/queries/jobPostings";
 import { JobPostingRoleType } from "@/models/jobPostings";
 import { useGetResumeListQuery } from "@/queries/resumes";
 import { ResumeRoleType } from "@/models/resumes";
+import { useGetAnnouncementsQuery } from "@/queries/announcements";
 
 interface ContentsPageContentProps {
   className?: string;
@@ -33,8 +34,8 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     approveType: "ALL",
     storeName: "",
     jobCategory: "ALL",
-    recruitment: "ALL",
-    costType: "ALL",
+    announcementCategory: "ALL",
+    priceType: "ALL",
     searchType: "UID",
     searchKeyword: "",
     ...DEFAULT_PAGINATION,
@@ -94,6 +95,26 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     },
   );
 
+  const getAnnouncementsQuery = useGetAnnouncementsQuery(
+    {
+      category:
+        methods.params.announcementCategory === "ALL"
+          ? undefined
+          : methods.params.announcementCategory,
+      priceType:
+        methods.params.priceType === "ALL"
+          ? undefined
+          : methods.params.priceType,
+      searchType: methods.params.searchType,
+      searchKeyword: methods.params.searchKeyword,
+      page: methods.params.page,
+      size: methods.params.size,
+    },
+    {
+      enabled: false,
+    },
+  );
+
   const parseContentsData = useCallback((data: unknown[]): IContents[] => {
     if (!data) {
       return [];
@@ -111,6 +132,9 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
         appliedRole: contentsItem?.appliedRole,
         jobPostingRole: contentsItem?.jobPostingRole,
         storeName: contentsItem?.storeName,
+        announcementCategory: contentsItem?.category,
+        announcementTitle: contentsItem?.description,
+        priceType: contentsItem?.priceType,
         createdAt: contentsItem?.createdAt,
         deletedAt: contentsItem?.deletedAt,
       };
@@ -147,6 +171,14 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
         isLoading: getResumesQuery.isLoading,
         refetch: getResumesQuery.refetch,
       };
+    } else if (tabId === "4") {
+      return {
+        data:
+          parseContentsData(getAnnouncementsQuery.data?.content || []) ?? [],
+        totalCount: getAnnouncementsQuery.data?.totalCount ?? 0,
+        isLoading: getAnnouncementsQuery.isLoading,
+        refetch: getAnnouncementsQuery.refetch,
+      };
     }
 
     return {
@@ -163,6 +195,8 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     getJobPostingsQuery.isLoading,
     getResumesQuery.data,
     getResumesQuery.isLoading,
+    getAnnouncementsQuery.data,
+    getAnnouncementsQuery.isLoading,
   ]);
 
   useEffect(() => {

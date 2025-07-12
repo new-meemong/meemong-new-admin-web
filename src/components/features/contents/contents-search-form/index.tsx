@@ -9,31 +9,24 @@ import {
   SearchFormSelectBox,
 } from "@/components/shared/search-form";
 import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMethods";
-import {
-  ApproveType,
-  CostType,
-  JobCategoryType,
-  RecruitmentType,
-} from "@/models/contents";
+import { ApproveType, JobCategoryType } from "@/models/contents";
 import { useContentsContext } from "@/components/contexts/contents-context";
 import { PaginationType, SearchType } from "@/models/common";
 import { SEARCH_TYPE_OPTIONS } from "@/constants/common";
 
 type ApproveTypeWithAll = ApproveType | "ALL";
 type JobCategoryTypeWithAll = JobCategoryType | "ALL";
-type RecruitmentTypeWithAll = RecruitmentType | "ALL";
-type CostTypeWithAll = CostType | "ALL";
 
 export type IContentsSearchParams = {
-  tabId?: string
+  tabId?: string;
   role?: string;
   jobPostingRole?: string;
   resumeRole?: string;
   approveType?: ApproveTypeWithAll;
   storeName?: string;
   jobCategory?: JobCategoryTypeWithAll;
-  recruitment?: RecruitmentTypeWithAll;
-  costType?: CostTypeWithAll;
+  announcementCategory?: string;
+  priceType?: string;
   searchType?: SearchType;
   searchKeyword?: string;
 } & PaginationType;
@@ -81,31 +74,31 @@ function ContentsSearchForm({
     { value: "디자이너", label: "디자이너" },
   ];
 
-  const RECRUITMENT_TYPE_OPTIONS: {
-    value: RecruitmentTypeWithAll;
+  const ANNOUNCEMENT_CATEGORY_TYPE_OPTIONS: {
+    value: string;
     label: string;
   }[] = [
     { value: "ALL", label: "전체" },
-    { value: "0", label: "펌" },
-    { value: "1", label: "탈색" },
-    { value: "2", label: "메이크업" },
-    { value: "3", label: "속눈썹" },
-    { value: "4", label: "커트" },
-    { value: "5", label: "염색" },
-    { value: "6", label: "클리닉" },
-    { value: "7", label: "매직" },
-    { value: "8", label: "드라이" },
-    { value: "9", label: "붙임머리" },
+    { value: "펌", label: "펌" },
+    { value: "탈색", label: "탈색" },
+    { value: "메이크업", label: "메이크업" },
+    { value: "속눈썹", label: "속눈썹" },
+    { value: "컷트", label: "컷트" },
+    { value: "염색", label: "염색" },
+    { value: "클리닉", label: "클리닉" },
+    { value: "매직", label: "매직" },
+    { value: "드라이", label: "드라이" },
+    { value: "붙임머리", label: "붙임머리" },
   ];
 
-  const COST_TYPE_OPTIONS: {
-    value: CostTypeWithAll;
+  const PRICE_TYPE_OPTIONS: {
+    value: string;
     label: string;
   }[] = [
     { value: "ALL", label: "전체" },
-    { value: "0", label: "무료" },
-    { value: "1", label: "재료비" },
-    { value: "2", label: "모델료" },
+    { value: "무료", label: "무료" },
+    { value: "재료비", label: "재료비" },
+    { value: "모델료", label: "모델료" },
   ];
 
   const renderSearchForm = useCallback(() => {
@@ -147,19 +140,19 @@ function ContentsSearchForm({
       return (
         <>
           <SearchFormSelectBox<IContentsSearchParams>
-            name="recruitment"
+            name="announcementCategory"
             className={cn("w-[130px]")}
-            value={methods.params.recruitment!}
+            value={methods.params.announcementCategory!}
             onChange={methods.handleSelect}
-            options={RECRUITMENT_TYPE_OPTIONS}
+            options={ANNOUNCEMENT_CATEGORY_TYPE_OPTIONS}
             title="모집타입"
           />
           <SearchFormSelectBox<IContentsSearchParams>
-            name="costType"
+            name="priceType"
             className={cn("w-[130px]")}
-            value={methods.params.costType!}
+            value={methods.params.priceType!}
             onChange={methods.handleSelect}
-            options={COST_TYPE_OPTIONS}
+            options={PRICE_TYPE_OPTIONS}
             title="비용타입"
           />
         </>
@@ -195,9 +188,9 @@ function ContentsSearchForm({
     methods.params,
     methods.handleChangeText,
     methods.handleSelect,
-    COST_TYPE_OPTIONS,
+    PRICE_TYPE_OPTIONS,
     JOB_POSTING_ROLE_TYPE_OPTIONS,
-    RECRUITMENT_TYPE_OPTIONS,
+    ANNOUNCEMENT_CATEGORY_TYPE_OPTIONS,
     USER_ROLE_TYPE_OPTIONS,
   ]);
 
@@ -215,8 +208,8 @@ function ContentsSearchForm({
     } else if (tabId === "3") {
       methods.handleSelect({ key: "jobCategory", value: "ALL" });
     } else if (tabId === "4") {
-      methods.handleSelect({ key: "recruitment", value: "ALL" });
-      methods.handleSelect({ key: "costType", value: "ALL" });
+      methods.handleSelect({ key: "announcementCategory", value: "ALL" });
+      methods.handleSelect({ key: "priceType", value: "ALL" });
     }
     methods.handleChangeText({
       target: { name: "searchKeyword", value: "" },

@@ -12,9 +12,7 @@ import CommonPagination, {
 import { formatDate } from "@/utils/date";
 import {
   ContentsCategoryType,
-  CostType,
   IContents,
-  RecruitmentType,
 } from "@/models/contents";
 import { UserRoleType } from "@/models/users";
 import { useContentsContext } from "@/components/contexts/contents-context";
@@ -220,42 +218,25 @@ function ContentsTable({
         return [
           ...baseColumns,
           {
-            accessorKey: "recruitment",
+            accessorKey: "announcementCategory",
             header: "모집타입",
             cell: (info) => {
-              const map: Record<RecruitmentType, string> = {
-                "0": "펌",
-                "1": "탈색",
-                "2": "메이크업",
-                "3": "속눈썹",
-                "4": "커트",
-                "5": "염색",
-                "6": "클리닉",
-                "7": "매직",
-                "8": "드라이",
-                "9": "붙임머리",
-              };
-              return map[info.getValue() as RecruitmentType] || "-";
+              return info.getValue() || "-";
             },
             size: 120,
             enableSorting: false,
           },
           {
-            accessorKey: "costType",
+            accessorKey: "priceType",
             header: "비용타입",
             cell: (info) => {
-              const map: Record<CostType, string> = {
-                "0": "무료",
-                "1": "재료비",
-                "2": "모델료",
-              };
-              return map[info.getValue() as CostType] || "-";
+              return info.getValue() || "-";
             },
             size: 120,
             enableSorting: false,
           },
           {
-            accessorKey: "title",
+            accessorKey: "announcementTitle",
             header: "제목",
             cell: (info) => (
               <span
@@ -264,7 +245,7 @@ function ContentsTable({
                 )}
                 onClick={() => handleClickRow(info.row.original)}
               >
-                {info.getValue() as string}
+                {(info.getValue() as string) || "-"}
               </span>
             ),
             enableSorting: false,

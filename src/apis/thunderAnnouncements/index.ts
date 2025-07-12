@@ -5,7 +5,7 @@ import { SearchType } from "@/models/common";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { IThunderAnnouncement } from "@/models/thunderAnnouncements";
 
-const BASE_URL = "/api/v1/admins/thunderAnnouncements";
+const BASE_URL = "/api/v1/admins/thunder-announcements";
 
 export type GetThunderAnnouncementsRequest = {
   role?: UserRoleType;
@@ -36,4 +36,9 @@ export const thunderAnnouncementAPI = {
         size,
       },
     }),
+/*  getById: async (thunderAnnouncementId?: number) => {
+    const response = await fetcher<GetUserDetailResponse>(
+      `${BASE_URL}/${userId}`,
+    );
+  }*/
 };
