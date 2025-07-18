@@ -25,6 +25,8 @@
   --primary-foreground: #65558f;
   --secondary-background: #eaf2ff;
   --secondary-foreground: #375ce0;
+  --submit-background: #1677ff;
+  --submit-foreground: #ffffff;
   /* Status */
   --nagative: #ff3300;
   --cautionary: #ff9142;

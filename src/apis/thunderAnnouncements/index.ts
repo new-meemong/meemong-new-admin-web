@@ -5,6 +5,7 @@ import { SearchType } from "@/models/common";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import {
   IThunderAnnouncement,
+  IThunderAnnouncementForm,
   ThunderAnnouncementType,
 } from "@/models/thunderAnnouncements";
 
@@ -20,6 +21,25 @@ export type GetThunderAnnouncementsRequest = {
 };
 export type GetThunderAnnouncementsResponse =
   PaginatedResponse<IThunderAnnouncement>;
+
+export type GetThunderAnnouncementByIdRequest = {
+  thunderAnnouncementId?: number;
+};
+export type GetThunderAnnouncementByIdResponse = {
+  data: IThunderAnnouncementForm;
+};
+
+export type PutThunderAnnouncementPremiumRequest = {
+  thunderAnnouncementId?: number;
+  isPremium?: boolean;
+};
+export type PutThunderAnnouncementPremiumResponse = {
+  success: boolean;
+};
+
+export type DeleteThunderAnnouncementResponse = {
+  success: boolean
+}
 
 export const thunderAnnouncementAPI = {
   getAll: ({
@@ -39,9 +59,34 @@ export const thunderAnnouncementAPI = {
         size,
       },
     }),
-  /*  getById: async (thunderAnnouncementId?: number) => {
-    const response = await fetcher<GetUserDetailResponse>(
-      `${BASE_URL}/${userId}`,
+  getById: async (thunderAnnouncementId?: number) => {
+    const response = await fetcher<GetThunderAnnouncementByIdResponse>(
+      `${BASE_URL}/${thunderAnnouncementId}`,
     );
-  }*/
+    return response.data;
+  },
+  updatePremium: async ({
+    thunderAnnouncementId,
+    isPremium,
+  }: PutThunderAnnouncementPremiumRequest) => {
+    const response = await fetcher<PutThunderAnnouncementPremiumResponse>(
+      `${BASE_URL}/${thunderAnnouncementId}/premium`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ isPremium }),
+      },
+    );
+
+    return response;
+  },
+  delete: async (thunderAnnouncementId?: number) => {
+    const response = await fetcher<DeleteThunderAnnouncementResponse>(
+      `${BASE_URL}/${thunderAnnouncementId}`,
+      {
+        method: "DELETE",
+      },
+    );
+
+    return response;
+  },
 };

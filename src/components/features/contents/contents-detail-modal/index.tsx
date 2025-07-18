@@ -9,6 +9,7 @@ import { CONTENTS_CATEGORY_MAP } from "@/constants/contents";
 import { ModalBody } from "@/components/shared/modal/modal-body";
 import { useGetUserDetailQuery } from "@/queries/users";
 import ContentsDetailUserForm from "@/components/features/contents/contents-detail-modal/contents-detail-user-form";
+import ThunderAnnouncementForm from "@/components/features/contents/contents-detail-modal/thunder-announcment-form";
 
 interface ContentsDetailModalProps {
   isOpen: boolean;
@@ -33,9 +34,9 @@ export default function ContentsDetailModal({
     } else if (categoryId === "4") {
       return <>4</>;
     } else {
-      return <>1</>;
+      return <ThunderAnnouncementForm thunderAnnouncementId={contents?.id} />;
     }
-  }, [categoryId]);
+  }, [categoryId, contents?.userInfo?.userId]);
 
   return (
     <Modal isOpen={isOpen} size="md">

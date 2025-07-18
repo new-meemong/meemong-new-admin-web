@@ -16,14 +16,16 @@
   --color-input-foreground: var(--foreground-strong);
   /* Button */
   --color-button-primary-background: var(--background-point);
-  --color-button-primary-foreground: var(--white);
+  --color-button-primary-foreground: var(--color-white);
+  --color-button-submit-background: var(--submit-background);
+  --color-button-submit-foreground: var(--submit-foreground);
   /* Table */
   --color-table-background: var(--background);
   --color-table-foreground: var(--foreground);
   --color-table-header-background: var(--background-alternative);
   --color-table-header-foreground: var(--foreground-strong);
   /* Status */
-  --color-nagative: var(--nagative);
+  --color-negative: var(--nagative);
   --color-cautionary: var(--cautionary);
   /* SideNav */
   --shadow-sidenav: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
