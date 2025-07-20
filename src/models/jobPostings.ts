@@ -8,3 +8,57 @@ export interface IJobPosting {
   createdAt: string; // 가입일
   deletedAt: string; // 삭제일
 }
+
+export interface IJobPostingForm {
+  // 공통
+  id: number
+  createdAt?: string
+
+  // 기본정보
+  role?: string
+  postingTitle?: string
+  storeAddress?: string
+  postingRegions?: string
+  monthlyEducationCount?: number
+  availableOffDays?: string
+  settlementAllowance?: number
+  incentive?: number
+
+  // 구인정보
+  sex?: string
+  age?: string
+  designerLicense?: boolean
+  workType?: string
+  workCycleTypes?: string
+  designerExperienceYearNumber?: number
+  salesLast3MonthsAvg?: number
+
+  // 매장정보
+  storeTypes?: string
+  employeeCount?: number
+  isExistedInternSystem?: boolean
+  storeInteriorRenovationAgo?: string
+  isExistedEducationSupport?: boolean
+  isExistedMealSupport?: boolean
+  mealTime?: string
+  isExistedProductSupport?: boolean
+  isExistedDormitorySupport?: boolean
+  salesCommission?: number
+  subwayAccessibility?: string
+  adminSex?: string
+  adminAge?: string
+  leaveDayCount?: number
+  parkingSpotCount?: number
+  isExistedCleaningSupplier?: boolean
+  isExistedTowelSupplier?: boolean
+  isOnsiteManager?: boolean
+  basicCutPrice?: number
+
+  // 기타
+  startWorkTime?: string
+  endWorkTime?: string
+  storeUrl?: string
+  mainHairDye?: string
+  description?: string
+  storeImages?: string[]
+}

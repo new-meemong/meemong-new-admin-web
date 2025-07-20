@@ -38,11 +38,11 @@ const thunderAnnouncementSchema = z.object({
 type ThunderAnnouncementFormType = z.infer<typeof thunderAnnouncementSchema>;
 
 interface ThunderAnnouncementFormProps {
-  thunderAnnouncementId?: number;
+  contentsId?: number;
 }
 
 export default function ThunderAnnouncementForm({
-  thunderAnnouncementId,
+  contentsId,
 }: ThunderAnnouncementFormProps) {
   const dialog = useDialog();
 
@@ -59,9 +59,8 @@ export default function ThunderAnnouncementForm({
     },
   });
 
-  const getThunderAnnouncementByIdQuery = useGetThunderAnnouncementByIdQuery(
-    thunderAnnouncementId,
-  );
+  const getThunderAnnouncementByIdQuery =
+    useGetThunderAnnouncementByIdQuery(contentsId);
   const putThunderAnnouncementPremiumMutation =
     usePutThunderAnnouncementPremiumMutation();
   const deleteThunderAnnouncementMutation =
@@ -77,21 +76,21 @@ export default function ThunderAnnouncementForm({
 
       if (confirmed) {
         putThunderAnnouncementPremiumMutation.mutateAsync({
-          thunderAnnouncementId,
+          thunderAnnouncementId: contentsId,
           isPremium: !isCancel,
         });
       }
     },
-    [thunderAnnouncementId],
+    [contentsId],
   );
 
   const handleDelete = useCallback(async () => {
     const confirmed = await dialog.confirm(`해당 게시물을 삭제하시겠습니까?`);
 
     if (confirmed) {
-      deleteThunderAnnouncementMutation.mutateAsync(thunderAnnouncementId!);
+      deleteThunderAnnouncementMutation.mutateAsync(contentsId!);
     }
-  }, [thunderAnnouncementId]);
+  }, [contentsId]);
 
   useEffect(() => {
     if (getThunderAnnouncementByIdQuery.data) {

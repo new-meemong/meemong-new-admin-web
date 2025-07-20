@@ -10,6 +10,7 @@ import { ModalBody } from "@/components/shared/modal/modal-body";
 import { useGetUserDetailQuery } from "@/queries/users";
 import ContentsDetailUserForm from "@/components/features/contents/contents-detail-modal/contents-detail-user-form";
 import ThunderAnnouncementForm from "@/components/features/contents/contents-detail-modal/thunder-announcment-form";
+import JobPostingDetailForm from "@/components/features/contents/contents-detail-modal/job-posting-detail-form";
 
 interface ContentsDetailModalProps {
   isOpen: boolean;
@@ -28,13 +29,13 @@ export default function ContentsDetailModal({
 
   const renderFormGroup = useCallback(() => {
     if (categoryId === "2") {
-      return <>2</>;
+      return <JobPostingDetailForm userId={contents?.userInfo?.userId} />;
     } else if (categoryId === "3") {
       return <>3</>;
     } else if (categoryId === "4") {
       return <>4</>;
     } else {
-      return <ThunderAnnouncementForm thunderAnnouncementId={contents?.id} />;
+      return <ThunderAnnouncementForm contentsId={contents?.id} />;
     }
   }, [categoryId, contents?.userInfo?.userId]);
 
