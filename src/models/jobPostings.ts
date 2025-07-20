@@ -21,6 +21,7 @@ export interface IJobPostingForm {
   postingRegions?: string
   monthlyEducationCount?: number
   availableOffDays?: string
+  internSalary?: string
   settlementAllowance?: number
   incentive?: number
 
@@ -30,7 +31,10 @@ export interface IJobPostingForm {
   designerLicense?: boolean
   workType?: string
   workCycleTypes?: string
-  designerExperienceYearNumber?: number
+  designerExperienceYearNumber?: string
+  internExperienceYearNumber?: string
+  isExistedFourInsurances?: boolean
+  isExistedRetirementPay?: boolean
   salesLast3MonthsAvg?: number
 
   // 매장정보
@@ -39,6 +43,7 @@ export interface IJobPostingForm {
   isExistedInternSystem?: boolean
   storeInteriorRenovationAgo?: string
   isExistedEducationSupport?: boolean
+  designerPromotionPeriod?: string
   isExistedMealSupport?: boolean
   mealTime?: string
   isExistedProductSupport?: boolean

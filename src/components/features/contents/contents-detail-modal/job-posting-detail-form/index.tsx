@@ -27,7 +27,7 @@ export default function JobPostingDetailForm({
   const jobPostingList = getJobPostingsByUserIdQuery?.data?.content || [];
 
   const handleClickDeleteButton = useCallback(async (jobPostingId: number) => {
-    const confirmed = await dialog.confirm("해당 모집공고를 삭제하시겠습니까?");
+    const confirmed = await dialog.confirm("해당 구인공고를 삭제하시겠습니까?");
 
     if (confirmed) {
       // TODO: toast 로 교체하기

@@ -33,12 +33,12 @@ export default function JobPostingDetailItemContent({
           label={"교육"}
           value={jobPosting.monthlyEducationCount}
         />
+        <CommonForm.ReadonlyRow
+          label={"휴뮤가능일"}
+          value={jobPosting.availableOffDays}
+        />
         {jobPosting.role === "디자이너" && (
           <>
-            <CommonForm.ReadonlyRow
-              label={"휴뮤가능일"}
-              value={jobPosting.availableOffDays}
-            />
             <CommonForm.ReadonlyRow
               label={"정착지원금"}
               value={jobPosting.settlementAllowance}
@@ -46,6 +46,14 @@ export default function JobPostingDetailItemContent({
             <CommonForm.ReadonlyRow
               label={"월매출 1000 인센티브"}
               value={jobPosting.incentive}
+            />
+          </>
+        )}
+        {jobPosting.role === "인턴" && (
+          <>
+            <CommonForm.ReadonlyRow
+              label={"급여"}
+              value={jobPosting.settlementAllowance}
             />
           </>
         )}
@@ -71,15 +79,45 @@ export default function JobPostingDetailItemContent({
           label={"근무주기"}
           value={jobPosting.workCycleTypes}
         />
-        <CommonForm.ReadonlyRow
-          label={"경력"}
-          value={jobPosting.designerExperienceYearNumber}
-        />
         {jobPosting.role === "디자이너" && (
-          <CommonForm.ReadonlyRow
-            label={"직전매출"}
-            value={jobPosting.salesLast3MonthsAvg}
-          />
+          <>
+            <CommonForm.ReadonlyRow
+              label={"경력"}
+              value={jobPosting.designerExperienceYearNumber}
+            />
+            <CommonForm.ReadonlyRow
+              label={"직전매출"}
+              value={jobPosting.salesLast3MonthsAvg}
+            />
+          </>
+        )}
+        {jobPosting.role === "인턴" && (
+          <>
+            <CommonForm.ReadonlyRow
+              label={"경력"}
+              value={jobPosting.internExperienceYearNumber}
+            />
+            <CommonForm.ReadonlyRow
+              label={"4대보험"}
+              value={
+                jobPosting.isExistedFourInsurances !== undefined
+                  ? jobPosting.isExistedFourInsurances
+                    ? "O"
+                    : "X"
+                  : "-"
+              }
+            />
+            <CommonForm.ReadonlyRow
+              label={"퇴직금"}
+              value={
+                jobPosting.isExistedRetirementPay !== undefined
+                  ? jobPosting.isExistedRetirementPay
+                    ? "O"
+                    : "X"
+                  : "-"
+              }
+            />
+          </>
         )}
       </FormGroup>
       <FormGroup title={"매장 정보"}>
@@ -101,6 +139,12 @@ export default function JobPostingDetailItemContent({
               : "-"
           }
         />
+        {jobPosting.role === "인턴" && (
+          <CommonForm.ReadonlyRow
+            label={"승급기간"}
+            value={jobPosting.designerPromotionPeriod}
+          />
+        )}
         <CommonForm.ReadonlyRow
           label={"매장인테리어"}
           value={jobPosting.storeInteriorRenovationAgo}
