@@ -11,6 +11,7 @@ import { useGetUserDetailQuery } from "@/queries/users";
 import ContentsDetailUserForm from "@/components/features/contents/contents-detail-modal/contents-detail-user-form";
 import ThunderAnnouncementForm from "@/components/features/contents/contents-detail-modal/thunder-announcment-form";
 import JobPostingDetailForm from "@/components/features/contents/contents-detail-modal/job-posting-detail-form";
+import ResumeDetailForm from "@/components/features/contents/contents-detail-modal/resume-detail-form";
 
 interface ContentsDetailModalProps {
   isOpen: boolean;
@@ -31,7 +32,7 @@ export default function ContentsDetailModal({
     if (categoryId === "2") {
       return <JobPostingDetailForm userId={contents?.userInfo?.userId} />;
     } else if (categoryId === "3") {
-      return <>3</>;
+      return <ResumeDetailForm userId={contents?.userInfo?.userId} />;
     } else if (categoryId === "4") {
       return <>4</>;
     } else {
