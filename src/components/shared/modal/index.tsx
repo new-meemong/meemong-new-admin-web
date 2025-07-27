@@ -37,7 +37,7 @@ export function Modal({
 
   const sizeClass = {
     sm: "max-w-[768px] h-[620px]",
-    md: "max-w-[1024px] h-[720px]",
+    md: "max-w-[1024px] h-[720px] min-w-[768px]",
   };
 
   return createPortal(
