@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { useFormContext, FieldPath, FieldValues } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface CommonFormCalendarProps<TFieldValues extends FieldValues> {
   name: FieldPath<TFieldValues>;
@@ -30,6 +31,7 @@ export function CommonFormDate<TFieldValues extends FieldValues>({
   className,
 }: CommonFormCalendarProps<TFieldValues>) {
   const { control } = useFormContext<TFieldValues>();
+  const [open, setOpen] = useState<boolean>(false);
 
   return (
     <FormField<TFieldValues>
@@ -39,7 +41,7 @@ export function CommonFormDate<TFieldValues extends FieldValues>({
         <FormItem className={cn("flex flex-col gap-1 mt-[20px]", className)}>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Popover>
+            <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -58,7 +60,10 @@ export function CommonFormDate<TFieldValues extends FieldValues>({
                 <Calendar
                   mode="single"
                   selected={field.value}
-                  onSelect={field.onChange}
+                  onSelect={(date) => {
+                    field.onChange(date);
+                    setOpen(false);
+                  }}
                   initialFocus
                   disabled={(date) => date < new Date()}
                 />

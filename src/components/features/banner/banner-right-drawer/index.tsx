@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useDrawer } from "@/components/shared/right-drawer/useDrawer";
 import RightDrawer, {
@@ -8,7 +8,12 @@ import RightDrawer, {
 } from "@/components/shared/right-drawer";
 import { ChevronRight } from "lucide-react";
 import BannerDetailForm from "@/components/features/banner/banner-right-drawer/banner-detail-form";
-import { useGetBannerDetailQuery } from "@/queries/banner";
+import {
+  useGetBannerDetailQuery,
+  usePutBannerMutation,
+} from "@/queries/banners";
+import { IBannerForm } from "@/models/banner";
+import { useDialog } from "@/components/shared/dialog/context";
 
 interface BannerRightDrawerProps extends RightDrawerProps {
   bannerId: number;
@@ -19,8 +24,32 @@ function BannerRightDrawer({
   bannerId,
   ...props
 }: BannerRightDrawerProps) {
-  const { closeDrawer } = useDrawer();
-  const getBannerDetailQuery = useGetBannerDetailQuery(bannerId);
+  const { closeDrawer, isOpen } = useDrawer();
+  const dialog = useDialog();
+  const getBannerDetailQuery = useGetBannerDetailQuery(bannerId, {
+    enabled: false,
+  });
+
+  const putBannerMutation = usePutBannerMutation();
+
+  const handleUpdateBanner = async (formData: Partial<IBannerForm>) => {
+    const confirmed = await dialog.confirm("배너를 수정하시겠습니까?");
+
+    if (confirmed) {
+      await putBannerMutation.mutateAsync({
+        id: bannerId,
+        banner: formData,
+      });
+
+      closeDrawer();
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      getBannerDetailQuery.refetch();
+    }
+  }, [isOpen]);
 
   return (
     <RightDrawer
@@ -37,8 +66,7 @@ function BannerRightDrawer({
         <BannerDetailForm
           formData={getBannerDetailQuery.data!}
           onSubmit={(form) => {
-            console.log(form);
-            closeDrawer()
+            handleUpdateBanner(form);
           }}
         />
       ) : (

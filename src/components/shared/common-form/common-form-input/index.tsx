@@ -33,9 +33,18 @@ export function CommonFormInput<TFieldValues extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem className={cn("flex flex-col mt-[20px]", className)}>
-          <FormLabel className="w-full shrink-0 text-foreground-strong">{label}</FormLabel>
+          <FormLabel className="w-full shrink-0 text-foreground-strong">
+            {label}
+          </FormLabel>
           <FormControl>
-            <Input className={cn('w-full rounded-6')} {...field} readOnly={readOnly} size="sm" {...props} />
+            <Input
+              className={cn("w-full rounded-6")}
+              {...field}
+              value={field.value || ""}
+              readOnly={readOnly}
+              size="sm"
+              {...props}
+            />
           </FormControl>
         </FormItem>
       )}

@@ -6,7 +6,12 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-import {FieldPath, FieldValues, PathValue, useFormContext} from "react-hook-form";
+import {
+  FieldPath,
+  FieldValues,
+  PathValue,
+  useFormContext,
+} from "react-hook-form";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -16,6 +21,7 @@ interface CommonFormImageProps<TFieldValues extends FieldValues> {
   label: string;
   className?: string;
   placeholderImage?: string; // 초기 이미지 없을 때 기본값
+  readOnly?: boolean;
 }
 
 export function CommonFormImage<TFieldValues extends FieldValues>({
@@ -23,6 +29,7 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
   label,
   className,
   placeholderImage = "/placeholder.png", // 기본값 설정
+  readOnly = false,
 }: CommonFormImageProps<TFieldValues>) {
   const { setValue, watch } = useFormContext<TFieldValues>();
   const imageUrl = watch(name) as string;
@@ -35,6 +42,7 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
   }, [imageUrl]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (readOnly) return;
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -44,6 +52,7 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
   };
 
   const triggerFileSelect = () => {
+    if (readOnly) return;
     fileInputRef.current?.click();
   };
 
@@ -63,11 +72,16 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
                 className="hidden"
               />
               <div
-                className="w-[350px] h-[120px] bg-border border cursor-pointer overflow-hidden"
+                className={cn(
+                  "w-[350px] h-[120px] bg-border border overflow-hidden",
+                  {
+                    "cursor-pointer": !readOnly,
+                  },
+                )}
                 onClick={triggerFileSelect}
               >
                 <Image
-                  src={preview ?? placeholderImage}
+                  src={preview || placeholderImage}
                   alt="이미지 미리보기"
                   width={200}
                   height={100}

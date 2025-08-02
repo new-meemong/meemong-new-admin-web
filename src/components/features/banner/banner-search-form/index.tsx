@@ -11,7 +11,7 @@ import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMeth
 import { PaginationType } from "@/models/common";
 
 export type IBannerSearchParams = {
-  searchKeyword?: string;
+  company?: string;
 } & PaginationType;
 
 interface BannerSearchFormProps extends SearchFormProps {
@@ -27,10 +27,10 @@ function BannerSearchForm({
   return (
     <SearchForm className={cn("banner-search-form", className)} {...props}>
       <SearchFormInput
-        name="searchKeyword"
+        name="company"
         onChange={methods.handleChangeText}
         placeholder="고객사명"
-        value={methods.params.searchKeyword}
+        value={methods.params.company}
       />
     </SearchForm>
   );

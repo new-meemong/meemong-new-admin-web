@@ -1,21 +1,23 @@
-export type BannerLocationType = "0" | "1"; // 0: 일반, 1: 모델메인상단
-
 export interface IBanner {
   id: number;
-  companyName: string;
-  bannerImageUrl: string;
-  location: BannerLocationType;
+  userType: string;
+  company: string;
+  bannerType: string;
+  displayType: string;
+  imageUrl: string;
+  redirectUrl: string;
   createdAt: string;
-  endAt: string;
-  clickCount: number;
+  endAt?: string;
 }
 
 export interface IBannerForm {
   id: number;
-  companyName: string;
+  userType: string;
+  company: string;
+  bannerType: string;
+  displayType: string;
+  imageUrl: string;
+  redirectUrl: string;
   createdAt: string;
-  endAt: string;
-  location: BannerLocationType;
-  bannerImageUrl: string;
-  linkUrl: string;
+  endAt?: string;
 }

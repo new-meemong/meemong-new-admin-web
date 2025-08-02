@@ -1,14 +1,14 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { FormEvent, useCallback } from "react";
+import { FormEvent, useCallback, useEffect } from "react";
 import { FormGroup } from "@/components/ui/form-group";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
 import { CommonForm } from "@/components/shared/common-form";
 import { formatDate } from "@/utils/date";
-import { BannerLocationType, IBannerForm } from "@/models/banner";
+import { IBannerForm } from "@/models/banner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -21,32 +21,24 @@ export default function BannerDetailForm({
   formData,
   onSubmit,
 }: BannerDetailFormProps) {
-  const LOCATION_TYPE_OPTIONS: {
-    value: BannerLocationType;
-    label: string;
-  }[] = [
-    { value: "0", label: "일반" },
-    { value: "1", label: "모델배너상단" },
-  ];
-
   const formSchema = z.object({
-    companyName: z.string(),
+    company: z.string(),
     createdAt: z.string(),
     endAt: z.string(),
-    location: z.string(),
-    bannerImageUrl: z.string(),
-    linkUrl: z.string(),
+    bannerType: z.string(),
+    imageUrl: z.string(),
+    redirectUrl: z.string(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      companyName: formData?.companyName ?? "",
-      createdAt: formData?.createdAt ?? "",
-      endAt: formData?.endAt ?? "",
-      location: formData?.location ?? "",
-      bannerImageUrl: formData?.bannerImageUrl ?? "",
-      linkUrl: formData?.linkUrl ?? "",
+      company: "-",
+      createdAt: "-",
+      endAt: "",
+      bannerType: "-",
+      imageUrl: "",
+      redirectUrl: "",
     },
   });
 
@@ -55,13 +47,21 @@ export default function BannerDetailForm({
       event.preventDefault();
       onSubmit({
         endAt: form.getValues("endAt"),
-        location: form.getValues("location") as BannerLocationType,
-        bannerImageUrl: form.getValues("bannerImageUrl"),
-        linkUrl: form.getValues("linkUrl"),
+        bannerType: form.getValues("bannerType"),
+        imageUrl: form.getValues("imageUrl"),
+        redirectUrl: form.getValues("redirectUrl"),
       });
     },
     [onSubmit, form],
   );
+
+  useEffect(() => {
+    if (formData) {
+      form.reset({
+        ...formData,
+      });
+    }
+  }, [formData, form]);
 
   if (!formData) {
     return "...loading";
@@ -74,27 +74,28 @@ export default function BannerDetailForm({
           <CommonForm.Readonly
             name={"companyName"}
             label={"고객사명"}
-            value={form.watch("companyName")}
+            value={form.watch("company") || "-"}
           />
           <CommonForm.Readonly
             name={"createdAt"}
             label={"등록일"}
             value={form.watch("createdAt")}
             formatter={(v) => {
-              return v ? formatDate(v as string, "YYYY.MM.DD") : "";
+              return v ? formatDate(v as string, "YYYY.MM.DD") : "-";
             }}
           />
-          <CommonForm.Date
-            name={"endAt"}
-            label={"마감일"}
-          />
-          <CommonForm.Image name={"bannerImageUrl"} label={"이미지"} />
-          <CommonForm.SelectBox
-            name={"location"}
+          <CommonForm.Date name={"endAt"} label={"마감일"} />
+          <CommonForm.Image name={"imageUrl"} label={"이미지"} readOnly={true} />
+          <CommonForm.Readonly
+            name={"bannerType"}
+            value={form.watch("bannerType")}
             label={"배너 위치"}
-            options={LOCATION_TYPE_OPTIONS}
           />
-          <CommonForm.Input name={"linkUrl"} label={"링크"} />
+          <CommonForm.Input
+            name={"redirectUrl"}
+            label={"링크"}
+            value={form.watch("redirectUrl")}
+          />
         </FormGroup>
         <div className={cn("mt-[20px]")}>
           <Button type={"submit"} variant={"default"} className={cn("w-full")}>

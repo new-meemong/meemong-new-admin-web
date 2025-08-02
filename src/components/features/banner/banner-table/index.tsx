@@ -10,7 +10,7 @@ import CommonPagination, {
   CommonPaginationProps,
 } from "@/components/shared/common-pagination";
 import { formatDate } from "@/utils/date";
-import { BannerLocationType, IBanner } from "@/models/banner";
+import { IBanner } from "@/models/banner";
 import IcUpdate from "@/assets/icons/ic_update.svg";
 import { Button } from "@/components/ui/button";
 import BannerImageBox from "@/components/features/banner/banner-image-box";
@@ -39,26 +39,19 @@ function BannerTable({
 
   const columns: ColumnDef<IBanner>[] = [
     {
-      accessorKey: "companyName",
+      accessorKey: "company",
       header: "고객사명",
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || "-",
     },
     {
-      accessorKey: "bannerImageUrl",
+      accessorKey: "imageUrl",
       header: "이미지",
       cell: (info) => <BannerImageBox src={info.getValue() as string} />,
     },
     {
-      accessorKey: "location",
+      accessorKey: "bannerType",
       header: "위치",
-      cell: (info) => {
-        const location = info.getValue() as BannerLocationType;
-        if (location === "1") {
-          return "모델메인상단";
-        } else {
-          return "일반";
-        }
-      },
+      cell: (info) => info.getValue() || "-",
     },
     {
       accessorKey: "createdAt",
@@ -68,7 +61,8 @@ function BannerTable({
     {
       accessorKey: "endAt",
       header: "마감일",
-      cell: (info) => formatDate(info.getValue() as string),
+      cell: (info) =>
+        info.getValue() ? formatDate(info.getValue() as string) : "-",
     },
     {
       accessorKey: "clickCount",
