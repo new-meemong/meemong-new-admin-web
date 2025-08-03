@@ -3,12 +3,15 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 
-interface AdminPageLayoutProps {
+interface DashboardPageLayoutProps {
   children: React.ReactNode;
   className?: string;
 }
 
-function AdminPageLayout({ children, className }: AdminPageLayoutProps) {
+function DashboardPageLayout({
+  children,
+  className,
+}: DashboardPageLayoutProps) {
   return (
     <div
       className={cn(
@@ -21,7 +24,7 @@ function AdminPageLayout({ children, className }: AdminPageLayoutProps) {
   );
 }
 
-const AdminPageLayoutHeader = ({
+const DashboardPageLayoutHeader = ({
   title,
   children,
 }: {
@@ -38,10 +41,10 @@ const AdminPageLayoutHeader = ({
   </h1>
 );
 
-const AdminPageLayoutSearch = ({
+const DashboardPageLayoutSearch = ({
   children,
   className,
-}: AdminPageLayoutProps) => (
+}: DashboardPageLayoutProps) => (
   <div
     className={cn(
       "admin-page-layout-search w-full h-[36px] mb-[42px]",
@@ -58,15 +61,18 @@ const AdminPageLayoutSearch = ({
   </div>
 );
 
-const AdminPageLayoutBody = ({ children, className }: AdminPageLayoutProps) => (
+const DashboardPageLayoutBody = ({
+  children,
+  className,
+}: DashboardPageLayoutProps) => (
   <div className={cn("admin-page-layout-body w-full", className)}>
     {children}
   </div>
 );
 
 export {
-  AdminPageLayout,
-  AdminPageLayoutHeader,
-  AdminPageLayoutSearch,
-  AdminPageLayoutBody,
+  DashboardPageLayout,
+  DashboardPageLayoutHeader,
+  DashboardPageLayoutSearch,
+  DashboardPageLayoutBody,
 };

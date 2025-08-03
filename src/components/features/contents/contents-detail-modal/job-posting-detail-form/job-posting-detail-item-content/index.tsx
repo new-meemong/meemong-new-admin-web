@@ -259,14 +259,18 @@ export default function JobPostingDetailItemContent({
           label={"매장이미지"}
           value={jobPosting.storeImages}
           formatter={(storeImages) => {
-            return storeImages && storeImages.length > 0
-              ? storeImages.map((image, index) => (
+            return storeImages && storeImages.length > 0 ? (
+              <div className={"grid grid-cols-4 gap-2"}>
+                {storeImages.map((image, index) => (
                   <UserImageBox
                     key={`store-image-${index}-${jobPosting.id}`}
                     src={image as string}
                   />
-                ))
-              : "-";
+                ))}
+              </div>
+            ) : (
+              "-"
+            );
           }}
         />
         <CommonForm.ReadonlyRow
