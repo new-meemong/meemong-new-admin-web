@@ -4,7 +4,10 @@ import { NextResponse } from "next/server";
 
 export async function authMiddleware(request: NextRequest) {
   const token = request.cookies.get("accessToken")?.value;
+  const pathname = request.nextUrl.pathname;
+
   const isLoginPage = request.nextUrl.pathname === "/login";
+  const isRoot = pathname === "/";
 
   if (!token) {
     if (isLoginPage) return null;
@@ -20,13 +23,12 @@ export async function authMiddleware(request: NextRequest) {
     });
 
     if (!res.ok) {
-      // 토큰은 있지만 유효하지 않음 → 로그인 페이지 허용, 그 외는 리다이렉트
-      if (isLoginPage) return null;
+      if (isLoginPage || isRoot) return null;
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    //토큰이 유효한데 로그인 페이지 접근 시 → /user로 리다이렉트
-    if (isLoginPage) {
+    // 로그인된 사용자가 /login 또는 / 경로 접근 시 → /user로 이동
+    if (isLoginPage || isRoot) {
       return NextResponse.redirect(new URL("/user", request.url));
     }
 
