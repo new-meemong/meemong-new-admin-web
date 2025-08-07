@@ -6,7 +6,12 @@ export interface FetcherOptions extends RequestInit {
 
 export async function fetcher<T>(
   endpoint: string,
-  { baseUrl = process.env.NEXT_PUBLIC_API_URL, query, headers, ...options }: FetcherOptions = {},
+  {
+    baseUrl = process.env.NEXT_PUBLIC_API_URL,
+    query,
+    headers,
+    ...options
+  }: FetcherOptions = {},
 ): Promise<T> {
   const url = new URL(baseUrl + endpoint, window.location.origin);
 
@@ -17,10 +22,26 @@ export async function fetcher<T>(
     });
   }
 
+  // Authorization 설정
+  const headersObject = headers as Record<string, unknown>;
+  let authorization = headersObject?.Authorization;
+
+  if (!authorization) {
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("accessToken="))
+      ?.split("=")[1];
+
+    if (token) {
+      authorization = token;
+    }
+  }
+
   const res = await fetch(url.toString(), {
     headers: {
       "Content-Type": "application/json",
       ...headers,
+      ...(authorization ? { Authorization: authorization } : {}),
     },
     ...options,
   } as FetcherOptions);
