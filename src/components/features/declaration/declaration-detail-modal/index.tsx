@@ -5,9 +5,12 @@ import { Modal } from "@/components/shared/modal";
 import { ModalHeader } from "@/components/shared/modal/modal-header";
 
 import { ModalBody } from "@/components/shared/modal/modal-body";
-import { useGetDeclarationDetailQuery } from "@/queries/declaration";
+import {
+  useGetDeclarationDetailQuery,
+  usePutDeclarationMutation,
+} from "@/queries/declaration";
 import DeclarationDetailForm from "@/components/features/declaration/declaration-detail-modal/declaration-detail-form";
-import { IDeclaration } from "@/models/declaration";
+import { IDeclaration, IDeclarationForm } from "@/models/declaration";
 import { useDialog } from "@/components/shared/dialog/context";
 
 interface DeclarationDetailModalProps {
@@ -25,19 +28,29 @@ export default function DeclarationDetailModal({
 
   const getDeclarationDetailQuery = useGetDeclarationDetailQuery(
     declaration?.id,
+    {
+      enabled: Boolean(isOpen && !!declaration?.id),
+    },
   );
 
-  const handleSubmit = useCallback(async () => {
-    const confirmed = await dialog.confirm(
-      `신고 내용을 저장하시겠습니까?`,
-    );
+  const putDeclarationMutation = usePutDeclarationMutation();
 
-    if (confirmed) {
-      console.log("제출");
-    }
+  const handleSubmit = useCallback(
+    async (formData: Partial<IDeclarationForm>) => {
+      if (!declaration?.id) return;
+      const confirmed = await dialog.confirm(`신고 내용을 저장하시겠습니까?`);
 
-    onClose();
-  }, []);
+      if (confirmed) {
+        await putDeclarationMutation.mutateAsync({
+          id: declaration.id!,
+          declaration: formData,
+        });
+      }
+
+      onClose();
+    },
+    [declaration?.id, onClose],
+  );
 
   if (!getDeclarationDetailQuery?.data) return null;
 

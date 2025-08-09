@@ -23,13 +23,13 @@ export default function DeclarationDetailForm({
   onSubmit,
 }: DeclarationDetailFormProps) {
   const STATUS_TYPE_OPTIONS: {
-    value: DeclarationStatusType;
+    value: string;
     label: string;
   }[] = [
-    { value: "0", label: "미확인" },
-    { value: "1", label: "확인" },
-    { value: "2", label: "대기" },
-    { value: "3", label: "처리완료" },
+    { value: "미확인", label: "미확인" },
+    { value: "확인", label: "확인" },
+    { value: "대기", label: "대기" },
+    { value: "처리완료", label: "처리완료" },
   ];
 
   const formSchema = z.object({
@@ -39,9 +39,9 @@ export default function DeclarationDetailForm({
     respondent: z.string(),
     respondentName: z.string(),
     respondentUid: z.string(),
-    content: z.string(),
-    location: z.string(),
-    declarationImageUrlList: z.array(z.string()),
+    description: z.string(),
+    declarationType: z.string(),
+    imageUrl: z.string(),
     status: z.string(),
     memo: z.string(),
   });
@@ -55,9 +55,9 @@ export default function DeclarationDetailForm({
       respondent: "",
       respondentName: "",
       respondentUid: "",
-      content: "",
-      location: "",
-      declarationImageUrlList: [],
+      description: "",
+      declarationType: "",
+      imageUrl: "",
       status: "",
       memo: "",
     },
@@ -101,28 +101,24 @@ export default function DeclarationDetailForm({
             value={`${form.watch("respondent")} / ${form.watch("respondentName")} / ${form.watch("respondentUid")}`}
           />
           <CommonForm.Readonly
-            name={"location"}
+            name={"declarationType"}
             label={"신고위치"}
-            value={form.watch("location")}
+            value={form.watch("declarationType")}
           />
           <CommonForm.Readonly
-            name={"declarationImageUrlList"}
+            name={"imageUrl"}
             label={"신고 이미지"}
-            value={form.watch("declarationImageUrlList")}
-            formatter={(urlList) => {
+            value={form.watch("imageUrl")}
+            formatter={(imgUrl) => {
               return (
                 <div className={cn("flex flex-wrap gap-4 py-[6px]")}>
-                  {urlList && Array.isArray(urlList)
-                    ? urlList.map((urlItem, index) => (
-                        <DeclarationImageBox
-                          key={`declaration-url-${index}`}
-                          src={urlItem as string}
-                          width={100}
-                          height={100}
-
-                        />
-                      ))
-                    : ""}
+                  {imgUrl ? (
+                    <DeclarationImageBox
+                      src={imgUrl as string}
+                    />
+                  ) : (
+                    "-"
+                  )}
                 </div>
               );
             }}

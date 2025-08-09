@@ -11,7 +11,6 @@ import CommonPagination, {
 } from "@/components/shared/common-pagination";
 import { formatDate } from "@/utils/date";
 import { IDeclaration } from "@/models/declaration";
-import { DeclarationStatusType } from "@/constants/declaration";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { useModal } from "@/components/shared/modal/useModal";
 import DeclarationDetailModal from "@/components/features/declaration/declaration-detail-modal";
@@ -56,7 +55,7 @@ function DeclarationTable({
           )}
           onClick={() => handleClickRow(info.row.original)}
         >
-          {info.getValue() as string}
+          {(info.getValue() as string) || "-"}
         </span>
       ),
       enableSorting: false,
@@ -64,30 +63,17 @@ function DeclarationTable({
     {
       accessorKey: "respondent",
       header: "피신고자",
-      cell: (info) => info.getValue(),
+      cell: (info) => info.getValue() || "-",
       enableSorting: false,
     },
     {
       accessorKey: "status",
       header: "처리상태",
-      cell: (info) => {
-        const status = info.getValue() as DeclarationStatusType;
-        if (status === "0") {
-          return "미확인";
-        } else if (status === "1") {
-          return "확인";
-        } else if (status === "2") {
-          return "대기";
-        } else if (status === "3") {
-          return "처리완료";
-        } else {
-          return "-";
-        }
-      },
+      cell: (info) => info.getValue() || "-",
       enableSorting: false,
     },
     {
-      accessorKey: "declarationAt",
+      accessorKey: "createdAt",
       header: "신고일자",
       cell: (info) => formatDate(info.getValue() as string),
       enableSorting: true,
