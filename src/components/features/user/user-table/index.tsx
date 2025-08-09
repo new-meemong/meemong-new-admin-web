@@ -14,6 +14,8 @@ import CommonPagination, {
 import { formatDate } from "@/utils/date";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { useDrawer } from "@/components/shared/right-drawer/useDrawer";
+import { useUsersContext } from "@/components/contexts/users-context";
+import ImageTable from "@/components/shared/image-table";
 
 interface UserTableProps
   extends Omit<CommonTableProps<IUser> & CommonPaginationProps, "columns"> {
@@ -30,6 +32,7 @@ function UserTable({
   onSizeChange,
   ...props
 }: UserTableProps) {
+  const { isPhotoMode } = useUsersContext();
   const { openDrawer } = useDrawer();
 
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
@@ -138,7 +141,30 @@ function UserTable({
 
   return (
     <div className={cn("user-table-wrapper", className)} {...props}>
-      <CommonTable<IUser> data={data || []} columns={columns} />
+      {isPhotoMode ? (
+        <ImageTable
+          data={data || []}
+          columns={columns}
+          renderItem={(row) => (
+            <div
+              className={cn("w-full h-full flex cursor-pointer items-center justify-center")}
+              onClick={() => handleClickRow(row.original.id)}
+            >
+              {row.original.profilePictureURL ? (
+                <img
+                  src={row.original.profilePictureURL}
+                  alt={row.original.displayName}
+                  className={cn("w-full object-cover aspect-square")}
+                />
+              ) : (
+                row.original.displayName
+              )}
+            </div>
+          )}
+        />
+      ) : (
+        <CommonTable<IUser> data={data || []} columns={columns} />
+      )}
       <CommonPagination
         currentPage={currentPage || 1}
         pageSize={pageSize}

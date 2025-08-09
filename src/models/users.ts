@@ -26,6 +26,7 @@ export interface IUser {
   recentLoginTime: string; // 최근 접속일
   isWithdraw: boolean; // 탈퇴여부
   isBlocked: boolean; // 차단여부
+  profilePictureURL: string // 프로필 사진
 }
 
 export interface IUserForm extends IUser {
