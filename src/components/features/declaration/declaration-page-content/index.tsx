@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import useSearchForm from "@/components/shared/search-form/useSearchMethods";
 import DeclarationSearchForm, {
@@ -42,6 +42,10 @@ function DeclarationPageContent({ className }: DeclarationPageContentProps) {
     size: searchParams.size,
   });
 
+  const handleRefresh = useCallback(() => {
+    getDeclarationsQuery.refetch();
+  }, []);
+
   return (
     <div className={cn("contents-page-content", className)}>
       <DeclarationSearchForm
@@ -59,6 +63,7 @@ function DeclarationPageContent({ className }: DeclarationPageContentProps) {
         totalCount={getDeclarationsQuery.data?.totalCount ?? 0}
         currentPage={searchParams.page}
         pageSize={searchParams.size}
+        onRefresh={handleRefresh}
         onPageChange={(page) => {
           setSearchParams({
             ...searchParams,

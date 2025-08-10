@@ -21,6 +21,7 @@ interface DeclarationTableProps
     "columns"
   > {
   className?: string;
+  onRefresh?: () => void;
 }
 
 function DeclarationTable({
@@ -29,6 +30,7 @@ function DeclarationTable({
   totalCount,
   currentPage = DEFAULT_PAGINATION.page,
   pageSize = DEFAULT_PAGINATION.size,
+  onRefresh,
   onPageChange,
   onSizeChange,
   ...props
@@ -93,6 +95,12 @@ function DeclarationTable({
     modal.open();
   }, []);
 
+  const handleSubmit = useCallback(() => {
+    if (onRefresh) {
+      onRefresh();
+    }
+  }, []);
+
   return (
     <div className={cn("declaration-table-wrapper", className)} {...props}>
       <CommonTable<IDeclaration> data={data || []} columns={columns} />
@@ -106,6 +114,7 @@ function DeclarationTable({
       <DeclarationDetailModal
         isOpen={modal.isOpen}
         onClose={modal.close}
+        onSubmit={handleSubmit}
         declaration={selectedDeclaration!}
       />
     </div>

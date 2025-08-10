@@ -48,19 +48,8 @@ export default function DeclarationDetailForm({
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      reporter: "",
-      reporterName: "",
-      reporterUid: "",
-      respondent: "",
-      respondentName: "",
-      respondentUid: "",
-      description: "",
-      declarationType: "",
-      imageUrl: "",
-      status: "",
-      memo: "",
-    },
+    values: formData as z.infer<typeof formSchema>,
+    mode: "onChange",
   });
 
   const handleSubmit = useCallback(
@@ -113,9 +102,7 @@ export default function DeclarationDetailForm({
               return (
                 <div className={cn("flex flex-wrap gap-4 py-[6px]")}>
                   {imgUrl ? (
-                    <DeclarationImageBox
-                      src={imgUrl as string}
-                    />
+                    <DeclarationImageBox src={imgUrl as string} />
                   ) : (
                     "-"
                   )}
@@ -123,15 +110,21 @@ export default function DeclarationDetailForm({
               );
             }}
           />
+          <CommonForm.Readonly
+            name={"description"}
+            label={"신고사유"}
+            value={form.watch("description")}
+          />
           <CommonForm.SelectBox
             name={"status"}
             label={"처리상태"}
+            defaultValue={"처리완료"}
             options={STATUS_TYPE_OPTIONS}
           />
           <CommonForm.Textarea
             name={"memo"}
             label={"메모"}
-            value={form.watch("memo")}
+            value={form.watch("memo") || ""}
           />
         </FormGroup>
         <div className={cn("mt-[20px]")}>

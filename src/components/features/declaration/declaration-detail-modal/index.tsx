@@ -12,16 +12,19 @@ import {
 import DeclarationDetailForm from "@/components/features/declaration/declaration-detail-modal/declaration-detail-form";
 import { IDeclaration, IDeclarationForm } from "@/models/declaration";
 import { useDialog } from "@/components/shared/dialog/context";
+import { toast } from "react-toastify";
 
 interface DeclarationDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: () => void;
   declaration: IDeclaration;
 }
 
 export default function DeclarationDetailModal({
   isOpen,
   onClose,
+  onSubmit,
   declaration,
 }: DeclarationDetailModalProps) {
   const dialog = useDialog();
@@ -38,16 +41,25 @@ export default function DeclarationDetailModal({
   const handleSubmit = useCallback(
     async (formData: Partial<IDeclarationForm>) => {
       if (!declaration?.id) return;
-      const confirmed = await dialog.confirm(`신고 내용을 저장하시겠습니까?`);
 
-      if (confirmed) {
-        await putDeclarationMutation.mutateAsync({
-          id: declaration.id!,
-          declaration: formData,
-        });
+      try {
+        const confirmed = await dialog.confirm(`신고 내용을 저장하시겠습니까?`);
+
+        if (confirmed) {
+          await putDeclarationMutation.mutateAsync({
+            id: declaration.id!,
+            declaration: formData,
+          });
+
+          toast.success("신고 내용을 저장했습니다.");
+
+          onSubmit();
+          onClose();
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("잠시 후 다시 시도해주세요.");
       }
-
-      onClose();
     },
     [declaration?.id, onClose],
   );
@@ -60,10 +72,12 @@ export default function DeclarationDetailModal({
         신고 상세
       </ModalHeader>
       <ModalBody>
-        <DeclarationDetailForm
-          formData={getDeclarationDetailQuery.data!}
-          onSubmit={handleSubmit}
-        />
+        {getDeclarationDetailQuery?.data && (
+          <DeclarationDetailForm
+            formData={getDeclarationDetailQuery.data!}
+            onSubmit={handleSubmit}
+          />
+        )}
       </ModalBody>
     </Modal>
   );
