@@ -13,7 +13,7 @@ import CommonPagination, {
 } from "@/components/shared/common-pagination";
 import { formatDate } from "@/utils/date";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
-import { useDrawer } from "@/components/shared/right-drawer/useDrawer";
+import { useDrawer } from "@/stores/drawer";
 import { useUsersContext } from "@/components/contexts/users-context";
 import ImageTable from "@/components/shared/image-table";
 

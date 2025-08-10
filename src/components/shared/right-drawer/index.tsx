@@ -10,7 +10,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import React, { ReactNode } from "react";
-import { useDrawer } from "@/components/shared/right-drawer/useDrawer";
+import { useDrawer } from "@/stores/drawer";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 

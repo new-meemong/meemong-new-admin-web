@@ -14,7 +14,7 @@ import { IBanner } from "@/models/banner";
 import IcUpdate from "@/assets/icons/ic_update.svg";
 import { Button } from "@/components/ui/button";
 import BannerImageBox from "@/components/features/banner/banner-image-box";
-import { useDrawer } from "@/components/shared/right-drawer/useDrawer";
+import { useDrawer } from "@/stores/drawer";
 import BannerRightDrawer from "@/components/features/banner/banner-right-drawer";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-import { useDrawer } from "@/components/shared/right-drawer/useDrawer";
+import { useDrawer } from "@/stores/drawer";
 import RightDrawer, {
   RightDrawerProps,
 } from "@/components/shared/right-drawer";
@@ -19,8 +19,10 @@ function UserRightDrawer({
   userId,
   ...props
 }: UserRightDrawerProps) {
-  const { closeDrawer } = useDrawer();
-  const getUserDetailQuery = useGetUserDetailQuery(userId);
+  const { closeDrawer, isOpen } = useDrawer();
+  const getUserDetailQuery = useGetUserDetailQuery(userId, {
+    enabled: isOpen,
+  });
 
   return (
     <RightDrawer

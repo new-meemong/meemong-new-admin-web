@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { FormEvent, useEffect, useMemo } from "react";
+import { FormEvent, useCallback, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { FormGroup } from "@/components/ui/form-group";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +18,8 @@ import { LOGIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/users";
 import UserImageBox from "@/components/features/user/user-image-box";
 import { formatDate } from "@/utils/date";
 import UserBlockInfoList from "@/components/features/user/user-right-drawer/user-block-info-list";
+import { useUpdateUserPayModelMutation } from "@/queries/users";
+import { toast } from "react-toastify";
 
 interface UserDetailFormProps {
   formData: IUserForm;
@@ -47,6 +49,7 @@ export default function UserDetailForm({
     ),
     phone: z.string(),
     email: z.string(),
+    paymodel: z.string(),
     description: z.string(),
     isBlocked: z.boolean(),
   });
@@ -69,6 +72,8 @@ export default function UserDetailForm({
     },
   });
 
+  const updateUserPayModelMutation = useUpdateUserPayModelMutation();
+
   const userId: string = useMemo(() => {
     let _userId: string = String(form.watch("id"));
     if (form.watch("role") === 1) {
@@ -79,6 +84,38 @@ export default function UserDetailForm({
 
     return _userId;
   }, [form.watch("role"), form.watch("id")]);
+
+  const updateUserPayModel = useCallback(
+    async (next: boolean) => {
+      const prevYN = form.getValues("paymodel");
+      const prev = prevYN === "Y";
+
+      form.setValue("paymodel", next ? "Y" : "N", { shouldDirty: true });
+
+      try {
+        const res = await updateUserPayModelMutation.mutateAsync({
+          userId: form.getValues("id"),
+          paymodel: next,
+        });
+
+        if (typeof res?.paymodel === "boolean") {
+          if (res.paymodel) {
+            toast.success("추천모델로 추가했습니다.");
+          } else {
+            toast.success("추천모델에서 제외됐습니다.");
+          }
+          form.setValue("paymodel", res.paymodel ? "Y" : "N", {
+            shouldDirty: true,
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        form.setValue("paymodel", prev ? "Y" : "N", { shouldDirty: true });
+        toast.error("잠시 후 다시 시도해주세요.");
+      }
+    },
+    [form.watch("id")],
+  );
 
   useEffect(() => {
     if (formData) {
@@ -160,6 +197,15 @@ export default function UserDetailForm({
             label={"이메일"}
             value={form.watch("email") || "-"}
           />
+          {form.watch("role") === 1 && (
+            <CommonForm.CheckBox
+              label={"추천모델"}
+              checked={form.watch("paymodel") === "Y"}
+              onChange={updateUserPayModel}
+              name={"paymodel"}
+              checkboxLabel={form.watch("paymodel") === "Y" ? "ON" : "OFF"}
+            />
+          )}
           <CommonForm.ReadonlyRow
             label={"소개글"}
             value={form.watch("description") || "-"}
