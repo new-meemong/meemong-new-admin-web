@@ -72,7 +72,10 @@ export default function CommonTable<T>({
       {table.getRowModel().rows.map((row) => (
         <div
           key={row.id}
-          className="grid border-b last:border-b-0 hover:bg-background-label"
+          className={cn(
+            "grid border-b last:border-b-0 hover:bg-background-label",
+            { "cursor-pointer": !!onClickRow },
+          )}
           style={{ gridTemplateColumns: columnTemplate }}
           onClick={() => onClickRow?.(row)}
         >

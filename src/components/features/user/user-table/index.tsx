@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import { IUser, UserRoleType } from "@/models/users";
 import UserRightDrawer from "@/components/features/user/user-right-drawer";
 import CommonTable, {
@@ -65,7 +65,6 @@ function UserTable({
           className={cn(
             "cursor-pointer text-secondary-foreground hover:underline",
           )}
-          onClick={() => handleClickRow(info.row.original.id)}
         >
           {info.getValue() as string}
         </span>
@@ -134,8 +133,8 @@ function UserTable({
     },
   ];
 
-  const handleClickRow = useCallback((userId: number) => {
-    setSelectedUserId(userId);
+  const handleClickRow = useCallback((row: Row<IUser>) => {
+    setSelectedUserId(row.original?.id);
     openDrawer();
   }, []);
 
@@ -147,8 +146,9 @@ function UserTable({
           columns={columns}
           renderItem={(row) => (
             <div
-              className={cn("w-full h-full flex cursor-pointer items-center justify-center")}
-              onClick={() => handleClickRow(row.original.id)}
+              className={cn(
+                "w-full h-full flex cursor-pointer items-center justify-center",
+              )}
             >
               {row.original.profilePictureURL ? (
                 <img
@@ -163,7 +163,11 @@ function UserTable({
           )}
         />
       ) : (
-        <CommonTable<IUser> data={data || []} columns={columns} />
+        <CommonTable<IUser>
+          data={data || []}
+          columns={columns}
+          onClickRow={handleClickRow}
+        />
       )}
       <CommonPagination
         currentPage={currentPage || 1}

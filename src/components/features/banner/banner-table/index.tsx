@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import CommonTable, {
   CommonTableProps,
 } from "@/components/shared/common-table";
@@ -72,14 +72,9 @@ function BannerTable({
     {
       accessorKey: "",
       header: "수정",
-      cell: (info) => {
-        const banner = info.row.original;
+      cell: () => {
         return (
-          <Button
-            variant={"outline"}
-            size={"icon"}
-            onClick={() => handleClickRow(banner.id)}
-          >
+          <Button variant={"outline"} size={"icon"}>
             <IcUpdate />
           </Button>
         );
@@ -88,8 +83,8 @@ function BannerTable({
   ];
 
   const handleClickRow = useCallback(
-    (bannerId: number) => {
-      setSelectedBannerId(bannerId);
+    (row: Row<IBanner>) => {
+      setSelectedBannerId(row.original?.id);
       openDrawer();
     },
     [openDrawer],
@@ -97,7 +92,11 @@ function BannerTable({
 
   return (
     <div className={cn("banner-table-wrapper", className)} {...props}>
-      <CommonTable<IBanner> data={data || []} columns={columns} />
+      <CommonTable<IBanner>
+        data={data || []}
+        columns={columns}
+        onClickRow={handleClickRow}
+      />
       <CommonPagination
         currentPage={currentPage || 1}
         pageSize={pageSize}

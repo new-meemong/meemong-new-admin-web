@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import CommonTable, {
   CommonTableProps,
 } from "@/components/shared/common-table";
@@ -55,7 +55,6 @@ function DeclarationTable({
           className={cn(
             "cursor-pointer text-secondary-foreground hover:underline",
           )}
-          onClick={() => handleClickRow(info.row.original)}
         >
           {(info.getValue() as string) || "-"}
         </span>
@@ -90,8 +89,8 @@ function DeclarationTable({
     },
   ];
 
-  const handleClickRow = useCallback((declaration: IDeclaration) => {
-    setSelectedDeclaration(declaration);
+  const handleClickRow = useCallback((row: Row<IDeclaration>) => {
+    setSelectedDeclaration(row.original);
     modal.open();
   }, []);
 
@@ -103,7 +102,11 @@ function DeclarationTable({
 
   return (
     <div className={cn("declaration-table-wrapper", className)} {...props}>
-      <CommonTable<IDeclaration> data={data || []} columns={columns} />
+      <CommonTable<IDeclaration>
+        data={data || []}
+        columns={columns}
+        onClickRow={handleClickRow}
+      />
       <CommonPagination
         currentPage={currentPage || 1}
         pageSize={pageSize}

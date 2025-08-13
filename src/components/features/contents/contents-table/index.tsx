@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import CommonTable, {
   CommonTableProps,
 } from "@/components/shared/common-table";
@@ -10,10 +10,7 @@ import CommonPagination, {
   CommonPaginationProps,
 } from "@/components/shared/common-pagination";
 import { formatDate } from "@/utils/date";
-import {
-  ContentsCategoryType,
-  IContents,
-} from "@/models/contents";
+import { ContentsCategoryType, IContents } from "@/models/contents";
 import { UserRoleType } from "@/models/users";
 import { useContentsContext } from "@/components/contexts/contents-context";
 import { useModal } from "@/components/shared/modal/useModal";
@@ -86,7 +83,6 @@ function ContentsTable({
                 className={cn(
                   "cursor-pointer text-secondary-foreground hover:underline",
                 )}
-                onClick={() => handleClickRow(info.row.original)}
               >
                 {info.getValue() as string}
               </span>
@@ -147,7 +143,6 @@ function ContentsTable({
                 className={cn(
                   "cursor-pointer text-secondary-foreground hover:underline",
                 )}
-                onClick={() => handleClickRow(info.row.original)}
               >
                 {(info.getValue() as string) || "-"}
               </span>
@@ -191,7 +186,6 @@ function ContentsTable({
                 className={cn(
                   "cursor-pointer text-secondary-foreground hover:underline",
                 )}
-                onClick={() => handleClickRow(info.row.original)}
               >
                 {info.getValue() as string}
               </span>
@@ -243,7 +237,6 @@ function ContentsTable({
                 className={cn(
                   "cursor-pointer text-secondary-foreground hover:underline",
                 )}
-                onClick={() => handleClickRow(info.row.original)}
               >
                 {(info.getValue() as string) || "-"}
               </span>
@@ -266,14 +259,18 @@ function ContentsTable({
 
   const columns = getColumnsByCategory(tabId as ContentsCategoryType);
 
-  const handleClickRow = useCallback((selectedContents: IContents) => {
-    setSelectedContents(selectedContents);
+  const handleClickRow = useCallback((row: Row<IContents>) => {
+    setSelectedContents(row.original);
     modal.open();
   }, []);
 
   return (
     <div className={cn("contents-table-wrapper", className)} {...props}>
-      <CommonTable<IContents> data={data || []} columns={columns} />
+      <CommonTable<IContents>
+        data={data || []}
+        columns={columns}
+        onClickRow={handleClickRow}
+      />
       <CommonPagination
         currentPage={currentPage || 1}
         pageSize={pageSize}
