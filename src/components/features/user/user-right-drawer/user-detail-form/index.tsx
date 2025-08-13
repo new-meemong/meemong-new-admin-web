@@ -242,8 +242,10 @@ export default function UserDetailForm({
             value={form.watch("userPhotos")}
             formatter={(userPhotos) => {
               return (
-                <div className={cn("flex flex-wrap gap-4 py-[6px]")}>
-                  {userPhotos && Array.isArray(userPhotos)
+                <div className={cn("flex flex-wrap gap-4")}>
+                  {userPhotos &&
+                  Array.isArray(userPhotos) &&
+                  userPhotos.length > 0
                     ? userPhotos.map((userPhoto, index) => (
                         <ImageBox
                           key={`picture-url-${userPhoto.id}`}
