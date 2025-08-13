@@ -4,7 +4,7 @@ import React from "react";
 import { IJobPostingForm } from "@/models/jobPostings";
 import { FormGroup } from "@/components/ui/form-group";
 import { CommonForm } from "@/components/shared/common-form";
-import UserImageBox from "@/components/features/user/user-image-box";
+import ImageBox from "@/components/shared/image-box";
 
 interface JobPostingDetailItemContentProps {
   jobPosting: IJobPostingForm;
@@ -262,9 +262,13 @@ export default function JobPostingDetailItemContent({
             return storeImages && storeImages.length > 0 ? (
               <div className={"grid grid-cols-4 gap-2"}>
                 {storeImages.map((image, index) => (
-                  <UserImageBox
+                  <ImageBox
                     key={`store-image-${index}-${jobPosting.id}`}
                     src={image as string}
+                    images={storeImages.map((image) => ({
+                      src: image as string,
+                    }))}
+                    index={index}
                   />
                 ))}
               </div>

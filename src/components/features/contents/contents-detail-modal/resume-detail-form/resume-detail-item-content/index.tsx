@@ -3,7 +3,7 @@
 import React from "react";
 import { IResumeForm } from "@/models/resumes";
 import { CommonForm } from "@/components/shared/common-form";
-import UserImageBox from "@/components/features/user/user-image-box";
+import ImageBox from "@/components/shared/image-box";
 
 interface ResumeDetailItemContentProps {
   resume: IResumeForm;
@@ -19,7 +19,11 @@ export default function ResumeDetailItemContent({
         value={resume.profileImageUri}
         formatter={(profileImageUri) => {
           return profileImageUri ? (
-            <UserImageBox src={profileImageUri as string} />
+            <ImageBox
+              src={profileImageUri as string}
+              images={[{ src: profileImageUri }]}
+              index={0}
+            />
           ) : (
             "-"
           );

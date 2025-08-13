@@ -15,7 +15,7 @@ import {
 } from "@/models/users";
 import { CommonForm } from "@/components/shared/common-form";
 import { LOGIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/users";
-import UserImageBox from "@/components/features/user/user-image-box";
+import ImageBox from "@/components/shared/image-box";
 import { formatDate } from "@/utils/date";
 import UserBlockInfoList from "@/components/features/user/user-right-drawer/user-block-info-list";
 import { useUpdateUserPayModelMutation } from "@/queries/users";
@@ -117,6 +117,27 @@ export default function UserDetailForm({
     [form.watch("id")],
   );
 
+  const userImages: { src: string; title?: string }[] = useMemo(() => {
+    const _userImages: { src: string; title?: string }[] = [];
+
+    if (form.watch("profilePictureURL")) {
+      _userImages.push({
+        src: form.watch("profilePictureURL"),
+        title: "프로필 이미지",
+      });
+    }
+
+    if (Array.isArray(form.watch("userPhotos"))) {
+      form.watch("userPhotos").forEach((userPhoto) => {
+        _userImages.push({
+          src: userPhoto.s3Path as string,
+          title: userPhoto.fileType,
+        });
+      });
+    }
+    return _userImages;
+  }, [form.watch("profilePictureURL"), form.watch("userPhotos")]);
+
   useEffect(() => {
     if (formData) {
       form.reset({
@@ -186,7 +207,11 @@ export default function UserDetailForm({
             label={"프로필 이미지"}
             value={form.watch("profilePictureURL")}
             formatter={(v) => {
-              return v ? <UserImageBox src={v as string} /> : "-";
+              return v ? (
+                <ImageBox src={v as string} images={userImages} index={0} />
+              ) : (
+                "-"
+              );
             }}
           />
           <CommonForm.ReadonlyRow
@@ -219,11 +244,15 @@ export default function UserDetailForm({
               return (
                 <div className={cn("flex flex-wrap gap-4 py-[6px]")}>
                   {userPhotos && Array.isArray(userPhotos)
-                    ? userPhotos.map((userPhoto) => (
-                        <UserImageBox
+                    ? userPhotos.map((userPhoto, index) => (
+                        <ImageBox
                           key={`picture-url-${userPhoto.id}`}
                           src={userPhoto.s3Path as string}
                           title={userPhoto.fileType}
+                          images={userImages}
+                          index={
+                            index + (form.watch("profilePictureURL") ? 1 : 0)
+                          }
                         />
                       ))
                     : "-"}

@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formatDate } from "@/utils/date";
 import { ThunderAnnouncementImageType } from "@/models/thunderAnnouncements";
-import UserImageBox from "@/components/features/user/user-image-box";
+import ImageBox from "@/components/shared/image-box";
 import { cn } from "@/lib/utils";
 import { useDialog } from "@/components/shared/dialog/context";
 
@@ -161,10 +161,14 @@ export default function ThunderAnnouncementForm({
             return (
               <div className={cn("flex flex-wrap gap-4")}>
                 {images && Array.isArray(images) && images.length > 0
-                  ? images.map((image) => (
-                      <UserImageBox
+                  ? images.map((image, index) => (
+                      <ImageBox
                         key={`thunder-announcement-image-url-${image.id}`}
                         src={image.imgUrl as string}
+                        images={images.map((image) => ({
+                          src: image.imgUrl,
+                        }))}
+                        index={index}
                       />
                     ))
                   : "-"}

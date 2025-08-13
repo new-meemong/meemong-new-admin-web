@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { DeclarationStatusType } from "@/constants/declaration";
-import DeclarationImageBox from "@/components/features/declaration/declaration-image-box";
+import ImageBox from "@/components/shared/image-box";
 
 interface DeclarationDetailFormProps {
   formData: IDeclarationForm;
@@ -102,7 +102,11 @@ export default function DeclarationDetailForm({
               return (
                 <div className={cn("flex flex-wrap gap-4 py-[6px]")}>
                   {imgUrl ? (
-                    <DeclarationImageBox src={imgUrl as string} />
+                    <ImageBox
+                      src={imgUrl as string}
+                      images={[{ src: imgUrl }]}
+                      index={0}
+                    />
                   ) : (
                     "-"
                   )}

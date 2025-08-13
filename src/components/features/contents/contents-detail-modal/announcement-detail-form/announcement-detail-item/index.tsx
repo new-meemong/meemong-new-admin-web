@@ -5,7 +5,7 @@ import { IAnnouncementForm } from "@/models/announcements";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
 import AnnouncementDeleteButtonBox from "@/components/features/contents/contents-detail-modal/announcement-detail-form/announcement-delete-button-box";
-import UserImageBox from "@/components/features/user/user-image-box";
+import ImageBox from "@/components/shared/image-box";
 
 interface AnnouncementDetailItemProps {
   announcement: IAnnouncementForm;
@@ -16,6 +16,10 @@ export default function AnnouncementDetailItem({
   announcement,
   onDelete,
 }: AnnouncementDetailItemProps) {
+  const announcementImages = (announcement.images || []).map((image) => ({
+    src: image.image,
+  }));
+
   return (
     <div className={cn("w-full flex")}>
       <div className={cn("w-full flex flex-row gap-[10px]")}>
@@ -34,12 +38,14 @@ export default function AnnouncementDetailItem({
             </span>
           </div>
           <div className={cn("w-full")}>{announcement.description || "-"}</div>
-          {announcement.images && announcement.images.length > 0 && (
+          {announcementImages && announcementImages.length > 0 && (
             <div className={cn("w-fit grid grid-cols-4 gap-2")}>
-              {announcement.images.map((imageItem) => (
-                <UserImageBox
-                  key={`announcement-${announcement.id}-${imageItem.id}`}
-                  src={imageItem.image}
+              {announcementImages.map((image, index) => (
+                <ImageBox
+                  key={`announcement-${announcement.id}-${index}`}
+                  src={image.src}
+                  images={announcementImages}
+                  index={index}
                 />
               ))}
             </div>
