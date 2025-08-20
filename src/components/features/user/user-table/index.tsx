@@ -161,6 +161,7 @@ function UserTable({
               )}
             </div>
           )}
+          onClickRow={handleClickRow}
         />
       ) : (
         <CommonTable<IUser>
