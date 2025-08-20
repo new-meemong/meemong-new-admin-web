@@ -4,13 +4,16 @@ import {
   PaginationContent,
   PaginationItem,
   PaginationLink,
-  PaginationPrevious,
-  PaginationNext,
-  PaginationEllipsis,
 } from "@/components/ui/pagination";
 import SelectBox from "@/components/shared/select-box";
 import { cn } from "@/lib/utils";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
 export interface CommonPaginationProps {
   currentPage: number;
@@ -18,12 +21,15 @@ export interface CommonPaginationProps {
   pageSize?: number;
   onPageChange: (page: number) => void;
   onSizeChange: (size: number) => void;
-  siblingCount?: number;
 }
 
 function range(start: number, end: number): number[] {
+  if (end < start) return [];
   return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 }
+
+const PAGES_PER_BLOCK = 10;
+const ICON_CLASS = "h-4 w-4";
 
 export default function CommonPagination({
   currentPage,
@@ -31,107 +37,139 @@ export default function CommonPagination({
   pageSize = DEFAULT_PAGINATION.size,
   onPageChange,
   onSizeChange,
-  siblingCount = 1,
 }: CommonPaginationProps) {
-  const totalPageCount = Math.ceil(totalCount / pageSize);
-  const DOTS = "...";
+  const totalPageCount = Math.max(1, Math.ceil(totalCount / pageSize));
 
-  const paginationRange = React.useMemo(() => {
-    const totalPageNumbers = siblingCount * 2 + 5;
-    if (totalPageNumbers >= totalPageCount) {
-      return range(1, totalPageCount);
-    }
+  const { blockStart, blockEnd } = React.useMemo(() => {
+    const blockIndex = Math.floor((currentPage - 1) / PAGES_PER_BLOCK);
+    const start = blockIndex * PAGES_PER_BLOCK + 1;
+    const end = Math.min(start + PAGES_PER_BLOCK - 1, totalPageCount);
+    return { blockStart: start, blockEnd: end };
+  }, [currentPage, totalPageCount]);
 
-    const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
-    const rightSiblingIndex = Math.min(
-      currentPage + siblingCount,
-      totalPageCount,
-    );
-    const showLeftDots = leftSiblingIndex > 2;
-    const showRightDots = rightSiblingIndex < totalPageCount - 1;
-    const firstPageIndex = 1;
-    const lastPageIndex = totalPageCount;
+  const pagesInBlock = React.useMemo(
+    () => range(blockStart, blockEnd),
+    [blockStart, blockEnd],
+  );
 
-    if (!showLeftDots && showRightDots) {
-      const leftRange = range(1, 3 + 2 * siblingCount);
-      return [...leftRange, DOTS, totalPageCount];
-    }
+  const canGoPrevPage = currentPage > 1;
+  const canGoNextPage = currentPage < totalPageCount;
+  const canGoPrevBlock = blockStart > 1;
+  const canGoNextBlock = blockEnd < totalPageCount;
 
-    if (showLeftDots && !showRightDots) {
-      const rightRange = range(
-        totalPageCount - (3 + 2 * siblingCount) + 1,
-        totalPageCount,
-      );
-      return [firstPageIndex, DOTS, ...rightRange];
-    }
+  const jumpToPrevBlock = () => {
+    if (!canGoPrevBlock) return;
+    onPageChange(Math.max(1, blockStart - PAGES_PER_BLOCK));
+  };
+  const jumpToNextBlock = () => {
+    if (!canGoNextBlock) return;
+    onPageChange(Math.min(totalPageCount, blockStart + PAGES_PER_BLOCK));
+  };
 
-    if (showLeftDots && showRightDots) {
-      const middleRange = range(leftSiblingIndex, rightSiblingIndex);
-      return [firstPageIndex, DOTS, ...middleRange, DOTS, lastPageIndex];
-    }
-  }, [currentPage, totalPageCount, siblingCount]);
-
-  const PAGE_SIZE_OPTIONS: { value: string; label: string }[] = [
-    {
-      value: "10",
-      label: "10 / page",
-    },
-    {
-      value: "20",
-      label: "20 / page",
-    },
-    {
-      value: "50",
-      label: "50 / page",
-    },
+  const PAGE_SIZE_OPTIONS = [
+    { value: "10", label: "10 / page" },
+    { value: "20", label: "20 / page" },
+    { value: "50", label: "50 / page" },
   ];
 
   return (
     <div className="flex flex-row items-center justify-center mt-5 gap-[8px]">
       <Pagination>
         <PaginationContent>
+          {/* << (이전 10페이지) */}
           <PaginationItem>
-            <PaginationPrevious
-              onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
-              aria-disabled={currentPage === 1}
-            />
+            <PaginationLink
+              href="#"
+              aria-label="이전 10페이지"
+              aria-disabled={!canGoPrevBlock}
+              className={cn(
+                !canGoPrevBlock && "pointer-events-none opacity-50",
+              )}
+              onClick={(e) => {
+                e.preventDefault();
+                jumpToPrevBlock();
+              }}
+            >
+              <ChevronsLeft className={ICON_CLASS} />
+            </PaginationLink>
           </PaginationItem>
-          {paginationRange?.map((page, idx) =>
-            page === DOTS ? (
-              <PaginationItem key={`dots-${idx}`}>
-                <PaginationEllipsis />
-              </PaginationItem>
-            ) : (
-              <PaginationItem key={page}>
-                <PaginationLink
-                  isActive={page === currentPage}
-                  onClick={() => onPageChange(Number(page))}
-                  href="#"
-                >
-                  {page}
-                </PaginationLink>
-              </PaginationItem>
-            ),
-          )}
+
+          {/* < (이전 1페이지) */}
           <PaginationItem>
-            <PaginationNext
-              onClick={() =>
-                currentPage < totalPageCount && onPageChange(currentPage + 1)
-              }
-              aria-disabled={currentPage === totalPageCount}
-            />
+            <PaginationLink
+              href="#"
+              aria-label="이전 페이지"
+              aria-disabled={!canGoPrevPage}
+              className={cn(!canGoPrevPage && "pointer-events-none opacity-50")}
+              onClick={(e) => {
+                e.preventDefault();
+                if (canGoPrevPage) onPageChange(currentPage - 1);
+              }}
+            >
+              <ChevronLeft className={ICON_CLASS} />
+            </PaginationLink>
+          </PaginationItem>
+
+          {/* 현재 블록(10페이지) */}
+          {pagesInBlock.map((page) => (
+            <PaginationItem key={page}>
+              <PaginationLink
+                href="#"
+                isActive={page === currentPage}
+                aria-label={`${page}페이지`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onPageChange(page);
+                }}
+              >
+                {page}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+
+          {/* > (다음 1페이지) */}
+          <PaginationItem>
+            <PaginationLink
+              href="#"
+              aria-label="다음 페이지"
+              aria-disabled={!canGoNextPage}
+              className={cn(!canGoNextPage && "pointer-events-none opacity-50")}
+              onClick={(e) => {
+                e.preventDefault();
+                if (canGoNextPage) onPageChange(currentPage + 1);
+              }}
+            >
+              <ChevronRight className={ICON_CLASS} />
+            </PaginationLink>
+          </PaginationItem>
+
+          {/* >> (다음 10페이지) */}
+          <PaginationItem>
+            <PaginationLink
+              href="#"
+              aria-label="다음 10페이지"
+              aria-disabled={!canGoNextBlock}
+              className={cn(
+                !canGoNextBlock && "pointer-events-none opacity-50",
+              )}
+              onClick={(e) => {
+                e.preventDefault();
+                jumpToNextBlock();
+              }}
+            >
+              <ChevronsRight className={ICON_CLASS} />
+            </PaginationLink>
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+
       <SelectBox
         className={cn("w-[118px]")}
         options={PAGE_SIZE_OPTIONS}
         value={String(pageSize)}
-        size={"sm"}
-        onChange={({ value }) => {
-          onSizeChange(Number(value));
-        }}
-        name={"pageSize"}
+        size="sm"
+        onChange={({ value }) => onSizeChange(Number(value))}
+        name="pageSize"
       />
     </div>
   );
