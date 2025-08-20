@@ -50,6 +50,9 @@ function BannerPageContent({ className }: BannerPageContentProps) {
         totalCount={getBannersQuery.data?.totalCount ?? 0}
         currentPage={methods.params.page}
         pageSize={methods.params.size}
+        onRefresh={() => {
+          getBannersQuery.refetch();
+        }}
         onPageChange={(page) => {
           methods.handleChangePage(page);
         }}

@@ -20,6 +20,7 @@ import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contan
 
 interface BannerTableProps
   extends Omit<CommonTableProps<IBanner> & CommonPaginationProps, "columns"> {
+  onRefresh: () => void;
   className?: string;
 }
 
@@ -29,6 +30,7 @@ function BannerTable({
   totalCount,
   currentPage = 1,
   pageSize = DEFAULT_PAGINATION.size,
+  onRefresh,
   onPageChange,
   onSizeChange,
   ...props
@@ -104,7 +106,7 @@ function BannerTable({
         onPageChange={onPageChange}
         onSizeChange={onSizeChange}
       />
-      <BannerRightDrawer bannerId={selectedBannerId!} />
+      <BannerRightDrawer bannerId={selectedBannerId!} onRefresh={onRefresh} />
     </div>
   );
 }

@@ -17,11 +17,13 @@ import { useDialog } from "@/components/shared/dialog/context";
 
 interface BannerRightDrawerProps extends RightDrawerProps {
   bannerId: number;
+  onRefresh: () => void;
 }
 
 function BannerRightDrawer({
   className,
   bannerId,
+  onRefresh,
   ...props
 }: BannerRightDrawerProps) {
   const { closeDrawer, isOpen } = useDrawer();
@@ -42,6 +44,7 @@ function BannerRightDrawer({
       });
 
       closeDrawer();
+      onRefresh();
     }
   };
 

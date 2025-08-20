@@ -21,6 +21,17 @@ export default function BannerDetailForm({
   formData,
   onSubmit,
 }: BannerDetailFormProps) {
+  const BANNER_TYPE_OPTIONS: {
+    value: string;
+    label: string;
+  }[] = [
+    { value: "중단 배너", label: "중단 배너" },
+    { value: "번개매칭", label: "번개매칭" },
+    { value: "일반", label: "일반" },
+    { value: "구인구직", label: "구인구직" },
+    { value: "바텀시트", label: "바텀시트" },
+  ];
+
   const formSchema = z.object({
     company: z.string(),
     createdAt: z.string(),
@@ -32,20 +43,15 @@ export default function BannerDetailForm({
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      company: "-",
-      createdAt: "-",
-      endAt: "",
-      bannerType: "-",
-      imageUrl: "",
-      redirectUrl: "",
-    },
+    values: formData as z.infer<typeof formSchema>,
+    mode: "onChange",
   });
 
   const handleSubmit = useCallback(
     (event: FormEvent) => {
       event.preventDefault();
       onSubmit({
+        company: form.getValues("company"),
         endAt: form.getValues("endAt"),
         bannerType: form.getValues("bannerType"),
         imageUrl: form.getValues("imageUrl"),
@@ -71,10 +77,11 @@ export default function BannerDetailForm({
     <Form {...form}>
       <form onSubmit={handleSubmit}>
         <FormGroup>
-          <CommonForm.Readonly
-            name={"companyName"}
+          <CommonForm.Input
+            name={"company"}
             label={"고객사명"}
-            value={form.watch("company") || "-"}
+            value={form.watch("company")}
+            placeholder={'고객사명을 입력해주세요.'}
           />
           <CommonForm.Readonly
             name={"createdAt"}
@@ -85,16 +92,19 @@ export default function BannerDetailForm({
             }}
           />
           <CommonForm.Date name={"endAt"} label={"마감일"} />
-          <CommonForm.Image name={"imageUrl"} label={"이미지"} readOnly={true} />
-          <CommonForm.Readonly
+          <CommonForm.Image name={"imageUrl"} label={"이미지"} />
+          <CommonForm.SelectBox
             name={"bannerType"}
-            value={form.watch("bannerType")}
             label={"배너 위치"}
+            defaultValue={form.watch("bannerType")}
+            options={BANNER_TYPE_OPTIONS}
+            placeholder={'배너위치를 선택해주세요.'}
           />
           <CommonForm.Input
             name={"redirectUrl"}
             label={"링크"}
             value={form.watch("redirectUrl")}
+            placeholder={'링크를 입력해주세요.'}
           />
         </FormGroup>
         <div className={cn("mt-[20px]")}>
