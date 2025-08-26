@@ -1,11 +1,12 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
 import React, { FormEvent, useCallback, useState } from "react";
+
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { usePostAdminLogin } from "@/queries/auth";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const [name, setName] = useState("");
@@ -27,7 +28,7 @@ export default function LoginForm() {
         const token = response.token;
 
         if (token) {
-          document.cookie = `accessToken=${token}; path=/; max-age=3600; secure`;
+          document.cookie = `accessToken=${token}; path=/; max-age=7776000; secure`;
         }
 
         router.push("/user");
