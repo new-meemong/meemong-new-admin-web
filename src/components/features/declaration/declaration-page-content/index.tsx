@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import useSearchForm from "@/components/shared/search-form/useSearchMethods";
 import DeclarationSearchForm, {
@@ -8,7 +8,6 @@ import DeclarationSearchForm, {
 } from "@/components/features/declaration/declaration-search-form";
 import { useGetDeclarationsQuery } from "@/queries/declaration";
 import DeclarationTable from "@/components/features/declaration/declaration-table";
-import { DeclarationStatusType } from "@/constants/declaration";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 
 interface DeclarationPageContentProps {
@@ -23,59 +22,51 @@ function DeclarationPageContent({ className }: DeclarationPageContentProps) {
     ...DEFAULT_PAGINATION,
   };
 
-  const [searchParams, setSearchParams] = useState<IDeclarationSearchParams>(
-    DEFAULT_SEARCH_PARAMS,
-  );
-
-  const searchForm = useSearchForm<IDeclarationSearchParams>({
+  const methods = useSearchForm<IDeclarationSearchParams>({
     defaultParams: DEFAULT_SEARCH_PARAMS,
   });
 
   const getDeclarationsQuery = useGetDeclarationsQuery({
     status:
-      searchParams.status === "ALL"
+      methods.params.status === "ALL"
         ? undefined
-        : (searchParams.status as DeclarationStatusType),
-    searchType: searchParams.searchType,
-    searchKeyword: searchParams.searchKeyword,
-    page: searchParams.page,
-    size: searchParams.size,
+        : (methods.params.status as string),
+    searchType: methods.params.searchType,
+    searchKeyword: methods.params.searchKeyword,
+    page: methods.params.page,
+    size: methods.params.size,
   });
 
   const handleRefresh = useCallback(() => {
     getDeclarationsQuery.refetch();
   }, []);
 
+  useEffect(() => {
+    getDeclarationsQuery.refetch();
+  }, [methods.searchParams]);
+
   return (
     <div className={cn("contents-page-content", className)}>
       <DeclarationSearchForm
-        searchForm={searchForm}
+        searchForm={methods}
         onSubmit={() => {
-          setSearchParams({ ...searchParams, page: 1 });
+          methods.handleSubmit();
         }}
         onRefresh={() => {
-          searchForm.handleReset();
-          setSearchParams({ ...DEFAULT_SEARCH_PARAMS });
+          methods.handleReset();
         }}
       />
       <DeclarationTable
         data={getDeclarationsQuery.data?.content ?? []}
         totalCount={getDeclarationsQuery.data?.totalCount ?? 0}
-        currentPage={searchParams.page}
-        pageSize={searchParams.size}
+        currentPage={methods.params.page}
+        pageSize={methods.params.size}
         onRefresh={handleRefresh}
         onPageChange={(page) => {
-          setSearchParams({
-            ...searchParams,
-            page,
-          });
+          methods.handleChangePage(page);
         }}
         onSizeChange={(size) => {
-          setSearchParams({
-            ...searchParams,
-            page: 1,
-            size,
-          });
+          methods.handleChangeSize(size);
         }}
       />
     </div>

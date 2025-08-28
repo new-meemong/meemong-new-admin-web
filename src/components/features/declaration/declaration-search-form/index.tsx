@@ -11,6 +11,7 @@ import {
 import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMethods";
 import { PaginationType, SearchType } from "@/models/common";
 import { DeclarationStatusType } from "@/constants/declaration";
+import { SEARCH_TYPE_OPTIONS } from "@/constants/common";
 
 type DeclarationStatusWithAll = DeclarationStatusType | "ALL";
 
@@ -31,20 +32,14 @@ function DeclarationSearchForm({
   ...props
 }: DeclarationSearchFormProps) {
   const STATUS_TYPE_OPTIONS: {
-    value: DeclarationStatusWithAll;
+    value: string;
     label: string;
   }[] = [
     { value: "ALL", label: "전체" },
-    { value: "0", label: "미확인" },
-    { value: "1", label: "확인" },
-    { value: "2", label: "대기" },
-    { value: "3", label: "처리완료" },
-  ];
-
-  const SEARCH_TYPE_OPTIONS: { value: SearchType; label: string }[] = [
-    { value: "UID", label: "uuid" },
-    { value: "NAME", label: "닉네임" },
-    { value: "PHONE", label: "전화번호" },
+    { value: "미확인", label: "미확인" },
+    { value: "확인", label: "확인" },
+    { value: "대기", label: "대기" },
+    { value: "처리완료", label: "처리완료" },
   ];
 
   return (

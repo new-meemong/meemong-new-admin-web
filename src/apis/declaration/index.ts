@@ -1,14 +1,13 @@
 import { PaginatedResponse } from "@/apis/types";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { IDeclaration, IDeclarationForm } from "@/models/declaration";
-import { DeclarationStatusType } from "@/constants/declaration";
 import { SearchType } from "@/models/common";
 import { fetcher } from "@/apis/core";
 
 const BASE_URL = "/api/v1/admins/declarations";
 
 export type GetDeclarationsRequest = {
-  status?: DeclarationStatusType;
+  status?: string;
   searchType?: SearchType;
   searchKeyword?: string;
   page?: number;
