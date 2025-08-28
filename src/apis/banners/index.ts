@@ -25,6 +25,16 @@ export type PutBannerResponse = {
   success: boolean;
 };
 
+export type PostBannerImageUploadRequest = FormData;
+
+export type PostBannerImageUploadResponse = {
+  data: {
+    imageFile: {
+      fileuri: string;
+    };
+  };
+};
+
 export const bannerAPI = {
   getAll: ({
     company,
@@ -50,6 +60,17 @@ export const bannerAPI = {
       {
         method: "PUT",
         body: JSON.stringify(request.banner),
+      },
+    );
+
+    return response;
+  },
+  uploadImage: async (request: PostBannerImageUploadRequest) => {
+    const response = await fetcher<PostBannerImageUploadResponse>(
+      `/api/v1/uploads/banners`,
+      {
+        method: "POST",
+        body: request,
       },
     );
 

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 
 interface BannerDetailFormProps {
   formData: IBannerForm;
-  onSubmit: (form: Partial<IBannerForm>) => void;
+  onSubmit: (form: Partial<IBannerForm & { imageFile: File }>) => void;
 }
 
 export default function BannerDetailForm({
@@ -38,6 +38,9 @@ export default function BannerDetailForm({
     endAt: z.string(),
     bannerType: z.string(),
     imageUrl: z.string(),
+    imageFile: z
+      .custom<File>((v) => v instanceof File, "유효한 파일이 아닙니다.")
+      .optional(),
     redirectUrl: z.string(),
   });
 
@@ -55,6 +58,7 @@ export default function BannerDetailForm({
         endAt: form.getValues("endAt"),
         bannerType: form.getValues("bannerType"),
         imageUrl: form.getValues("imageUrl"),
+        imageFile: form.getValues("imageFile"),
         redirectUrl: form.getValues("redirectUrl"),
       });
     },
@@ -81,7 +85,7 @@ export default function BannerDetailForm({
             name={"company"}
             label={"고객사명"}
             value={form.watch("company")}
-            placeholder={'고객사명을 입력해주세요.'}
+            placeholder={"고객사명을 입력해주세요."}
           />
           <CommonForm.Readonly
             name={"createdAt"}
@@ -92,19 +96,23 @@ export default function BannerDetailForm({
             }}
           />
           <CommonForm.Date name={"endAt"} label={"마감일"} />
-          <CommonForm.Image name={"imageUrl"} label={"이미지"} />
+          <CommonForm.Image
+            name={"imageUrl"}
+            fileName={"imageFile"}
+            label={"이미지"}
+          />
           <CommonForm.SelectBox
             name={"bannerType"}
             label={"배너 위치"}
             defaultValue={form.watch("bannerType")}
             options={BANNER_TYPE_OPTIONS}
-            placeholder={'배너위치를 선택해주세요.'}
+            placeholder={"배너위치를 선택해주세요."}
           />
           <CommonForm.Input
             name={"redirectUrl"}
             label={"링크"}
             value={form.watch("redirectUrl")}
-            placeholder={'링크를 입력해주세요.'}
+            placeholder={"링크를 입력해주세요."}
           />
         </FormGroup>
         <div className={cn("mt-[20px]")}>

@@ -10,6 +10,8 @@ import {
   bannerAPI,
   GetBannersRequest,
   GetBannersResponse,
+  PostBannerImageUploadRequest,
+  PostBannerImageUploadResponse,
   PutBannerRequest,
   PutBannerResponse,
 } from "@/apis/banners";
@@ -44,5 +46,25 @@ export const usePutBannerMutation = (
 ): UseMutationResult<PutBannerResponse, Error, PutBannerRequest> =>
   useMutation({
     mutationFn: (request: PutBannerRequest) => bannerAPI.update(request),
+    ...config,
+  });
+
+export const usePostBannerImageUploadMutation = (
+  config?: Omit<
+    UseMutationOptions<
+      PostBannerImageUploadResponse,
+      Error,
+      PostBannerImageUploadRequest
+    >,
+    "mutationFn"
+  >,
+): UseMutationResult<
+  PostBannerImageUploadResponse,
+  Error,
+  PostBannerImageUploadRequest
+> =>
+  useMutation({
+    mutationFn: (request: PostBannerImageUploadRequest) =>
+      bannerAPI.uploadImage(request),
     ...config,
   });

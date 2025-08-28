@@ -10,6 +10,7 @@ import { ChevronRight } from "lucide-react";
 import BannerDetailForm from "@/components/features/banner/banner-right-drawer/banner-detail-form";
 import {
   useGetBannerDetailQuery,
+  usePostBannerImageUploadMutation,
   usePutBannerMutation,
 } from "@/queries/banners";
 import { IBannerForm } from "@/models/banner";
@@ -33,18 +34,45 @@ function BannerRightDrawer({
   });
 
   const putBannerMutation = usePutBannerMutation();
+  const postBannerImageUploadMutation = usePostBannerImageUploadMutation();
 
-  const handleUpdateBanner = async (formData: Partial<IBannerForm>) => {
-    const confirmed = await dialog.confirm("배너를 수정하시겠습니까?");
+  const handleUpdateBanner = async (
+    formData: Partial<IBannerForm & { imageFile: File }>,
+  ) => {
+    try {
+      const confirmed = await dialog.confirm("배너를 수정하시겠습니까?");
 
-    if (confirmed) {
-      await putBannerMutation.mutateAsync({
-        id: bannerId,
-        banner: formData,
-      });
+      const { imageUrl, imageFile, ...restFormData } = formData;
 
-      closeDrawer();
-      onRefresh();
+      if (confirmed) {
+        let tempImageUrl = imageFile ? undefined : imageUrl;
+        if (formData.imageFile) {
+          const fd = new FormData();
+
+          fd.append("image", formData.imageFile as Blob);
+          const response = await postBannerImageUploadMutation.mutateAsync(fd);
+
+          if (response.data?.imageFile?.fileuri) {
+            tempImageUrl = response.data?.imageFile.fileuri;
+          } else {
+            throw new Error("파일 전송 실패");
+          }
+        }
+        console.log(tempImageUrl);
+
+        await putBannerMutation.mutateAsync({
+          id: bannerId,
+          banner: {
+            ...restFormData,
+            imageUrl: tempImageUrl,
+          },
+        });
+
+        closeDrawer();
+        onRefresh();
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
