@@ -53,7 +53,18 @@ function BannerTable({
     {
       accessorKey: "bannerType",
       header: "위치",
-      cell: (info) => info.getValue() || "-",
+      cell: (info) => {
+        console.log(info);
+        const bannerTypeItem: string[] = [];
+        if (info.row.original.userType) {
+          bannerTypeItem.push(info.row.original.userType);
+        }
+        if (info.getValue()) {
+          bannerTypeItem.push(info.getValue() as string);
+        }
+
+        return bannerTypeItem.join(" ") || "-";
+      },
     },
     {
       accessorKey: "createdAt",
