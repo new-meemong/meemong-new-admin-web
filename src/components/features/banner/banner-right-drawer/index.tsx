@@ -53,12 +53,19 @@ function BannerRightDrawer({
           const response = await postBannerImageUploadMutation.mutateAsync(fd);
 
           if (response.data?.imageFile?.fileuri) {
-            tempImageUrl = response.data?.imageFile.fileuri;
+            const newImageUrl = response.data?.imageFile.fileuri;
+            if (
+              newImageUrl?.startsWith("http") ||
+              newImageUrl?.startsWith("https")
+            ) {
+              tempImageUrl = newImageUrl;
+            } else {
+              tempImageUrl = `${process.env.NEXT_PUBLIC_STORAGE_URL}${newImageUrl}`;
+            }
           } else {
             throw new Error("파일 전송 실패");
           }
         }
-        console.log(tempImageUrl);
 
         await putBannerMutation.mutateAsync({
           id: bannerId,
