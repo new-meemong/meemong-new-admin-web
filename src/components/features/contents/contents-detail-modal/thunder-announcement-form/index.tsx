@@ -18,6 +18,7 @@ import { ThunderAnnouncementImageType } from "@/models/thunderAnnouncements";
 import ImageBox from "@/components/shared/image-box";
 import { cn } from "@/lib/utils";
 import { useDialog } from "@/components/shared/dialog/context";
+import { toast } from "react-toastify";
 
 const thunderAnnouncementSchema = z.object({
   title: z.string(),
@@ -39,10 +40,12 @@ type ThunderAnnouncementFormType = z.infer<typeof thunderAnnouncementSchema>;
 
 interface ThunderAnnouncementFormProps {
   contentsId?: number;
+  onRefresh: () => void;
 }
 
 export default function ThunderAnnouncementForm({
   contentsId,
+  onRefresh,
 }: ThunderAnnouncementFormProps) {
   const dialog = useDialog();
 
@@ -68,20 +71,36 @@ export default function ThunderAnnouncementForm({
 
   const handleUpdatePremium = useCallback(
     async (isPremium: number) => {
-      const isCancel = isPremium === 1;
+      try {
+        const isCancel = isPremium === 1;
 
-      const confirmed = await dialog.confirm(
-        `해당 게시물을 승인${isCancel ? "취소" : ""}하시겠습니까?`,
-      );
+        const confirmed = await dialog.confirm(
+          `해당 게시물을 승인${isCancel ? "취소" : ""}하시겠습니까?`,
+        );
 
-      if (confirmed) {
-        putThunderAnnouncementPremiumMutation.mutateAsync({
-          thunderAnnouncementId: contentsId,
-          isPremium: !isCancel,
-        });
+        if (confirmed) {
+          const result =
+            await putThunderAnnouncementPremiumMutation.mutateAsync({
+              thunderAnnouncementId: contentsId,
+              isApproved: !isCancel,
+            });
+
+          if (result.isApproved !== undefined) {
+            toast.success(
+              `해당 공고를 ${result.isApproved ? "승인" : "승인 취소"}했습니다.`,
+            );
+            getThunderAnnouncementByIdQuery.refetch();
+            onRefresh();
+          } else {
+            throw new Error();
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("잠시 후 다시 시도해주세요.");
       }
     },
-    [contentsId],
+    [contentsId, onRefresh],
   );
 
   const handleDelete = useCallback(async () => {
@@ -119,6 +138,10 @@ export default function ThunderAnnouncementForm({
       });
     }
   }, [getThunderAnnouncementByIdQuery.data, form]);
+
+  if (!getThunderAnnouncementByIdQuery.data) {
+    return <></>;
+  }
 
   return (
     <>

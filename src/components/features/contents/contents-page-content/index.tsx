@@ -142,6 +142,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
         shortDescription: contentsItem?.shortDescription,
         appliedRole: contentsItem?.appliedRole,
         jobPostingRole: contentsItem?.jobPostingRole,
+        isPremium: contentsItem?.isPremium,
         storeName: contentsItem?.storeName,
         announcementCategory: contentsItem?.category,
         announcementTitle: contentsItem?.description,
@@ -261,6 +262,17 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
         }}
         onSizeChange={(size) => {
           methods.handleChangeSize(size);
+        }}
+        onRefresh={() => {
+          if (tabId === "0" || tabId === "1") {
+            getThunderAnnouncementsQuery.refetch();
+          } else if (tabId === "2") {
+            getJobPostingsQuery.refetch();
+          } else if (tabId === "3") {
+            getResumesQuery.refetch();
+          } else if (tabId === "4") {
+            getAnnouncementsQuery.refetch();
+          }
         }}
       />
     </div>

@@ -31,15 +31,15 @@ export type GetThunderAnnouncementByIdResponse = {
 
 export type PutThunderAnnouncementPremiumRequest = {
   thunderAnnouncementId?: number;
-  isPremium?: boolean;
+  isApproved: boolean;
 };
 export type PutThunderAnnouncementPremiumResponse = {
-  success: boolean;
+  isApproved: boolean;
 };
 
 export type DeleteThunderAnnouncementResponse = {
-  success: boolean
-}
+  success: boolean;
+};
 
 export const thunderAnnouncementAPI = {
   getAll: ({
@@ -67,13 +67,13 @@ export const thunderAnnouncementAPI = {
   },
   updatePremium: async ({
     thunderAnnouncementId,
-    isPremium,
+    isApproved,
   }: PutThunderAnnouncementPremiumRequest) => {
     const response = await fetcher<PutThunderAnnouncementPremiumResponse>(
       `${BASE_URL}/${thunderAnnouncementId}/premium`,
       {
         method: "PUT",
-        body: JSON.stringify({ isPremium }),
+        body: JSON.stringify({ isApproved }),
       },
     );
 

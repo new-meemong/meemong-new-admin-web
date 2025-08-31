@@ -21,6 +21,7 @@ import { ResumeRoleType } from "@/models/resumes";
 interface ContentsTableProps
   extends Omit<CommonTableProps<IContents> & CommonPaginationProps, "columns"> {
   className?: string;
+  onRefresh: () => void;
 }
 
 function ContentsTable({
@@ -31,6 +32,7 @@ function ContentsTable({
   pageSize = DEFAULT_PAGINATION.size,
   onPageChange,
   onSizeChange,
+  onRefresh,
   ...props
 }: ContentsTableProps) {
   const modal = useModal();
@@ -109,18 +111,21 @@ function ContentsTable({
         return [
           ...getColumnsByCategory("0"),
           {
-            accessorKey: "isApproved",
+            accessorKey: "isPremium",
             header: "승인여부",
-            cell: (info) =>
-              info.getValue() !== undefined ? (
-                info.getValue() ? (
-                  <span>승인</span>
+            cell: (info) => {
+              const isPremium = Number(info.getValue());
+
+              if ([1, 3].includes(isPremium)) {
+                return isPremium === 1 ? (
+                  "승인"
                 ) : (
-                  <span className={"text-nagative"}>승인불가</span>
-                )
-              ) : (
-                "-"
-              ),
+                  <span className={cn("text-negative")}>승인거절</span>
+                );
+              } else {
+                return "-";
+              }
+            },
             size: 80,
             enableSorting: false,
           },
@@ -283,6 +288,7 @@ function ContentsTable({
         onClose={modal.close}
         contents={selectedContents!}
         categoryId={tabId as ContentsCategoryType}
+        onRefresh={onRefresh}
       />
     </div>
   );

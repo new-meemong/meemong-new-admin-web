@@ -19,6 +19,7 @@ interface ContentsDetailModalProps {
   onClose: () => void;
   contents: IContents;
   categoryId: ContentsCategoryType;
+  onRefresh: () => void;
 }
 
 export default function ContentsDetailModal({
@@ -26,6 +27,7 @@ export default function ContentsDetailModal({
   onClose,
   contents,
   categoryId,
+  onRefresh,
 }: ContentsDetailModalProps) {
   const getUserDetailQuery = useGetUserDetailQuery(contents?.userInfo?.userId);
 
@@ -37,7 +39,7 @@ export default function ContentsDetailModal({
     } else if (categoryId === "4") {
       return <AnnouncementDetailForm userId={contents?.userInfo?.userId} />;
     } else {
-      return <ThunderAnnouncementForm contentsId={contents?.id} />;
+      return <ThunderAnnouncementForm contentsId={contents?.id} onRefresh={onRefresh} />;
     }
   }, [categoryId, contents?.userInfo?.userId]);
 

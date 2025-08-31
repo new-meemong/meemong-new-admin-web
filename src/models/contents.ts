@@ -26,6 +26,7 @@ export interface IContents {
   };
   jobPostingRole?: string; // 모집공고 구직 타입 (인턴, 디자이너)
   appliedRole?: string; // 이력서 구직 타입 (인턴, 디자이너)
+  isPremium: number; // 게시물 승인 여부
   title?: string; // 제목
   postingTitle?: string; // 구인공고 제목
   shortDescription?: string; // 이력서 제목
