@@ -20,6 +20,15 @@ export type GetUserDetailResponse = {
   data: IUserForm;
 };
 
+export type UpdateUserDescriptionRequest = {
+  userId: number;
+  description: string;
+};
+
+export type UpdateUserDescriptionResponse = {
+  description: string;
+};
+
 export type UpdateUserPayModelRequest = {
   userId: number;
   paymodel: boolean;
@@ -58,6 +67,20 @@ export const userAPI = {
       method: "POST",
       body: JSON.stringify(user),
     }),
+
+  updateDescription: async (request: UpdateUserDescriptionRequest) => {
+    const response = await fetcher<UpdateUserDescriptionResponse>(
+      `${BASE_URL}/${request.userId}/description`,
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          description: request.description,
+        }),
+      },
+    );
+
+    return response;
+  },
 
   updatePayModel: async (request: UpdateUserPayModelRequest) => {
     const response = await fetcher<UpdateUserPayModelResponse>(

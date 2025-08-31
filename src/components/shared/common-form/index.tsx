@@ -6,6 +6,7 @@ import { CommonFormSelectBox } from "@/components/shared/common-form/common-form
 import { CommonFormDate } from "@/components/shared/common-form/common-form-date";
 import { CommonFormImage } from "@/components/shared/common-form/common-form-image";
 import { CommonFormCheckBox } from "@/components/shared/common-form/common-form-check-box";
+import { CommonFormTextareaRow } from "@/components/shared/common-form/common-form-textarea-row";
 
 export const CommonForm = {
   Input: CommonFormInput,
@@ -17,4 +18,5 @@ export const CommonForm = {
   Image: CommonFormImage,
   // 제목과 내용이 나란히 있는 형태
   ReadonlyRow: CommonFormReadonlyRow,
+  TextAreaRow: CommonFormTextareaRow,
 };

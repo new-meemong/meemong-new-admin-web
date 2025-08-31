@@ -10,6 +10,8 @@ import { IUserBlockDetail, IUserForm } from "@/models/users";
 import {
   GetUsersRequest,
   GetUsersResponse,
+  UpdateUserDescriptionRequest,
+  UpdateUserDescriptionResponse,
   UpdateUserPayModelRequest,
   UpdateUserPayModelResponse,
   userAPI,
@@ -47,6 +49,25 @@ export const useGetUserBlockDetailQuery = (
   useQuery<IUserBlockDetail, Error>({
     queryKey: ["GET_USER_BLOCK_DETAIL", userId],
     queryFn: () => userBlockAPI.getById(userId),
+    ...config,
+  });
+
+export const useUpdateUserDescriptionMutation = (
+  config?: Omit<
+    UseMutationOptions<
+      UpdateUserDescriptionResponse,
+      Error,
+      UpdateUserDescriptionRequest
+    >,
+    "mutationFn"
+  >,
+): UseMutationResult<
+  UpdateUserDescriptionResponse,
+  Error,
+  UpdateUserDescriptionRequest
+> =>
+  useMutation({
+    mutationFn: (request) => userAPI.updateDescription(request),
     ...config,
   });
 

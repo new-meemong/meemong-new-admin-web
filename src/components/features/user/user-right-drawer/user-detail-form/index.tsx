@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { FormEvent, useCallback, useEffect, useMemo } from "react";
+import React, { FormEvent, useCallback, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { FormGroup } from "@/components/ui/form-group";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,8 +18,12 @@ import { LOGIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/users";
 import ImageBox from "@/components/shared/image-box";
 import { formatDate } from "@/utils/date";
 import UserBlockInfoList from "@/components/features/user/user-right-drawer/user-block-info-list";
-import { useUpdateUserPayModelMutation } from "@/queries/users";
+import {
+  useUpdateUserDescriptionMutation,
+  useUpdateUserPayModelMutation,
+} from "@/queries/users";
 import { toast } from "react-toastify";
+import { Button } from "@/components/ui/button";
 
 interface UserDetailFormProps {
   formData: IUserForm;
@@ -35,6 +39,7 @@ export default function UserDetailForm({
     role: z.number(),
     displayName: z.string(),
     name: z.string(),
+    address: z.string(),
     loginType: z.string(),
     createdAt: z.string(),
     recentLoginTime: z.string(),
@@ -61,6 +66,7 @@ export default function UserDetailForm({
       role: undefined,
       displayName: "",
       name: "",
+      address: "",
       loginType: "",
       createdAt: "",
       recentLoginTime: "",
@@ -72,6 +78,7 @@ export default function UserDetailForm({
     },
   });
 
+  const updateUserDescriptionMutation = useUpdateUserDescriptionMutation();
   const updateUserPayModelMutation = useUpdateUserPayModelMutation();
 
   const userId: string = useMemo(() => {
@@ -138,6 +145,27 @@ export default function UserDetailForm({
     return _userImages;
   }, [form.watch("profilePictureURL"), form.watch("userPhotos")]);
 
+  const handleUpdateDescription = useCallback(async () => {
+    try {
+      const res = await updateUserDescriptionMutation.mutateAsync({
+        userId: form.getValues("id"),
+        description: form.getValues("description"),
+      });
+
+      if (res.description) {
+        toast.success("소개글을 수정했습니다.");
+      } else {
+        throw new Error();
+      }
+      form.setValue("description", res.description, {
+        shouldDirty: true,
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("잠시 후 다시 시도해주세요.");
+    }
+  }, [form.getValues("id"), form.getValues("description")]);
+
   useEffect(() => {
     if (formData) {
       form.reset({
@@ -169,6 +197,10 @@ export default function UserDetailForm({
           <CommonForm.ReadonlyRow
             label={"이름"}
             value={form.watch("name") || "-"}
+          />
+          <CommonForm.ReadonlyRow
+            label={"지역"}
+            value={form.watch("address") || "-"}
           />
           <CommonForm.ReadonlyRow
             label={"가입형태"}
@@ -231,10 +263,23 @@ export default function UserDetailForm({
               checkboxLabel={form.watch("paymodel") === "Y" ? "ON" : "OFF"}
             />
           )}
-          <CommonForm.ReadonlyRow
-            label={"소개글"}
-            value={form.watch("description") || "-"}
-          />
+          {form.watch("role") === 2 && (
+            <CommonForm.TextAreaRow
+              label={"소개글"}
+              value={form.watch("description") || ""}
+              name={"description"}
+            >
+              <div className={cn("ml-2")}>
+                <Button
+                  variant={"outline"}
+                  type={"button"}
+                  onClick={handleUpdateDescription}
+                >
+                  수정
+                </Button>
+              </div>
+            </CommonForm.TextAreaRow>
+          )}
         </FormGroup>
         <FormGroup title={"사진 정보"}>
           <CommonForm.ReadonlyRow<UserPhotoType[]>
