@@ -12,11 +12,13 @@ import UserDetailForm from "@/components/features/user/user-right-drawer/user-de
 
 interface UserRightDrawerProps extends RightDrawerProps {
   userId: number;
+  onRefresh: () => void;
 }
 
 function UserRightDrawer({
   className,
   userId,
+  onRefresh,
   ...props
 }: UserRightDrawerProps) {
   const { closeDrawer, isOpen } = useDrawer();
@@ -41,6 +43,7 @@ function UserRightDrawer({
           onSubmit={() => {
             closeDrawer();
           }}
+          onRefresh={onRefresh}
         />
       ) : (
         <div>...loading</div>

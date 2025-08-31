@@ -74,6 +74,9 @@ function UserPageContent({ className }: UserPageContentProps) {
         onSizeChange={(size) => {
           methods.handleChangeSize(size);
         }}
+        onRefresh={() => {
+          getUsersQuery.refetch();
+        }}
       />
     </div>
   );

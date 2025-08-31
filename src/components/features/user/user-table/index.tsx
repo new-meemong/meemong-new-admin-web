@@ -16,10 +16,12 @@ import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contan
 import { useDrawer } from "@/stores/drawer";
 import { useUsersContext } from "@/components/contexts/users-context";
 import ImageTable from "@/components/shared/image-table";
+import { getUserRole } from "@/utils/user";
 
 interface UserTableProps
   extends Omit<CommonTableProps<IUser> & CommonPaginationProps, "columns"> {
   className?: string;
+  onRefresh: () => void;
 }
 
 function UserTable({
@@ -30,6 +32,7 @@ function UserTable({
   pageSize = DEFAULT_PAGINATION.size,
   onPageChange,
   onSizeChange,
+  onRefresh,
   ...props
 }: UserTableProps) {
   const { isPhotoMode } = useUsersContext();
@@ -46,9 +49,9 @@ function UserTable({
 
         let cellValue = info.getValue() as string;
 
-        if (role === 1) {
+        if (getUserRole(role) === "MODEL") {
           cellValue = `M-${cellValue}`;
-        } else if (role === 2) {
+        } else if (getUserRole(role) === "DESIGNER") {
           cellValue = `D-${cellValue}`;
         }
 
@@ -76,9 +79,9 @@ function UserTable({
       header: "유저타입",
       cell: (info) => {
         const role = info.getValue() as UserRoleType;
-        if (role === 1) {
+        if (getUserRole(role) === "MODEL") {
           return "모델";
-        } else if (role === 2) {
+        } else if (getUserRole(role) === "DESIGNER") {
           return "디자이너";
         } else {
           return "-";
@@ -121,9 +124,11 @@ function UserTable({
       accessorKey: "isBlocked",
       header: "차단",
       cell: (info) => {
-        const isBlocked = info.getValue();
+        const isBlocked =
+          info.row.original.role === 3 || info.row.original.role === 4;
+
         if (isBlocked) {
-          return <span className={cn("text-nagative")}>차단</span>;
+          return <span className={cn("text-negative")}>차단</span>;
         } else {
           return "-";
         }
@@ -177,7 +182,7 @@ function UserTable({
         onPageChange={onPageChange}
         onSizeChange={onSizeChange}
       />
-      <UserRightDrawer userId={selectedUserId!} />
+      <UserRightDrawer userId={selectedUserId!} onRefresh={onRefresh} />
     </div>
   );
 }

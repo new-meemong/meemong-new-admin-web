@@ -1,6 +1,6 @@
-import { LoginType, UserRoleType } from "@/models/users";
+import { LoginType } from "@/models/users";
 
-export const USER_TYPE_MAP: Record<UserRoleType, string> = {
+export const USER_TYPE_MAP: Record<number, string> = {
   1: "모델",
   2: "디자이너",
 } as const;

@@ -14,7 +14,7 @@ import {
   UserRoleType,
 } from "@/models/users";
 import { CommonForm } from "@/components/shared/common-form";
-import { LOGIN_TYPE_MAP, USER_TYPE_MAP } from "@/constants/users";
+import { LOGIN_TYPE_MAP } from "@/constants/users";
 import ImageBox from "@/components/shared/image-box";
 import { formatDate } from "@/utils/date";
 import UserBlockInfoList from "@/components/features/user/user-right-drawer/user-block-info-list";
@@ -24,15 +24,18 @@ import {
 } from "@/queries/users";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
+import { getUserRole } from "@/utils/user";
 
 interface UserDetailFormProps {
   formData: IUserForm;
   onSubmit: (event: FormEvent) => void;
+  onRefresh: () => void;
 }
 
 export default function UserDetailForm({
   formData,
   onSubmit,
+  onRefresh,
 }: UserDetailFormProps) {
   const formSchema = z.object({
     id: z.number(),
@@ -83,9 +86,9 @@ export default function UserDetailForm({
 
   const userId: string = useMemo(() => {
     let _userId: string = String(form.watch("id"));
-    if (form.watch("role") === 1) {
+    if (getUserRole(form.watch("role") as UserRoleType) === "MODEL") {
       _userId = `M-${form.watch("id")}`;
-    } else if (form.watch("role") === 2) {
+    } else if (getUserRole(form.watch("role") as UserRoleType) === "DESIGNER") {
       _userId = `D-${form.watch("id")}`;
     }
 
@@ -187,7 +190,11 @@ export default function UserDetailForm({
             label={"유형"}
             value={form.watch("role") as UserRoleType}
             formatter={(v) => {
-              return USER_TYPE_MAP[v as UserRoleType] ?? "-";
+              return getUserRole(v as UserRoleType) === "MODEL"
+                ? "모델"
+                : getUserRole(v as UserRoleType) === "DESIGNER"
+                  ? "디자이너"
+                  : "-";
             }}
           />
           <CommonForm.ReadonlyRow
@@ -309,10 +316,7 @@ export default function UserDetailForm({
           />
         </FormGroup>
         <FormGroup title={"차단 정보"}>
-          <UserBlockInfoList
-            user={formData}
-            isBlocked={form.watch("isBlocked")}
-          />
+          <UserBlockInfoList user={formData} onUpdate={onRefresh} />
         </FormGroup>
       </form>
     </Form>

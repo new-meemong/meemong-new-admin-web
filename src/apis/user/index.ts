@@ -1,4 +1,10 @@
-import { BlockType, IUser, IUserForm, UserRoleType } from "@/models/users";
+import {
+  BlockType,
+  IUser,
+  IUserBlockInfo,
+  IUserForm,
+  UserRoleType,
+} from "@/models/users";
 import { fetcher } from "@/apis/core";
 import { PaginatedResponse } from "@/apis/types";
 import { SearchType } from "@/models/common";
@@ -18,6 +24,21 @@ export type GetUsersResponse = PaginatedResponse<IUser>;
 
 export type GetUserDetailResponse = {
   data: IUserForm;
+};
+
+export type GetUserBlockListResponse = {
+  isBlocked: boolean;
+  blockList: IUserBlockInfo[];
+};
+
+export type UpdateUserBlockRequest = {
+  userId: number;
+  description?: string;
+  isBlocked: boolean;
+};
+
+export type UpdateUserBlockResponse = {
+  isBlocked: boolean;
 };
 
 export type UpdateUserDescriptionRequest = {
@@ -62,12 +83,31 @@ export const userAPI = {
     );
     return response.data;
   },
+  getUserBlockList: async (userId?: number) => {
+    const response = await fetcher<GetUserBlockListResponse>(
+      `${BASE_URL}/${userId}/block-list`,
+    );
+    return response;
+  },
   create: (user: Omit<IUserForm, "id">) =>
     fetcher<IUser>(BASE_URL, {
       method: "POST",
       body: JSON.stringify(user),
     }),
+  updateBlock: async (request: UpdateUserBlockRequest) => {
+    const response = await fetcher<UpdateUserBlockResponse>(
+      `${BASE_URL}/${request.userId}/block`,
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          isBlocked: request.isBlocked,
+          description: request.description,
+        }),
+      },
+    );
 
+    return response;
+  },
   updateDescription: async (request: UpdateUserDescriptionRequest) => {
     const response = await fetcher<UpdateUserDescriptionResponse>(
       `${BASE_URL}/${request.userId}/description`,
@@ -81,7 +121,6 @@ export const userAPI = {
 
     return response;
   },
-
   updatePayModel: async (request: UpdateUserPayModelRequest) => {
     const response = await fetcher<UpdateUserPayModelResponse>(
       `${BASE_URL}/${request.userId}/paymodel`,
@@ -95,7 +134,6 @@ export const userAPI = {
 
     return response;
   },
-
   delete: (id: number) =>
     fetcher<void>(`${BASE_URL}/${id}`, {
       method: "DELETE",

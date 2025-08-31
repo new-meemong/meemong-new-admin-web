@@ -2,16 +2,25 @@
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import React, { ChangeEventHandler, useCallback, useState } from "react";
+import React, {
+  ChangeEventHandler,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDate } from "@/utils/date";
 import { useDialog } from "@/components/shared/dialog/context";
 import { IUserForm } from "@/models/users";
-import { useGetUserBlockDetailQuery } from "@/queries/users";
+import {
+  useGetUserBlockListQuery,
+  useUpdateUserBlockMutation,
+} from "@/queries/users";
+import { toast } from "react-toastify";
 
 interface UserBlockInfoListProps {
   user: IUserForm;
-  isBlocked: boolean;
+  onUpdate: () => void;
 }
 
 function BlockInfoListItem({
@@ -36,12 +45,18 @@ function BlockInfoListItem({
 
 export default function UserBlockInfoList({
   user,
-  isBlocked,
+  onUpdate,
 }: UserBlockInfoListProps) {
   const [description, setDescription] = useState<string>("");
-  const getUserBlockDetailQuery = useGetUserBlockDetailQuery(user.id!);
+  const getUserBlockDetailQuery = useGetUserBlockListQuery(user.id!);
+  const updateUserBlockMutation = useUpdateUserBlockMutation();
 
   const dialog = useDialog();
+
+  const isBlocked = useMemo(
+    () => getUserBlockDetailQuery.data?.isBlocked,
+    [getUserBlockDetailQuery.data?.isBlocked],
+  );
 
   const handleChangeDescription: ChangeEventHandler<HTMLTextAreaElement> =
     useCallback((event) => {
@@ -53,15 +68,41 @@ export default function UserBlockInfoList({
   const handleSubmit = useCallback(
     async (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
-      const confirmed = await dialog.confirm(
-        `${user?.displayName}(${user?.name}) 님을 ${isBlocked ? "차단 해제" : "차단"}하시겠습니까?`,
-      );
 
-      if (confirmed) {
-        console.log("제출");
+      if (!description) {
+        toast.info("차단 사유를 입력해주세요.");
+        return;
+      }
+
+      try {
+        const confirmed = await dialog.confirm(
+          `${user?.displayName}(${user?.name || "-"}) 님을 ${isBlocked ? "차단 해제" : "차단"}하시겠습니까?`,
+        );
+
+        if (confirmed) {
+          const result = await updateUserBlockMutation.mutateAsync({
+            userId: user.id,
+            description,
+            isBlocked: !isBlocked,
+          });
+
+          if (result.isBlocked !== undefined) {
+            toast.success(
+              `해당 회원을 ${result.isBlocked ? "차단" : "차단 해제"}했습니다.`,
+            );
+            setDescription("");
+            getUserBlockDetailQuery.refetch();
+            onUpdate();
+          } else {
+            throw new Error();
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("잠시 후 다시 시도해주세요.");
       }
     },
-    [user?.displayName, user?.name, isBlocked, dialog],
+    [user?.id, user?.displayName, user?.name, isBlocked, dialog, description],
   );
 
   return (
@@ -84,18 +125,18 @@ export default function UserBlockInfoList({
             className={cn("w-full")}
             value={description}
             onChange={handleChangeDescription}
-            placeholder={"차단 사유를 입력해주세요."}
+            placeholder={`${isBlocked ? "차단해제" : "차단"} 사유를 입력해주세요.`}
           />
         }
       />
-      {(getUserBlockDetailQuery.data?.blockInfoList || []).map(
+      {(getUserBlockDetailQuery.data?.blockList || []).map(
         (blockInfo, index) => (
           <BlockInfoListItem
             key={`block-info-list-item-${index}`}
             leftArea={
               <>
                 <div className={cn("date-area text-left")}>
-                  {formatDate(blockInfo.blockedAt, "YYYY.MM.DD")}
+                  {formatDate(blockInfo.createdAt, "YYYY.MM.DD")}
                 </div>
                 <div className={cn("block-area mt-[4px] text-left")}>
                   {blockInfo.isBlocked ? "차단" : "차단해제"}

@@ -6,17 +6,19 @@ import {
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
-import { IUserBlockDetail, IUserForm } from "@/models/users";
+import { IUserForm } from "@/models/users";
 import {
+  GetUserBlockListResponse,
   GetUsersRequest,
   GetUsersResponse,
+  UpdateUserBlockRequest,
+  UpdateUserBlockResponse,
   UpdateUserDescriptionRequest,
   UpdateUserDescriptionResponse,
   UpdateUserPayModelRequest,
   UpdateUserPayModelResponse,
   userAPI,
 } from "@/apis/user";
-import { userBlockAPI } from "@/apis/user/[userId]/block";
 
 export const useGetUsersQuery = (
   params: GetUsersRequest,
@@ -42,13 +44,24 @@ export const useGetUserDetailQuery = (
     ...config,
   });
 
-export const useGetUserBlockDetailQuery = (
+export const useGetUserBlockListQuery = (
   userId: number,
-  config?: UseQueryOptions<IUserBlockDetail, Error>,
-): UseQueryResult<IUserBlockDetail, Error> =>
-  useQuery<IUserBlockDetail, Error>({
-    queryKey: ["GET_USER_BLOCK_DETAIL", userId],
-    queryFn: () => userBlockAPI.getById(userId),
+  config?: UseQueryOptions<GetUserBlockListResponse, Error>,
+): UseQueryResult<GetUserBlockListResponse, Error> =>
+  useQuery<GetUserBlockListResponse, Error>({
+    queryKey: ["GET_USER_BLOCK_LIST", userId],
+    queryFn: () => userAPI.getUserBlockList(userId),
+    ...config,
+  });
+
+export const useUpdateUserBlockMutation = (
+  config?: Omit<
+    UseMutationOptions<UpdateUserBlockResponse, Error, UpdateUserBlockRequest>,
+    "mutationFn"
+  >,
+): UseMutationResult<UpdateUserBlockResponse, Error, UpdateUserBlockRequest> =>
+  useMutation({
+    mutationFn: (request) => userAPI.updateBlock(request),
     ...config,
   });
 
