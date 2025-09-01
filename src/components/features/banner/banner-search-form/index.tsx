@@ -25,7 +25,7 @@ function BannerSearchForm({
   ...props
 }: BannerSearchFormProps) {
   return (
-    <SearchForm className={cn("banner-search-form", className)} {...props}>
+    <SearchForm wrapperClassName={cn("banner-search-form", className)} {...props}>
       <SearchFormInput
         name="company"
         onChange={methods.handleChangeText}

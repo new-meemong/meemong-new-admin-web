@@ -43,7 +43,7 @@ function DeclarationSearchForm({
   ];
 
   return (
-    <SearchForm className={cn("declaration-search-form", className)} {...props}>
+    <SearchForm wrapperClassName={cn("declaration-search-form", className)} {...props}>
       <SearchFormSelectBox<IDeclarationSearchParams>
         name="status"
         value={searchForm.params.status!}

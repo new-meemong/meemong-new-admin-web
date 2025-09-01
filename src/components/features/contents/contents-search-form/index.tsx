@@ -216,7 +216,7 @@ function ContentsSearchForm({
   }, [tabId]);
 
   return (
-    <SearchForm className={cn("contents-search-form", className)} {...props}>
+    <SearchForm wrapperClassName={cn("contents-search-form", className)} {...props}>
       {renderSearchForm()}
       <SearchFormSelectBox<IContentsSearchParams>
         className={cn("w-[114px] ml-[10px]")}

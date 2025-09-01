@@ -12,21 +12,25 @@ import SelectBox, { SelectBoxProps } from "@/components/shared/select-box";
 export interface SearchFormProps
   extends React.FormHTMLAttributes<HTMLFormElement> {
   children?: React.ReactNode;
+  wrapperClassName?: string;
   className?: string;
-  onSubmit: () => void;
-  onRefresh: () => void;
+  onSubmit?: () => void;
+  onRefresh?: () => void;
+  customButtons?: React.ReactNode;
 }
 
 function SearchForm({
   children,
+  wrapperClassName,
   className,
   onSubmit,
   onRefresh,
+  customButtons,
 }: SearchFormProps) {
   const handleSubmit = useCallback(
     (event: React.MouseEvent<HTMLFormElement>) => {
       event.preventDefault();
-      onSubmit();
+      onSubmit!();
     },
     [onSubmit],
   );
@@ -34,13 +38,18 @@ function SearchForm({
   const handleRefresh = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
-      onRefresh();
+      onRefresh!();
     },
     [onRefresh],
   );
 
   return (
-    <div className={cn("search-form w-[962px] h-[36px] mb-[42px]", className)}>
+    <div
+      className={cn(
+        "search-form w-[962px] h-[36px] mb-[42px]",
+        wrapperClassName,
+      )}
+    >
       <form
         onSubmit={handleSubmit}
         className={cn("flex flex-row items-center justify-start")}
@@ -48,15 +57,30 @@ function SearchForm({
         <div
           className={cn(
             "search-form-content mr-[8px] flex flex-row items-center gap-x-[10px]",
+            className,
           )}
         >
           {children}
-          <Button type={"submit"} variant={"outline"} size={"icon"}>
-            <IcSearch />
-          </Button>
-          <Button variant={"outline"} size={"icon"} onClick={handleRefresh}>
-            <IcRefresh />
-          </Button>
+          {customButtons ? (
+            customButtons
+          ) : (
+            <>
+              {onSubmit && (
+                <Button type={"submit"} variant={"outline"} size={"icon"}>
+                  <IcSearch />
+                </Button>
+              )}
+              {onRefresh && (
+                <Button
+                  variant={"outline"}
+                  size={"icon"}
+                  onClick={handleRefresh}
+                >
+                  <IcRefresh />
+                </Button>
+              )}
+            </>
+          )}
         </div>
       </form>
     </div>
@@ -66,12 +90,18 @@ function SearchForm({
 function SearchFormInput<T>({
   name,
   title,
+  className,
   ...props
 }: InputProps & { name: keyof T & string; title?: string }) {
   return (
     <SearchFormWrapper className={cn("search-form-input")}>
       {title && <Label className="mr-[8px]">{title}</Label>}
-      <Input name={name} size={"sm"} className={cn("w-[185px]")} {...props} />
+      <Input
+        name={name}
+        size={"sm"}
+        className={cn("w-[185px]", className)}
+        {...props}
+      />
     </SearchFormWrapper>
   );
 }

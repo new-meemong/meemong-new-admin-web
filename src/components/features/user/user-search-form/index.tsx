@@ -47,7 +47,7 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
   return (
     <>
       <SearchForm
-        className={cn("user-search-form", "mb-0", className)}
+        wrapperClassName={cn("user-search-form", "mb-0", className)}
         {...props}
       >
         <SearchFormSelectBox<IUserSearchParams>
