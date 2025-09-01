@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useState } from "react";
 import ImageSwiper from "@/components/shared/image-swiper";
+import { parseImageUrl } from "@/utils/image";
 
 interface ImageBoxProps {
   src: string;
@@ -47,7 +48,7 @@ export default function ImageBox({
           style={{ width, height }}
         >
           <img
-            src={src}
+            src={parseImageUrl(src)}
             alt={alt!}
             width={width}
             height={height}

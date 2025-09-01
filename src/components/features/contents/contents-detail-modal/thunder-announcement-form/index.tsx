@@ -19,6 +19,7 @@ import ImageBox from "@/components/shared/image-box";
 import { cn } from "@/lib/utils";
 import { useDialog } from "@/components/shared/dialog/context";
 import { toast } from "react-toastify";
+import { parseImageUrl } from "@/utils/image";
 
 const thunderAnnouncementSchema = z.object({
   title: z.string(),
@@ -41,11 +42,13 @@ type ThunderAnnouncementFormType = z.infer<typeof thunderAnnouncementSchema>;
 interface ThunderAnnouncementFormProps {
   contentsId?: number;
   onRefresh: () => void;
+  onClose: () => void;
 }
 
 export default function ThunderAnnouncementForm({
   contentsId,
   onRefresh,
+  onClose,
 }: ThunderAnnouncementFormProps) {
   const dialog = useDialog();
 
@@ -104,10 +107,18 @@ export default function ThunderAnnouncementForm({
   );
 
   const handleDelete = useCallback(async () => {
-    const confirmed = await dialog.confirm(`해당 게시물을 삭제하시겠습니까?`);
+    try {
+      const confirmed = await dialog.confirm(`해당 게시물을 삭제하시겠습니까?`);
 
-    if (confirmed) {
-      deleteThunderAnnouncementMutation.mutateAsync(contentsId!);
+      if (confirmed) {
+        await deleteThunderAnnouncementMutation.mutateAsync(contentsId!);
+        toast.success("게시물을 삭제했습니다.");
+        onRefresh();
+        onClose();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("잠시 후 다시 시도해주세요.");
     }
   }, [contentsId]);
 
@@ -187,7 +198,7 @@ export default function ThunderAnnouncementForm({
                   ? images.map((image, index) => (
                       <ImageBox
                         key={`thunder-announcement-image-url-${image.id}`}
-                        src={image.imgUrl as string}
+                        src={parseImageUrl(image.imgUrl as string)}
                         images={images.map((image) => ({
                           src: image.imgUrl,
                         }))}

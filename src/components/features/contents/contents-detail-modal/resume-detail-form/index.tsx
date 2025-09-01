@@ -11,14 +11,13 @@ import {
   useGetResumesByUserIdQuery,
 } from "@/queries/resumes";
 import ResumeDeleteButtonBox from "@/components/features/contents/contents-detail-modal/resume-detail-form/resume-delete-button-box";
+import { toast } from "react-toastify";
 
 interface ResumeDetailFormProps {
   userId?: number;
 }
 
-export default function ResumeDetailForm({
-  userId,
-}: ResumeDetailFormProps) {
+export default function ResumeDetailForm({ userId }: ResumeDetailFormProps) {
   const dialog = useDialog();
 
   const getResumesByUserIdQuery = useGetResumesByUserIdQuery(userId!);
@@ -27,12 +26,17 @@ export default function ResumeDetailForm({
   const resumeList = getResumesByUserIdQuery?.data?.content || [];
 
   const handleClickDeleteButton = useCallback(async (resumeId: number) => {
-    const confirmed = await dialog.confirm("해당 구인공고를 삭제하시겠습니까?");
+    try {
+      const confirmed = await dialog.confirm("해당 이력서를 삭제하시겠습니까?");
 
-    if (confirmed) {
-      // TODO: toast 로 교체하기
-      await deleteResumeMutation.mutateAsync(resumeId);
-      getResumesByUserIdQuery.refetch();
+      if (confirmed) {
+        await deleteResumeMutation.mutateAsync(resumeId);
+        toast.success("이력서를 삭제했습니다.");
+        await getResumesByUserIdQuery.refetch();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("잠시 후 다시 시도해주세요.");
     }
   }, []);
 

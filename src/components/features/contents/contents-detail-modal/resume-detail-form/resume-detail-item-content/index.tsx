@@ -4,6 +4,7 @@ import React from "react";
 import { IResumeForm } from "@/models/resumes";
 import { CommonForm } from "@/components/shared/common-form";
 import ImageBox from "@/components/shared/image-box";
+import { parseImageUrl } from "@/utils/image";
 
 interface ResumeDetailItemContentProps {
   resume: IResumeForm;
@@ -20,8 +21,8 @@ export default function ResumeDetailItemContent({
         formatter={(profileImageUri) => {
           return profileImageUri ? (
             <ImageBox
-              src={profileImageUri as string}
-              images={[{ src: profileImageUri }]}
+              src={parseImageUrl(profileImageUri as string)}
+              images={[{ src: parseImageUrl(profileImageUri) }]}
               index={0}
             />
           ) : (

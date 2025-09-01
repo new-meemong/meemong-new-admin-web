@@ -11,6 +11,7 @@ import {
   useGetJobPostingsByUserIdQuery,
 } from "@/queries/jobPostings";
 import JobPostingDeleteButtonBox from "@/components/features/contents/contents-detail-modal/job-posting-detail-form/job-posting-delete-button-box";
+import { toast } from "react-toastify";
 
 interface JobPostingDetailFormProps {
   userId?: number;
@@ -27,12 +28,18 @@ export default function JobPostingDetailForm({
   const jobPostingList = getJobPostingsByUserIdQuery?.data?.content || [];
 
   const handleClickDeleteButton = useCallback(async (jobPostingId: number) => {
-    const confirmed = await dialog.confirm("해당 구인공고를 삭제하시겠습니까?");
+    try {
+      const confirmed =
+        await dialog.confirm("해당 구인공고를 삭제하시겠습니까?");
 
-    if (confirmed) {
-      // TODO: toast 로 교체하기
-      await deleteJobPostingMutation.mutateAsync(jobPostingId);
-      getJobPostingsByUserIdQuery.refetch();
+      if (confirmed) {
+        await deleteJobPostingMutation.mutateAsync(jobPostingId);
+        toast.success("구인공고를 삭제했습니다.");
+        await getJobPostingsByUserIdQuery.refetch();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("잠시 후 다시 시도해주세요.");
     }
   }, []);
 

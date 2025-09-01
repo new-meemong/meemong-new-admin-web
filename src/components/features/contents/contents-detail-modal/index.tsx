@@ -39,7 +39,13 @@ export default function ContentsDetailModal({
     } else if (categoryId === "4") {
       return <AnnouncementDetailForm userId={contents?.userInfo?.userId} />;
     } else {
-      return <ThunderAnnouncementForm contentsId={contents?.id} onRefresh={onRefresh} />;
+      return (
+        <ThunderAnnouncementForm
+          contentsId={contents?.id}
+          onRefresh={onRefresh}
+          onClose={onClose}
+        />
+      );
     }
   }, [categoryId, contents?.userInfo?.userId]);
 

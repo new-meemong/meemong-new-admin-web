@@ -8,6 +8,7 @@ import {
   useDeleteAnnouncementMutation,
   useGetAnnouncementsByUserIdQuery,
 } from "@/queries/announcements";
+import { toast } from "react-toastify";
 
 interface AnnouncementDetailFormProps {
   userId?: number;
@@ -27,13 +28,18 @@ export default function AnnouncementDetailForm({
 
   const handleClickDeleteButton = useCallback(
     async (announcementId: number) => {
-      const confirmed =
-        await dialog.confirm("해당 구인공고를 삭제하시겠습니까?");
+      try {
+        const confirmed =
+          await dialog.confirm("해당 모집공고를 삭제하시겠습니까?");
 
-      if (confirmed) {
-        // TODO: toast 로 교체하기
-        await deleteAnnouncementMutation.mutateAsync(announcementId);
-        getAnnouncementsByUserIdQuery.refetch();
+        if (confirmed) {
+          await deleteAnnouncementMutation.mutateAsync(announcementId);
+          toast.success("모집공고를 삭제했습니다.")
+          await getAnnouncementsByUserIdQuery.refetch();
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("잠시 후 다시 시도해주세요.");
       }
     },
     [],

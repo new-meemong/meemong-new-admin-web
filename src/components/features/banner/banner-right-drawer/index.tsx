@@ -15,6 +15,7 @@ import {
 } from "@/queries/banners";
 import { IBannerForm } from "@/models/banner";
 import { useDialog } from "@/components/shared/dialog/context";
+import { parseImageUrl } from "@/utils/image";
 
 interface BannerRightDrawerProps extends RightDrawerProps {
   bannerId: number;
@@ -45,7 +46,7 @@ function BannerRightDrawer({
       const { imageUrl, imageFile, ...restFormData } = formData;
 
       if (confirmed) {
-        let tempImageUrl = imageFile ? undefined : imageUrl;
+        let newImageUrl = imageFile ? undefined : imageUrl;
         if (formData.imageFile) {
           const fd = new FormData();
 
@@ -53,15 +54,7 @@ function BannerRightDrawer({
           const response = await postBannerImageUploadMutation.mutateAsync(fd);
 
           if (response.data?.imageFile?.fileuri) {
-            const newImageUrl = response.data?.imageFile.fileuri;
-            if (
-              newImageUrl?.startsWith("http") ||
-              newImageUrl?.startsWith("https")
-            ) {
-              tempImageUrl = newImageUrl;
-            } else {
-              tempImageUrl = `${process.env.NEXT_PUBLIC_STORAGE_URL}${newImageUrl}`;
-            }
+            newImageUrl = parseImageUrl(response.data?.imageFile.fileuri);
           } else {
             throw new Error("파일 전송 실패");
           }
@@ -71,7 +64,7 @@ function BannerRightDrawer({
           id: bannerId,
           banner: {
             ...restFormData,
-            imageUrl: tempImageUrl,
+            imageUrl: newImageUrl,
           },
         });
 

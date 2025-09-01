@@ -5,6 +5,7 @@ import { IJobPostingForm } from "@/models/jobPostings";
 import { FormGroup } from "@/components/ui/form-group";
 import { CommonForm } from "@/components/shared/common-form";
 import ImageBox from "@/components/shared/image-box";
+import { parseImageUrl } from "@/utils/image";
 
 interface JobPostingDetailItemContentProps {
   jobPosting: IJobPostingForm;
@@ -264,9 +265,9 @@ export default function JobPostingDetailItemContent({
                 {storeImages.map((image, index) => (
                   <ImageBox
                     key={`store-image-${index}-${jobPosting.id}`}
-                    src={image as string}
+                    src={parseImageUrl(image?.uri as string)}
                     images={storeImages.map((image) => ({
-                      src: image as string,
+                      src: parseImageUrl(image?.uri as string),
                     }))}
                     index={index}
                   />
