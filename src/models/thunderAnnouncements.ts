@@ -7,6 +7,8 @@ export type ThunderAnnouncementType =
   | "PREMIUM_UNAPPROVED"
   | "PREMIUM_REJECTED";
 
+export type ThunderAnnouncmentPremiumType = 0 | 1; // 0: 일반, 1: 프리미엄
+
 export type ThunderAnnouncementImageType = {
   id: number;
   imgUrl: string;
@@ -35,7 +37,7 @@ export interface IThunderAnnouncement {
 export interface IThunderAnnouncementForm {
   id: number;
   title: string;
-  isPremium: number; // 0: 일반, 1 or 2: 프리미엄
+  isPremium: ThunderAnnouncmentPremiumType;
   selectedServices: string;
   priceType: string;
   createdAt: string;

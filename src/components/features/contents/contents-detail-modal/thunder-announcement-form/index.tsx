@@ -72,39 +72,45 @@ export default function ThunderAnnouncementForm({
   const deleteThunderAnnouncementMutation =
     useDeleteThunderAnnouncementMutation();
 
-  const handleUpdatePremium = useCallback(
-    async (isPremium: number) => {
-      try {
-        const isCancel = isPremium === 1;
+  const handleUpdatePremium = useCallback(async () => {
+    try {
+      const isPremium = getThunderAnnouncementByIdQuery.data?.isPremium;
 
-        const confirmed = await dialog.confirm(
-          `해당 게시물을 승인${isCancel ? "취소" : ""}하시겠습니까?`,
-        );
+      const confirmed = await dialog.confirm(
+        isPremium === 1
+          ? `해당 게시물을 일반공고로 내리겠습니까?`
+          : `해당 게시물을 프리미엄으로 올리겠습니까?`,
+      );
 
-        if (confirmed) {
-          const result =
-            await putThunderAnnouncementPremiumMutation.mutateAsync({
-              thunderAnnouncementId: contentsId,
-              isApproved: !isCancel,
-            });
+      if (confirmed) {
+        const result = await putThunderAnnouncementPremiumMutation.mutateAsync({
+          thunderAnnouncementId: contentsId,
+          isPremium: isPremium === 1 ? 0 : 1,
+        });
 
-          if (result.isApproved !== undefined) {
-            toast.success(
-              `해당 공고를 ${result.isApproved ? "승인" : "승인 취소"}했습니다.`,
-            );
-            getThunderAnnouncementByIdQuery.refetch();
-            onRefresh();
-          } else {
-            throw new Error();
-          }
+        if (result.isPremium !== undefined) {
+          toast.success(
+            result.isPremium === 1
+              ? "해당 공고를 프리미엄으로 올렸습니다."
+              : "해당 공고를 일반공고로 내렸습니다.",
+          );
+          getThunderAnnouncementByIdQuery.refetch();
+          onRefresh();
+          onClose();
+        } else {
+          throw new Error();
         }
-      } catch (error) {
-        console.error(error);
-        toast.error("잠시 후 다시 시도해주세요.");
       }
-    },
-    [contentsId, onRefresh],
-  );
+    } catch (error) {
+      console.error(error);
+      toast.error("잠시 후 다시 시도해주세요.");
+    }
+  }, [
+    getThunderAnnouncementByIdQuery.data?.isPremium,
+    contentsId,
+    onRefresh,
+    onClose,
+  ]);
 
   const handleDelete = useCallback(async () => {
     try {
@@ -212,21 +218,15 @@ export default function ThunderAnnouncementForm({
         />
       </FormGroup>
       <CommonFormButtonBox>
-        {Number(getThunderAnnouncementByIdQuery.data?.isPremium) > 0 && (
-          <Button
-            variant={"submit"}
-            size={"submit-multi"}
-            onClick={() =>
-              handleUpdatePremium(
-                getThunderAnnouncementByIdQuery.data!.isPremium as number,
-              )
-            }
-          >
-            {getThunderAnnouncementByIdQuery.data?.isPremium === 1
-              ? "승인취소"
-              : "승인"}
-          </Button>
-        )}
+        <Button
+          variant={"submit"}
+          size={"submit-multi"}
+          onClick={() => handleUpdatePremium()}
+        >
+          {getThunderAnnouncementByIdQuery.data?.isPremium === 1
+            ? "일반공고로 내리기"
+            : "프리미엄으로 올리기"}
+        </Button>
         <Button
           variant={"negative"}
           size={"submit-multi"}

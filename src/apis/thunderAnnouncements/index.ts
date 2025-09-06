@@ -7,6 +7,7 @@ import {
   IThunderAnnouncement,
   IThunderAnnouncementForm,
   ThunderAnnouncementType,
+  ThunderAnnouncmentPremiumType,
 } from "@/models/thunderAnnouncements";
 
 const BASE_URL = "/api/v1/admins/thunder-announcements";
@@ -19,22 +20,25 @@ export type GetThunderAnnouncementsRequest = {
   page?: number;
   size?: number;
 };
+
 export type GetThunderAnnouncementsResponse =
   PaginatedResponse<IThunderAnnouncement>;
 
 export type GetThunderAnnouncementByIdRequest = {
   thunderAnnouncementId?: number;
 };
+
 export type GetThunderAnnouncementByIdResponse = {
   data: IThunderAnnouncementForm;
 };
 
 export type PutThunderAnnouncementPremiumRequest = {
   thunderAnnouncementId?: number;
-  isApproved: boolean;
+  isPremium: ThunderAnnouncmentPremiumType;
 };
+
 export type PutThunderAnnouncementPremiumResponse = {
-  isApproved: boolean;
+  isPremium: ThunderAnnouncmentPremiumType;
 };
 
 export type DeleteThunderAnnouncementResponse = {
@@ -67,13 +71,13 @@ export const thunderAnnouncementAPI = {
   },
   updatePremium: async ({
     thunderAnnouncementId,
-    isApproved,
+    isPremium,
   }: PutThunderAnnouncementPremiumRequest) => {
     const response = await fetcher<PutThunderAnnouncementPremiumResponse>(
       `${BASE_URL}/${thunderAnnouncementId}/premium`,
       {
         method: "PUT",
-        body: JSON.stringify({ isApproved }),
+        body: JSON.stringify({ isPremium }),
       },
     );
 
