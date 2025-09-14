@@ -50,8 +50,8 @@ export default function ContentsDetailModal({
   }, [categoryId, contents?.userInfo?.userId]);
 
   return (
-    <Modal isOpen={isOpen} size="md">
-      <ModalHeader closable={true} onClose={onClose}>
+    <Modal isOpen={isOpen} size="md" closable={true} onClose={onClose}>
+      <ModalHeader>
         컨텐츠 관리 <ChevronRight /> {CONTENTS_CATEGORY_MAP[categoryId]}{" "}
         <ChevronRight /> 상세페이지
       </ModalHeader>

@@ -3,19 +3,22 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
+import {
+  ModalContextProps,
+  ModalProvider,
+} from "@/components/shared/modal/context";
 
-interface ModalProps {
+interface ModalProps extends ModalContextProps {
   isOpen: boolean;
   onClickOutside?: () => void;
   children: React.ReactNode;
-  size?: "sm" | "md";
 }
 
 export function Modal({
   isOpen,
   onClickOutside,
   children,
-  size = "sm",
+  ...rest
 }: ModalProps) {
   const [show, setShow] = React.useState(false);
   const [closing, setClosing] = React.useState(false);
@@ -36,34 +39,37 @@ export function Modal({
   if (!show) return null;
 
   const sizeClass = {
+    xs: "max-w-[480px] h-[562px] min-w-[360px]",
     sm: "max-w-[768px] h-[620px]",
     md: "max-w-[1024px] h-[720px] min-w-[768px]",
   };
 
   return createPortal(
-    <div
-      className={cn(
-        "fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity",
-        closing ? "animate-fade-out" : "animate-fade-in",
-      )}
-      onClick={() => {
-        if (onClickOutside) {
-          onClickOutside();
-        }
-      }}
-    >
+    <ModalProvider {...rest}>
       <div
         className={cn(
-          "relative w-full rounded-2xl flex flex-col bg-white shadow-xl transition-all",
-          "duration-300 ease-out",
-          closing ? "animate-modal-out" : "animate-modal-in",
-          sizeClass[size],
+          "fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity",
+          closing ? "animate-fade-out" : "animate-fade-in",
         )}
-        onClick={(e) => e.stopPropagation()}
+        onClick={() => {
+          if (onClickOutside) {
+            onClickOutside();
+          }
+        }}
       >
-        {children}
+        <div
+          className={cn(
+            "relative w-full rounded-2xl flex flex-col bg-white shadow-xl transition-all",
+            "duration-300 ease-out",
+            closing ? "animate-modal-out" : "animate-modal-in",
+            sizeClass[rest.size || "sm"],
+          )}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {children}
+        </div>
       </div>
-    </div>,
+    </ModalProvider>,
     document.body,
   );
 }

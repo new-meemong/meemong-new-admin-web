@@ -49,6 +49,7 @@ function UserPageContent({ className }: UserPageContentProps) {
   );
 
   useEffect(() => {
+    console.log(methods.searchParams, 'sldjfklsdjf');
     getUsersQuery.refetch();
   }, [methods.searchParams]);
 

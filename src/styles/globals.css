@@ -27,6 +27,9 @@
   --secondary-foreground: #375ce0;
   --submit-background: #1677ff;
   --submit-foreground: #ffffff;
+  --submit-modal-background: #262524;
+  --negative-modal-background: #898886;
+
   /* Status */
   --nagative: #ff3300;
   --cautionary: #ff9142;

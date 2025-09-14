@@ -1,28 +1,33 @@
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
+import { useModalContext } from "@/components/shared/modal/context";
 
 interface ModalHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
   closable?: boolean;
+  size?: "xs" | "sm" | "md";
   onClose?: () => void;
 }
 
 export function ModalHeader({
   className,
   children,
-  closable = true,
-  onClose,
   ...props
 }: ModalHeaderProps) {
+  const { closable, size, onClose } = useModalContext();
+
   return (
     <div
       className={cn(
-        "typo-title-1-bold p-modal flex flex-row justify-between items-center border-b border-border",
+        "typo-title-1-bold p-modal flex flex-row justify-between items-center border-border",
+        { "border-b": closable, "pt-[25px] px-[32px] pb-[32px]": size === "xs" },
         className,
       )}
       {...props}
     >
-      <div className={cn("flex flex-1")}>{children}</div>
+      <div className={cn("flex flex-1", { "justify-center": !closable })}>
+        {children}
+      </div>
       {closable && onClose && (
         <div className={cn("flex align-center justify-center flex-shrink-0")}>
           <button

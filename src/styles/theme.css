@@ -19,6 +19,10 @@
   --color-button-primary-foreground: var(--color-white);
   --color-button-submit-background: var(--submit-background);
   --color-button-submit-foreground: var(--submit-foreground);
+  --color-button-submit-modal-background: var(--submit-modal-background);
+  --color-button-negative-modal-background: var(
+    --negative-modal-background
+  );
   /* Table */
   --color-table-background: var(--background);
   --color-table-foreground: var(--foreground);

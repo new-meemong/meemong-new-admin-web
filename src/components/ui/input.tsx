@@ -23,7 +23,7 @@ function Input({ className, type, size = "md", ...props }: InputProps) {
         "typo-body-2-regular text-foreground-strong",
         "focus-visible:border-primary-foreground",
         "aria-invalid:border-destructive",
-        "read-only:border-none outline-none",
+        "outline-none",
         size ? sizeClass[size] : sizeClass.md,
         className,
       )}

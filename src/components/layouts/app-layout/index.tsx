@@ -9,6 +9,7 @@ import IcUserMenu from "@/assets/icons/ic_user_menu.svg";
 import IcContentsMenu from "@/assets/icons/ic_contents_menu.svg";
 import IcReportMenu from "@/assets/icons/ic_report_menu.svg";
 import IcBannerMenu from "@/assets/icons/ic_banner_menu.svg";
+import IcPopupMenu from "@/assets/icons/ic_popup_menu.svg";
 
 interface DefaultLayoutProps {
   children: React.ReactNode;
@@ -34,6 +35,11 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
           href={"/banner"}
           icon={<IcBannerMenu />}
           label={"배너 관리"}
+        />
+        <SideNavItem
+          href={"/popup"}
+          icon={<IcPopupMenu />}
+          label={"팝업 관리"}
         />
       </SideNav>
       <main className="flex-1 overflow-auto bg-background">{children}</main>

@@ -67,10 +67,8 @@ export default function DeclarationDetailModal({
   if (!getDeclarationDetailQuery?.data) return null;
 
   return (
-    <Modal isOpen={isOpen} size="sm">
-      <ModalHeader closable={true} onClose={onClose}>
-        신고 상세
-      </ModalHeader>
+    <Modal isOpen={isOpen} size="sm" closable={true} onClose={onClose}>
+      <ModalHeader>신고 상세</ModalHeader>
       <ModalBody>
         {getDeclarationDetailQuery?.data && (
           <DeclarationDetailForm

@@ -82,9 +82,11 @@ export default function CommonTable<T>({
           {row.getVisibleCells().map((cell) => (
             <div
               key={cell.id}
-              className="flex items-center justify-center px-3 py-2 truncate text-center"
+              className="flex items-center justify-center px-3 py-2 truncate text-center min-w-0"
             >
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              <span className="truncate block max-w-full">
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </span>
             </div>
           ))}
         </div>

@@ -14,7 +14,10 @@ import {
 } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+
+import IcImgPlus from "@/assets/icons/ic_img_plus.svg";
+import { CommonForm } from "@/components/shared/common-form";
 
 interface CommonFormImageProps<TFieldValues extends FieldValues> {
   /** 미리보기 및(선택적으로) URL을 담는 필드 */
@@ -36,7 +39,7 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
   fileName,
   label,
   className,
-  placeholderImage = "/placeholder.png",
+  placeholderImage,
   readOnly = false,
   updateUrlOnSelect = true,
   accept = "image/*",
@@ -105,8 +108,10 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
     <FormField
       name={name}
       render={() => (
-        <FormItem className={cn("flex flex-col gap-2 mt-[20px]", className)}>
-          <FormLabel>{label}</FormLabel>
+        <FormItem className={cn("flex flex-col gap-0 mt-[20px]", className)}>
+          <FormLabel className={cn("text-foreground-strong mb-2")}>
+            {label}
+          </FormLabel>
           <FormControl>
             <div>
               <input
@@ -118,21 +123,32 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
               />
               <div
                 className={cn(
-                  "w-[350px] h-[120px] bg-border border overflow-hidden",
+                  "min-w-[350px] h-[120px] bg-border border rounded-[6px] overflow-hidden",
                   { "cursor-pointer": !readOnly },
                 )}
                 onClick={triggerFileSelect}
               >
-                <Image
-                  src={preview || placeholderImage}
-                  alt="이미지 미리보기"
-                  width={200}
-                  height={100}
-                  className="object-contain w-full h-full"
-                />
+                {preview || placeholderImage ? (
+                  <Image
+                    src={(preview || placeholderImage)!}
+                    alt="이미지 미리보기"
+                    width={200}
+                    height={100}
+                    className="object-contain w-full h-full"
+                  />
+                ) : (
+                  <div
+                    className={cn(
+                      "w-full h-full flex justify-center items-center",
+                    )}
+                  >
+                    <IcImgPlus />
+                  </div>
+                )}
               </div>
             </div>
           </FormControl>
+          <CommonForm.ErrorMessage name={fileName} />
         </FormItem>
       )}
     />

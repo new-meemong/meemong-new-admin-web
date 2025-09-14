@@ -38,7 +38,9 @@ export function CommonFormCheckBox<TFieldValues extends FieldValues>({
           className={cn("flex flex-row border-b py-[10px] gap-0", className)}
         >
           <FormLabel
-            className={cn("min-w-[80px] w-[15%] shrink-0 font-medium")}
+            className={cn(
+              "min-w-[80px] w-[15%] shrink-0 font-medium text-foreground-strong",
+            )}
           >
             {label}
           </FormLabel>

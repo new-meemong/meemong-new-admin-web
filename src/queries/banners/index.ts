@@ -12,17 +12,23 @@ import {
   GetBannersResponse,
   PostBannerImageUploadRequest,
   PostBannerImageUploadResponse,
+  PostBannerRequest,
+  PostBannerResponse,
   PutBannerRequest,
   PutBannerResponse,
 } from "@/apis/banners";
 import { IBannerForm } from "@/models/banner";
+import { normalizeParams } from "@/utils/query";
 
 export const useGetBannersQuery = (
   params: GetBannersRequest,
-  config?: UseQueryOptions<GetBannersResponse, Error>,
+  config?: Omit<
+    UseQueryOptions<GetBannersResponse, Error>,
+    "queryFn" | "queryKey"
+  >,
 ): UseQueryResult<GetBannersResponse, Error> =>
   useQuery<GetBannersResponse, Error>({
-    queryKey: ["GET_BANNERS"],
+    queryKey: ["GET_BANNERS", normalizeParams(params)],
     queryFn: () => bannerAPI.getAll(params),
     ...config,
   });
@@ -35,6 +41,17 @@ export const useGetBannerDetailQuery = (
     queryKey: ["GET_BANNER_DETAIL", id],
     queryFn: () => bannerAPI.getById(id),
     enabled: Boolean(id),
+    ...config,
+  });
+
+export const usePostBannerMutation = (
+  config?: Omit<
+    UseMutationOptions<PostBannerResponse, Error, PostBannerRequest>,
+    "mutationFn"
+  >,
+): UseMutationResult<PostBannerResponse, Error, PostBannerRequest> =>
+  useMutation({
+    mutationFn: (request: PostBannerRequest) => bannerAPI.post(request),
     ...config,
   });
 

@@ -10,6 +10,9 @@
   --body-1-size: 14px;
   --body-2-size: 13px;
 
+  /* Button */
+  --button-1-size: 16px;
+
   /* Caption */
   --caption-1-size: 12px;
   --caption-2-size: 11px;
@@ -177,6 +180,57 @@
 @utility typo-body-2-long-regular {
   font-size: var(--body-2-size);
   line-height: var(--line-height-long);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 400;
+}
+
+/* Button 1 long */
+@utility typo-button-1-long-bold {
+  font-size: var(--button-1-size);
+  line-height: var(--line-height-long);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 700;
+}
+
+@utility typo-button-1-long-semibold {
+  font-size: var(--button-1-size);
+  line-height: var(--line-height-long);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 600;
+}
+
+@utility typo-button-1-long-medium {
+  font-size: var(--button-1-size);
+  line-height: var(--line-height-long);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 500;
+}
+
+@utility typo-button-1-long-regular {
+  font-size: var(--button-1-size);
+  line-height: var(--line-height-long);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 400;
+}
+
+/* Button 1 */
+@utility typo-button-1-semibold {
+  font-size: var(--button-1-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 600;
+}
+
+@utility typo-button-1-medium {
+  font-size: var(--button-1-size);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing);
+  font-weight: 500;
+}
+
+@utility typo-button-1-regular {
+  font-size: var(--button-1-size);
+  line-height: var(--line-height-normal);
   letter-spacing: var(--letter-spacing);
   font-weight: 400;
 }

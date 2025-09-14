@@ -22,7 +22,7 @@ export function FormGroup({
           <span>{title}</span>
         </div>
       )}
-      <div className="form-group-content flex-1">{children}</div>
+      <div className="form-group-content flex-1 w-full">{children}</div>
     </div>
   );
 }

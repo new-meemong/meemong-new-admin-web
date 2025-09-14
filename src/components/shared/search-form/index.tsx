@@ -13,8 +13,8 @@ export interface SearchFormProps
   extends React.FormHTMLAttributes<HTMLFormElement> {
   children?: React.ReactNode;
   className?: string;
-  onSubmit: () => void;
-  onRefresh: () => void;
+  onSubmit?: () => void;
+  onRefresh?: () => void;
 }
 
 function SearchForm({
@@ -26,7 +26,7 @@ function SearchForm({
   const handleSubmit = useCallback(
     (event: React.MouseEvent<HTMLFormElement>) => {
       event.preventDefault();
-      onSubmit();
+      onSubmit!();
     },
     [onSubmit],
   );
@@ -34,7 +34,7 @@ function SearchForm({
   const handleRefresh = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
-      onRefresh();
+      onRefresh!();
     },
     [onRefresh],
   );
@@ -51,12 +51,16 @@ function SearchForm({
           )}
         >
           {children}
-          <Button type={"submit"} variant={"outline"} size={"icon"}>
-            <IcSearch />
-          </Button>
-          <Button variant={"outline"} size={"icon"} onClick={handleRefresh}>
-            <IcRefresh />
-          </Button>
+          {onSubmit && (
+            <Button type={"submit"} variant={"outline"} size={"icon"}>
+              <IcSearch />
+            </Button>
+          )}
+          {onRefresh && (
+            <Button variant={"outline"} size={"icon"} onClick={handleRefresh}>
+              <IcRefresh />
+            </Button>
+          )}
         </div>
       </form>
     </div>

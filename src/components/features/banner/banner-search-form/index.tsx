@@ -2,37 +2,42 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-import {
-  SearchForm,
-  SearchFormInput,
-  SearchFormProps,
-} from "@/components/shared/search-form";
-import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMethods";
-import { PaginationType } from "@/models/common";
+import { Button } from "@/components/ui/button";
+import { useModal } from "@/components/shared/modal/useModal";
+import BannerFormModal from "@/components/features/banner/banner-form-modal";
 
-export type IBannerSearchParams = {
-  company?: string;
-} & PaginationType;
-
-interface BannerSearchFormProps extends SearchFormProps {
-  methods: IUseSearchMethods<IBannerSearchParams>;
+interface BannerSearchFormProps {
   className?: string;
+  onRefresh: () => void;
 }
 
-function BannerSearchForm({
-  methods,
-  className,
-  ...props
-}: BannerSearchFormProps) {
+function BannerSearchForm({ className, onRefresh }: BannerSearchFormProps) {
+  const modal = useModal();
+
   return (
-    <SearchForm className={cn("banner-search-form", className)} {...props}>
-      <SearchFormInput
-        name="company"
-        onChange={methods.handleChangeText}
-        placeholder="고객사명"
-        value={methods.params.company}
+    <div
+      className={cn(
+        "w-full flex justify-end items-center pb-[12px]",
+        className,
+      )}
+    >
+      <Button
+        variant={"outline"}
+        className={cn(
+          "border-secondary-background bg-secondary-background text-secondary-foreground hover:bg-secondary-background",
+        )}
+        onClick={() => modal.open()}
+      >
+        배너 교체하기
+      </Button>
+      <BannerFormModal
+        isOpen={modal.isOpen}
+        onClose={modal.close}
+        onSubmit={() => {
+          onRefresh();
+        }}
       />
-    </SearchForm>
+    </div>
   );
 }
 

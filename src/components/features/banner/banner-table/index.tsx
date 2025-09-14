@@ -11,12 +11,10 @@ import CommonPagination, {
 } from "@/components/shared/common-pagination";
 import { formatDate } from "@/utils/date";
 import { IBanner } from "@/models/banner";
-import IcUpdate from "@/assets/icons/ic_update.svg";
-import { Button } from "@/components/ui/button";
 import BannerImageBox from "@/components/features/banner/banner-image-box";
-import { useDrawer } from "@/stores/drawer";
-import BannerRightDrawer from "@/components/features/banner/banner-right-drawer";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
+import BannerFormModal from "@/components/features/banner/banner-form-modal";
+import { useModal } from "@/components/shared/modal/useModal";
 
 interface BannerTableProps
   extends Omit<CommonTableProps<IBanner> & CommonPaginationProps, "columns"> {
@@ -35,26 +33,27 @@ function BannerTable({
   onSizeChange,
   ...props
 }: BannerTableProps) {
-  const { openDrawer } = useDrawer();
+  const modal = useModal();
 
-  const [selectedBannerId, setSelectedBannerId] = useState<number | null>(null);
+  const [selectedBannerId, setSelectedBannerId] = useState<number | undefined>(undefined);
 
   const columns: ColumnDef<IBanner>[] = [
     {
       accessorKey: "company",
       header: "고객사명",
       cell: (info) => info.getValue() || "-",
+      enableSorting: false,
     },
     {
       accessorKey: "imageUrl",
       header: "이미지",
       cell: (info) => <BannerImageBox src={info.getValue() as string} />,
+      enableSorting: false,
     },
     {
       accessorKey: "bannerType",
       header: "위치",
       cell: (info) => {
-        console.log(info);
         const bannerTypeItem: string[] = [];
         if (info.row.original.userType) {
           bannerTypeItem.push(info.row.original.userType);
@@ -65,6 +64,7 @@ function BannerTable({
 
         return bannerTypeItem.join(" ") || "-";
       },
+      enableSorting: false,
     },
     {
       accessorKey: "createdAt",
@@ -72,35 +72,25 @@ function BannerTable({
       cell: (info) => formatDate(info.getValue() as string),
     },
     {
-      accessorKey: "endAt",
-      header: "마감일",
-      cell: (info) =>
-        info.getValue() ? formatDate(info.getValue() as string) : "-",
-    },
-    {
       accessorKey: "clickCount",
       header: "클릭수",
       cell: (info) => info.getValue(),
+      enableSorting: false,
     },
     {
-      accessorKey: "",
-      header: "수정",
-      cell: () => {
-        return (
-          <Button variant={"outline"} size={"icon"}>
-            <IcUpdate />
-          </Button>
-        );
-      },
+      accessorKey: "redirectUrl",
+      header: "링크",
+      cell: (info) => info.getValue(),
+      enableSorting: false,
     },
   ];
 
   const handleClickRow = useCallback(
     (row: Row<IBanner>) => {
       setSelectedBannerId(row.original?.id);
-      openDrawer();
+      modal.open();
     },
-    [openDrawer],
+    [],
   );
 
   return (
@@ -117,7 +107,14 @@ function BannerTable({
         onPageChange={onPageChange}
         onSizeChange={onSizeChange}
       />
-      <BannerRightDrawer bannerId={selectedBannerId!} onRefresh={onRefresh} />
+      <BannerFormModal
+        isOpen={modal.isOpen}
+        onClose={modal.close}
+        bannerId={selectedBannerId}
+        onSubmit={() => {
+          onRefresh();
+        }}
+      />
     </div>
   );
 }

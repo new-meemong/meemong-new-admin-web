@@ -42,7 +42,7 @@ export default function ImageBox({
       >
         <div
           className={cn(
-            "flex items-center justify-center overflow-hidden bg-gray-300",
+            "flex items-center justify-center overflow-hidden ",
             className,
           )}
           style={{ width, height }}

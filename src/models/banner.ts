@@ -11,13 +11,13 @@ export interface IBanner {
 }
 
 export interface IBannerForm {
-  id: number;
-  userType: string;
+  id?: number;
   company: string;
+  userType: string;
   bannerType: string;
-  displayType: string;
+  displayType?: string;
   imageUrl: string;
   redirectUrl: string;
-  createdAt: string;
+  createdAt?: string;
   endAt?: string;
 }

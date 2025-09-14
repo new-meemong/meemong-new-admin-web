@@ -7,15 +7,19 @@ import { CommonFormDate } from "@/components/shared/common-form/common-form-date
 import { CommonFormImage } from "@/components/shared/common-form/common-form-image";
 import { CommonFormCheckBox } from "@/components/shared/common-form/common-form-check-box";
 import { CommonFormTextareaRow } from "@/components/shared/common-form/common-form-textarea-row";
+import CommonFormDoubleSelectBox from "@/components/shared/common-form/common-form-double-select-box";
+import { CommonFormErrorMessage } from "@/components/shared/common-form/common-form-error-message";
 
 export const CommonForm = {
   Input: CommonFormInput,
   Textarea: CommonFormTextarea,
   Readonly: CommonFormReadonly,
   SelectBox: CommonFormSelectBox,
+  DoubleSelectBox: CommonFormDoubleSelectBox,
   CheckBox: CommonFormCheckBox,
   Date: CommonFormDate,
   Image: CommonFormImage,
+  ErrorMessage: CommonFormErrorMessage,
   // 제목과 내용이 나란히 있는 형태
   ReadonlyRow: CommonFormReadonlyRow,
   TextAreaRow: CommonFormTextareaRow,

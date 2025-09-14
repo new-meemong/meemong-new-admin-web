@@ -28,9 +28,11 @@ function SelectTrigger({
   className,
   size = "md",
   children,
+  readOnly = false,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
   size?: "sm" | "md" | "lg";
+  readOnly?: boolean;
 }) {
   return (
     <SelectPrimitive.Trigger
@@ -44,9 +46,11 @@ function SelectTrigger({
       {...props}
     >
       {children}
-      <SelectPrimitive.Icon>
-        <ChevronDownIcon className="size-[20px] text-foreground-sub" />
-      </SelectPrimitive.Icon>
+      {!readOnly && (
+        <SelectPrimitive.Icon>
+          <ChevronDownIcon className="size-[20px] text-foreground-sub" />
+        </SelectPrimitive.Icon>
+      )}
     </SelectPrimitive.Trigger>
   );
 }

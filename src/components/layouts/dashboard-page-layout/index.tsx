@@ -26,14 +26,17 @@ function DashboardPageLayout({
 
 const DashboardPageLayoutHeader = ({
   title,
+  className,
   children,
 }: {
   title: string;
+  className?: string;
   children?: React.ReactNode;
 }) => (
   <h1
     className={cn(
-      "admin-page-layout-header typo-title-1-bold text-black mb-[16px] flex flex-row gap-[20px]",
+      "admin-page-layout-header typo-title-1-bold text-black mb-[16px] flex flex-row items-center gap-[20px]",
+      className,
     )}
   >
     {title}

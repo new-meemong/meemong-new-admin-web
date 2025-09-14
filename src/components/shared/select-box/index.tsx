@@ -21,11 +21,12 @@ export interface SelectBoxProps<K> {
   placeholder?: string;
   size?: Size;
   className?: string;
-  disabled?: boolean
+  disabled?: boolean;
+  readOnly?: boolean;
 }
 
 const triggerSizeMap: Record<Size, string> = {
-  sm: "w-[262px] h-[30px] px-[15px] py-[5px]",
+  sm: "w-[262px] h-[30px] px-[15px] py-[5px] rounded-none",
   md: "w-[262px] h-[36px] px-[15px] py-[8px]",
   lg: "w-[262px] h-[44px] px-[15px] py-[12px]",
 };
@@ -38,7 +39,8 @@ function SelectBox<K>({
   name,
   placeholder = "선택하세요",
   size = "md",
-    disabled,
+  disabled,
+  readOnly,
   className,
 }: SelectBoxProps<K>) {
   const handleChange = useCallback(
@@ -55,9 +57,9 @@ function SelectBox<K>({
       name={name}
       {...(isControlled ? { value } : { defaultValue })}
       onValueChange={handleChange}
-      disabled={disabled}
+      disabled={disabled || readOnly}
     >
-      <SelectTrigger className={cn(triggerSizeMap[size], className)}>
+      <SelectTrigger className={cn(triggerSizeMap[size], className)} readOnly={readOnly}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
