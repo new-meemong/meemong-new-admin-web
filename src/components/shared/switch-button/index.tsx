@@ -1,7 +1,8 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
+
+import { cn } from "@/lib/utils";
 
 export interface SwitchButtonProps<K> {
   id?: string;
@@ -16,7 +17,7 @@ function SwitchButton<K>({
   options,
   value,
   onChange,
-  className,
+  className
 }: SwitchButtonProps<K>) {
   const [selectedValue, setSelectedValue] = useState<K | undefined>(value);
 
@@ -30,14 +31,14 @@ function SwitchButton<K>({
       setSelectedValue(value);
       onChange(value);
     },
-    [onChange],
+    [onChange]
   );
 
   return (
     <div
       className={cn(
         "flex flex-row border bg-background hover:bg-background-label rounded-md typo-body-2-regular whitespace-nowrap",
-        className,
+        className
       )}
     >
       {options.map((option, index) => (
@@ -45,7 +46,7 @@ function SwitchButton<K>({
           key={`switch-button-${id}-${index}`}
           className={cn("px-4 py-2 text-center cursor-pointer min-w-[92px]", {
             "cursor-default bg-secondary-background text-secondary-foreground hover:bg-secondary-background":
-              option.value === selectedValue && "bg-foreground",
+              option.value === selectedValue && "bg-foreground"
           })}
           onClick={() => handleClick(option.value)}
         >
