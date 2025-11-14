@@ -4,12 +4,14 @@ import React, { useCallback, useEffect } from "react";
 import {
   useDeleteThunderAnnouncementMutation,
   useGetThunderAnnouncementByIdQuery,
+  usePutThunderAnnouncementMutation,
   usePutThunderAnnouncementPremiumMutation
 } from "@/queries/thunderAnnouncements";
 
 import { Button } from "@/components/ui/button";
 import { CommonForm } from "@/components/shared/common-form";
 import { CommonFormButtonBox } from "@/components/shared/common-form/common-form-button-box";
+import { Form } from "@/components/ui/form";
 import { FormGroup } from "@/components/ui/form-group";
 import ImageBox from "@/components/shared/image-box";
 import { ThunderAnnouncementImageType } from "@/models/thunderAnnouncements";
@@ -70,6 +72,7 @@ export default function ThunderAnnouncementForm({
     useGetThunderAnnouncementByIdQuery(contentsId);
   const putThunderAnnouncementPremiumMutation =
     usePutThunderAnnouncementPremiumMutation();
+  const putThunderAnnouncementMutation = usePutThunderAnnouncementMutation();
   const deleteThunderAnnouncementMutation =
     useDeleteThunderAnnouncementMutation();
 
@@ -114,6 +117,40 @@ export default function ThunderAnnouncementForm({
     onClose,
     putThunderAnnouncementPremiumMutation,
     dialog
+  ]);
+
+  const handleUpdate = useCallback(async () => {
+    try {
+      const confirmed = await dialog.confirm(
+        `해당 게시물의 제목과 본문내용을 수정하시겠습니까?`
+      );
+
+      if (confirmed) {
+        const result = await putThunderAnnouncementMutation.mutateAsync({
+          thunderAnnouncementId: contentsId!,
+          title: form.getValues("title"),
+          description: form.getValues("description")
+        });
+
+        if (result.isSuccess) {
+          toast.success("게시물을 수정했습니다.");
+          getThunderAnnouncementByIdQuery.refetch();
+          onRefresh();
+        } else {
+          throw new Error();
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("잠시 후 다시 시도해주세요.");
+    }
+  }, [
+    contentsId,
+    dialog,
+    putThunderAnnouncementMutation,
+    form,
+    getThunderAnnouncementByIdQuery,
+    onRefresh
   ]);
 
   const handleDelete = useCallback(async () => {
@@ -171,11 +208,12 @@ export default function ThunderAnnouncementForm({
   }
 
   return (
-    <>
+    <Form {...form}>
       <FormGroup title={"게시물 정보"}>
-        <CommonForm.ReadonlyRow
+        <CommonForm.Input
+          name={"title"}
           label={"제목"}
-          value={form.watch("title") || "-"}
+          placeholder={"제목을 입력해주세요."}
         />
         <CommonForm.ReadonlyRow
           label={"작성일자"}
@@ -204,9 +242,10 @@ export default function ThunderAnnouncementForm({
           label={"재료비타입"}
           value={form.watch("priceType") || "-"}
         />
-        <CommonForm.ReadonlyRow
+        <CommonForm.Textarea
+          name={"description"}
           label={"본문내용"}
-          value={form.watch("description") || "-"}
+          placeholder={"본문내용을 입력해주세요."}
         />
         <CommonForm.ReadonlyRow<ThunderAnnouncementImageType[]>
           label={"사진"}
@@ -242,6 +281,13 @@ export default function ThunderAnnouncementForm({
             : "프리미엄 승인으로 변경"}
         </Button>
         <Button
+          variant={"default"}
+          size={"submit-multi"}
+          onClick={handleUpdate}
+        >
+          수정
+        </Button>
+        <Button
           variant={"negative"}
           size={"submit-multi"}
           onClick={handleDelete}
@@ -249,6 +295,6 @@ export default function ThunderAnnouncementForm({
           삭제
         </Button>
       </CommonFormButtonBox>
-    </>
+    </Form>
   );
 }
