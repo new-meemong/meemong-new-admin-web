@@ -42,6 +42,7 @@ export function Modal({
     xs: "max-w-[480px] h-[562px] min-w-[360px]",
     sm: "max-w-[768px] h-[620px]",
     md: "max-w-[1024px] h-[720px] min-w-[768px]",
+    lg: "max-w-[1400px] h-[800px] min-w-[1200px]",
   };
 
   return createPortal(

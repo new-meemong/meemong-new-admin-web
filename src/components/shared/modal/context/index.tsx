@@ -7,7 +7,7 @@ export interface ModalContextProps extends ModalContextType {
 }
 
 interface ModalContextType {
-  size?: "xs" | "sm" | "md";
+  size?: "xs" | "sm" | "md" | "lg";
   closable?: boolean;
   onClose?: () => void;
 }

@@ -212,7 +212,7 @@ export default function ThunderAnnouncementForm({
 
   return (
     <Form {...form}>
-      <FormGroup title={"게시물 정보"}>
+      <FormGroup>
         <CommonForm.Input
           name={"title"}
           label={"제목"}

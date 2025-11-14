@@ -70,7 +70,7 @@ export default function ContentsDetailUserForm({
   }
 
   return (
-    <FormGroup title={"기본 정보"}>
+    <FormGroup>
       <CommonForm.ReadonlyRow label={"회원번호"} value={userId} />
       <CommonForm.ReadonlyRow<UserRoleType>
         label={"유형"}

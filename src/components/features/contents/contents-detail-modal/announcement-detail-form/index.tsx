@@ -9,6 +9,7 @@ import {
   useGetAnnouncementsByUserIdQuery,
 } from "@/queries/announcements";
 import { toast } from "react-toastify";
+import { cn } from "@/lib/utils";
 
 interface AnnouncementDetailFormProps {
   userId?: number;
@@ -34,7 +35,7 @@ export default function AnnouncementDetailForm({
 
         if (confirmed) {
           await deleteAnnouncementMutation.mutateAsync(announcementId);
-          toast.success("모집공고를 삭제했습니다.")
+          toast.success("모집공고를 삭제했습니다.");
           await getAnnouncementsByUserIdQuery.refetch();
         }
       } catch (error) {
@@ -42,18 +43,23 @@ export default function AnnouncementDetailForm({
         toast.error("잠시 후 다시 시도해주세요.");
       }
     },
-    [],
+    [dialog, deleteAnnouncementMutation, getAnnouncementsByUserIdQuery],
   );
 
   return (
-    <FormGroup title={"게시물 정보"}>
-      {announcementList.map((announcement) => (
-        <AnnouncementDetailItem
-          key={`announcement-list-${announcement.id}`}
-          announcement={announcement}
-          onDelete={() => handleClickDeleteButton(announcement.id)}
-        />
-      ))}
+    <FormGroup>
+      <div className={cn("flex flex-col gap-4")}>
+        {announcementList.map((announcement) => (
+          <AnnouncementDetailItem
+            key={`announcement-list-${announcement.id}`}
+            announcement={announcement}
+            onDelete={() => handleClickDeleteButton(announcement.id)}
+            onRefresh={async () => {
+              await getAnnouncementsByUserIdQuery.refetch();
+            }}
+          />
+        ))}
+      </div>
     </FormGroup>
   );
 }

@@ -44,7 +44,7 @@ export default function JobPostingDetailForm({
   }, []);
 
   return (
-    <FormGroup title={"게시물 정보"}>
+    <FormGroup>
       <Accordion
         items={jobPostingList.map((jobPosting) => ({
           title: <JobPostingDetailItemTitle jobPosting={jobPosting} />,

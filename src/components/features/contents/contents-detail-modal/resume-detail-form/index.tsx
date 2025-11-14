@@ -41,7 +41,7 @@ export default function ResumeDetailForm({ userId }: ResumeDetailFormProps) {
   }, []);
 
   return (
-    <FormGroup title={"게시물 정보"}>
+    <FormGroup>
       <Accordion
         items={resumeList.map((resume) => ({
           title: <ResumeDetailItemTitle resume={resume} />,
