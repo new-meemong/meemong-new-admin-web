@@ -1,21 +1,22 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { cn } from "@/lib/utils";
-import { useDrawer } from "@/stores/drawer";
 import RightDrawer, {
-  RightDrawerProps,
+  RightDrawerProps
 } from "@/components/shared/right-drawer";
-import { ChevronRight } from "lucide-react";
-import BannerDetailForm from "@/components/features/banner/banner-right-drawer/banner-detail-form";
 import {
   useGetBannerDetailQuery,
   usePostBannerImageUploadMutation,
-  usePutBannerMutation,
+  usePutBannerMutation
 } from "@/queries/banners";
+
+import BannerDetailForm from "@/components/features/banner/banner-right-drawer/banner-detail-form";
+import { ChevronRight } from "lucide-react";
 import { IBannerForm } from "@/models/banner";
-import { useDialog } from "@/components/shared/dialog/context";
+import { cn } from "@/lib/utils";
 import { parseImageUrl } from "@/utils/image";
+import { useDialog } from "@/components/shared/dialog/context";
+import { useDrawer } from "@/stores/drawer";
 
 interface BannerRightDrawerProps extends RightDrawerProps {
   bannerId: number;
@@ -31,14 +32,14 @@ function BannerRightDrawer({
   const { closeDrawer, isOpen } = useDrawer();
   const dialog = useDialog();
   const getBannerDetailQuery = useGetBannerDetailQuery(bannerId, {
-    enabled: false,
+    enabled: false
   });
 
   const putBannerMutation = usePutBannerMutation();
   const postBannerImageUploadMutation = usePostBannerImageUploadMutation();
 
   const handleUpdateBanner = async (
-    formData: Partial<IBannerForm & { imageFile: File }>,
+    formData: Partial<IBannerForm & { imageFile: File }>
   ) => {
     try {
       const confirmed = await dialog.confirm("배너를 수정하시겠습니까?");
@@ -62,10 +63,14 @@ function BannerRightDrawer({
 
         await putBannerMutation.mutateAsync({
           id: bannerId,
-          banner: {
-            ...restFormData,
-            imageUrl: newImageUrl,
-          },
+          ...(restFormData.userType && { userType: restFormData.userType }),
+          ...(restFormData.bannerType && {
+            bannerType: restFormData.bannerType
+          }),
+          ...(newImageUrl && { imageUrl: newImageUrl }),
+          ...(restFormData.redirectUrl && {
+            redirectUrl: restFormData.redirectUrl
+          })
         });
 
         closeDrawer();
@@ -80,7 +85,7 @@ function BannerRightDrawer({
     if (isOpen) {
       getBannerDetailQuery.refetch();
     }
-  }, [isOpen]);
+  }, [isOpen, getBannerDetailQuery]);
 
   return (
     <RightDrawer

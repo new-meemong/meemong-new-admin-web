@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useEffect, useMemo } from "react";
-import { cn } from "@/lib/utils";
-import useSearchMethods from "@/components/shared/search-form/useSearchMethods";
-import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
+
 import BannerSearchForm from "@/components/features/banner/banner-search-form";
 import BannerTable from "@/components/features/banner/banner-table";
-import { useGetBannersQuery } from "@/queries/banners";
-import { useBannerContext } from "@/components/contexts/banner-context";
 import { BannerUserType } from "@/constants/banner";
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
+import { cn } from "@/lib/utils";
+import { useBannerContext } from "@/components/contexts/banner-context";
+import { useGetBannersQuery } from "@/queries/banners";
+import useSearchMethods from "@/components/shared/search-form/useSearchMethods";
 
 interface BannerPageContentProps {
   className?: string;
@@ -17,36 +18,44 @@ interface BannerPageContentProps {
 function BannerPageContent({ className }: BannerPageContentProps) {
   const { bannerTabValues } = useBannerContext();
 
-  // 탭이 바뀔 때 초기 파라미터 생성 (page/size 초기값은 DEFAULT_PAGINATION)
+  // 탭이 바뀔 때 초기 파라미터 생성
+  // useSearchMethods의 BaseParams 타입 요구사항에 맞추기 위해 page, size 포함
+  // 단, 실제 API 호출에는 page, size를 전송하지 않음
+  // undefined 값은 필터링하여 BaseParams 타입에 맞춤
   const defaultParams = useMemo(
     () => ({
-      userType: bannerTabValues.userType,
-      bannerType: bannerTabValues.bannerType,
-      ...DEFAULT_PAGINATION, // page, size
+      ...(bannerTabValues.userType && { userType: bannerTabValues.userType }),
+      ...(bannerTabValues.bannerType && {
+        bannerType: bannerTabValues.bannerType
+      }),
+      ...DEFAULT_PAGINATION // page, size (내부 상태 관리용)
     }),
-    [bannerTabValues.userType, bannerTabValues.bannerType],
+    [bannerTabValues.userType, bannerTabValues.bannerType]
   );
 
   const methods = useSearchMethods({
-    defaultParams,
+    defaultParams
   });
 
   // 🔑 쿼리는 searchParams(제출된 값) 기준으로만 수행
   const getBannersQuery = useGetBannersQuery(
     {
-      userType: methods.params.userType! as BannerUserType,
-      bannerType: methods.params.bannerType! as string,
-      page: methods.params.page as number,
-      size: methods.params.size as number,
+      userType: methods.params.userType as BannerUserType | undefined,
+      bannerType: methods.params.bannerType as string | undefined,
+      // 바텀시트일 경우 __cusorOrder 추가
+      ...(methods.params.bannerType === "바텀시트" && {
+        __cusorOrder: "createdAtDesc"
+      })
     },
     {
-      enabled: Boolean(methods.params.userType && methods.params.bannerType),
-    },
+      enabled: true // 전체 조회를 위해 항상 활성화
+    }
   );
 
   useEffect(() => {
-    methods.setParams((prev) => ({ ...prev, ...bannerTabValues, page: 1 }));
-  }, [bannerTabValues]);
+    methods.setParams((prev) => ({ ...prev, ...bannerTabValues }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bannerTabValues]); // methods.setParams는 안정적인 참조를 가지므로 의존성에서 제외
 
   return (
     <div className={cn("banner-page-content", className)}>

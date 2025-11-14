@@ -29,8 +29,28 @@ function BannerTab({ className, ...props }: BannerTabProps) {
     [bannerTabValues],
   );
 
+  const isAllSelected = !bannerTabValues.userType && !bannerTabValues.bannerType;
+
+  const handleAllClick = useCallback(() => {
+    setBannerTabValues({
+      userType: undefined,
+      bannerType: undefined,
+    });
+  }, [setBannerTabValues]);
+
   return (
     <div className={cn("banners-tab flex gap-[5px]", className)} {...props}>
+      <Button
+        className={cn(
+          "w-[126px] mr-[20px]",
+          isAllSelected &&
+            "bg-secondary-background text-secondary-foreground hover:bg-secondary-background",
+        )}
+        variant={"outline"}
+        onClick={handleAllClick}
+      >
+        전체
+      </Button>
       <SwitchButton<BannerUserType>
         className={"mr-[20px]"}
         options={USER_TYPE_OPTIONS}
@@ -43,7 +63,8 @@ function BannerTab({ className, ...props }: BannerTabProps) {
           });
         }}
       />
-      {BANNER_TYPE_OPTIONS[bannerTabValues.userType as BannerUserType] &&
+      {bannerTabValues.userType &&
+        BANNER_TYPE_OPTIONS[bannerTabValues.userType as BannerUserType] &&
         BANNER_TYPE_OPTIONS[bannerTabValues.userType as BannerUserType]?.map(
           (bannerType, index) => (
             <Button

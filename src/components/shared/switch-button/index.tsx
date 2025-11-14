@@ -1,12 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export interface SwitchButtonProps<K> {
   id?: string;
   options: { label: string; value: K }[];
-  value: K;
+  value: K | undefined;
   onChange: (value: K) => void;
   className?: string;
 }
@@ -18,7 +18,12 @@ function SwitchButton<K>({
   onChange,
   className,
 }: SwitchButtonProps<K>) {
-  const [selectedValue, setSelectedValue] = useState<K | null>(value);
+  const [selectedValue, setSelectedValue] = useState<K | undefined>(value);
+
+  // value prop과 내부 상태 동기화
+  useEffect(() => {
+    setSelectedValue(value);
+  }, [value]);
 
   const handleClick = useCallback(
     (value: K) => {
