@@ -1,14 +1,18 @@
-import { UserRoleType } from "@/models/users";
-import { fetcher } from "@/apis/core";
-import { PaginatedResponse } from "@/apis/types";
-import { SearchType } from "@/models/common";
-import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import {
   IThunderAnnouncement,
   IThunderAnnouncementForm,
+  ThunderAnnouncementAreaType,
+  ThunderAnnouncementConditionType,
+  ThunderAnnouncementPriceType,
   ThunderAnnouncementType,
-  ThunderAnnouncmentPremiumType,
+  ThunderAnnouncementUpdatePremiumType
 } from "@/models/thunderAnnouncements";
+
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
+import { PaginatedResponse } from "@/apis/types";
+import { SearchType } from "@/models/common";
+import { UserRoleType } from "@/models/users";
+import { fetcher } from "@/apis/core";
 
 const BASE_URL = "/api/v1/admins/thunder-announcements";
 
@@ -33,16 +37,35 @@ export type GetThunderAnnouncementByIdResponse = {
 };
 
 export type PutThunderAnnouncementPremiumRequest = {
-  thunderAnnouncementId?: number;
-  isPremium: ThunderAnnouncmentPremiumType;
+  thunderAnnouncementId: number;
+  isApproved: boolean; // true: 승인(1), false: 보류(2)
 };
 
 export type PutThunderAnnouncementPremiumResponse = {
-  isPremium: ThunderAnnouncmentPremiumType;
+  isApproved: boolean;
+};
+
+export type PutThunderAnnouncementRequest = {
+  thunderAnnouncementId: number;
+  title?: string;
+  name?: string;
+  description?: string;
+  area?: ThunderAnnouncementAreaType;
+  price?: number;
+  desiredTreatmentDateTime?: string; // ISO 8601 format
+  selectedServices?: string[];
+  priceType?: ThunderAnnouncementPriceType;
+  conditionTypes?: ThunderAnnouncementConditionType[];
+  isCommentEnabled?: boolean;
+  isPremium?: ThunderAnnouncementUpdatePremiumType; // 0: 일반, 2: 프리미엄 보류
+};
+
+export type PutThunderAnnouncementResponse = {
+  isSuccess: boolean;
 };
 
 export type DeleteThunderAnnouncementResponse = {
-  success: boolean;
+  isSuccess: boolean;
 };
 
 export const thunderAnnouncementAPI = {
@@ -52,7 +75,7 @@ export const thunderAnnouncementAPI = {
     searchKeyword,
     searchType,
     page = DEFAULT_PAGINATION.page,
-    size = DEFAULT_PAGINATION.size,
+    size = DEFAULT_PAGINATION.size
   }: GetThunderAnnouncementsRequest) =>
     fetcher<GetThunderAnnouncementsResponse>(BASE_URL, {
       query: {
@@ -60,25 +83,39 @@ export const thunderAnnouncementAPI = {
         ...(type && { type }),
         ...(searchKeyword && searchType && { searchKeyword, searchType }),
         page,
-        size,
-      },
+        size
+      }
     }),
   getById: async (thunderAnnouncementId?: number) => {
     const response = await fetcher<GetThunderAnnouncementByIdResponse>(
-      `${BASE_URL}/${thunderAnnouncementId}`,
+      `${BASE_URL}/${thunderAnnouncementId}`
     );
     return response.data;
   },
   updatePremium: async ({
     thunderAnnouncementId,
-    isPremium,
+    isApproved
   }: PutThunderAnnouncementPremiumRequest) => {
     const response = await fetcher<PutThunderAnnouncementPremiumResponse>(
       `${BASE_URL}/${thunderAnnouncementId}/premium`,
       {
         method: "PUT",
-        body: JSON.stringify({ isPremium }),
-      },
+        body: JSON.stringify({ isApproved })
+      }
+    );
+
+    return response;
+  },
+  update: async ({
+    thunderAnnouncementId,
+    ...body
+  }: PutThunderAnnouncementRequest) => {
+    const response = await fetcher<PutThunderAnnouncementResponse>(
+      `${BASE_URL}/${thunderAnnouncementId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(body)
+      }
     );
 
     return response;
@@ -87,10 +124,10 @@ export const thunderAnnouncementAPI = {
     const response = await fetcher<DeleteThunderAnnouncementResponse>(
       `${BASE_URL}/${thunderAnnouncementId}`,
       {
-        method: "DELETE",
-      },
+        method: "DELETE"
+      }
     );
 
     return response;
-  },
+  }
 };

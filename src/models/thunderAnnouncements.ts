@@ -9,6 +9,24 @@ export type ThunderAnnouncementType =
 
 export type ThunderAnnouncmentPremiumType = 0 | 1; // 0: 일반, 1: 프리미엄
 
+export type ThunderAnnouncementUpdatePremiumType = 0 | 2; // 0: 일반, 2: 프리미엄 보류
+
+export type ThunderAnnouncementPriceType =
+  | "무료시술"
+  | "페이 모델 (모델료 지급)"
+  | "재료비 발생";
+
+export type ThunderAnnouncementConditionType =
+  | "평일 오전"
+  | "평일 오후"
+  | "주말 오후"
+  | "주말 오전";
+
+export type ThunderAnnouncementAreaType = {
+  sido: string;
+  siGunGu?: string;
+};
+
 export type ThunderAnnouncementImageType = {
   id: number;
   imgUrl: string;
@@ -28,17 +46,22 @@ export type ThunderAnnouncementTimeCondition = {
 export interface IThunderAnnouncement {
   id: number;
   title: string;
-  displayName: string; // 닉네임
-  role: UserRoleType;
-  createdAt: string; // 가입일
-  deletedAt: string; // 삭제일
+  isPremium: number;
+  description: string;
+  createdAt: string;
+  deletedAt: string | null;
+  userInfo: {
+    userId: number;
+    displayName: string;
+    role: UserRoleType;
+  };
 }
 
 export interface IThunderAnnouncementForm {
   id: number;
   title: string;
   isPremium: ThunderAnnouncmentPremiumType;
-  selectedServices: string;
+  selectedServices: string[];
   priceType: string;
   createdAt: string;
   description: string;

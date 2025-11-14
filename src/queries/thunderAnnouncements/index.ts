@@ -1,19 +1,22 @@
 import {
-  useMutation,
-  UseMutationOptions,
-  UseMutationResult,
-  useQuery,
-  UseQueryOptions,
-  UseQueryResult,
-} from "@tanstack/react-query";
-import {
   DeleteThunderAnnouncementResponse,
   GetThunderAnnouncementsRequest,
   GetThunderAnnouncementsResponse,
   PutThunderAnnouncementPremiumRequest,
   PutThunderAnnouncementPremiumResponse,
-  thunderAnnouncementAPI,
+  PutThunderAnnouncementRequest,
+  PutThunderAnnouncementResponse,
+  thunderAnnouncementAPI
 } from "@/apis/thunderAnnouncements";
+import {
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult,
+  useMutation,
+  useQuery
+} from "@tanstack/react-query";
+
 import { IThunderAnnouncementForm } from "@/models/thunderAnnouncements";
 
 export const useGetThunderAnnouncementsQuery = (
@@ -21,12 +24,12 @@ export const useGetThunderAnnouncementsQuery = (
   config?: Omit<
     UseQueryOptions<GetThunderAnnouncementsResponse, Error>,
     "queryFn" | "queryKey"
-  >,
+  >
 ): UseQueryResult<GetThunderAnnouncementsResponse, Error> =>
   useQuery({
     queryKey: ["GET_THUNDER_ANNOUNCEMENTS"],
     queryFn: () => thunderAnnouncementAPI.getAll(params),
-    ...config,
+    ...config
   });
 
 export const useGetThunderAnnouncementByIdQuery = (
@@ -34,13 +37,13 @@ export const useGetThunderAnnouncementByIdQuery = (
   config?: Omit<
     UseQueryOptions<IThunderAnnouncementForm, Error>,
     "queryFn" | "queryKey"
-  >,
+  >
 ): UseQueryResult<IThunderAnnouncementForm, Error> =>
   useQuery({
     queryKey: ["GET_THUNDER_ANNOUNCEMENT_BY_ID", thunderAnnouncementId],
     queryFn: () => thunderAnnouncementAPI.getById(thunderAnnouncementId),
     enabled: Boolean(thunderAnnouncementId),
-    ...config,
+    ...config
   });
 
 export const usePutThunderAnnouncementPremiumMutation = (
@@ -51,7 +54,7 @@ export const usePutThunderAnnouncementPremiumMutation = (
       PutThunderAnnouncementPremiumRequest
     >,
     "mutationFn"
-  >,
+  >
 ): UseMutationResult<
   PutThunderAnnouncementPremiumResponse,
   Error,
@@ -60,17 +63,37 @@ export const usePutThunderAnnouncementPremiumMutation = (
   useMutation({
     mutationFn: (request: PutThunderAnnouncementPremiumRequest) =>
       thunderAnnouncementAPI.updatePremium(request),
-    ...config,
+    ...config
+  });
+
+export const usePutThunderAnnouncementMutation = (
+  config?: Omit<
+    UseMutationOptions<
+      PutThunderAnnouncementResponse,
+      Error,
+      PutThunderAnnouncementRequest
+    >,
+    "mutationFn"
+  >
+): UseMutationResult<
+  PutThunderAnnouncementResponse,
+  Error,
+  PutThunderAnnouncementRequest
+> =>
+  useMutation({
+    mutationFn: (request: PutThunderAnnouncementRequest) =>
+      thunderAnnouncementAPI.update(request),
+    ...config
   });
 
 export const useDeleteThunderAnnouncementMutation = (
   config?: Omit<
     UseMutationOptions<DeleteThunderAnnouncementResponse, Error, number>,
     "mutationFn"
-  >,
+  >
 ): UseMutationResult<DeleteThunderAnnouncementResponse, Error, number> =>
   useMutation({
     mutationFn: (thunderAnnouncementId?: number) =>
       thunderAnnouncementAPI.delete(thunderAnnouncementId),
-    ...config,
+    ...config
   });

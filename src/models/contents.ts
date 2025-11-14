@@ -1,4 +1,4 @@
-export type ContentsCategoryType = "0" | "1" | "2" | "3" | "4"; // 0: 번개/일반, 1: 번개/프리미엄, 2: 구인공고, 3: 이력서, 4: 모집공고
+export type ContentsCategoryType = "0" | "1" | "2" | "3" | "4"; // 0: 빠른/일반, 1: 빠른/프리미엄, 2: 구인공고, 3: 이력서, 4: 모집공고
 
 export type JobCategoryType = "0" | "1" | "2"; // 0: 인턴, 1: 디자이너
 

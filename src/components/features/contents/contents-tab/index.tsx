@@ -17,8 +17,8 @@ function ContentsTab({ className, ...props }: ContentsTabProps) {
     value: ContentsCategoryType;
     label: string;
   }[] = [
-    { value: "0", label: "번개/일반" },
-    { value: "1", label: "번개/프리미엄" },
+    { value: "0", label: "빠른/일반" },
+    { value: "1", label: "빠른/프리미엄" },
     { value: "2", label: "구인공고" },
     { value: "3", label: "이력서" },
     { value: "4", label: "모집공고" },

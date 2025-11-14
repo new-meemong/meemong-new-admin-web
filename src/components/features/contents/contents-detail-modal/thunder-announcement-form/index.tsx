@@ -1,30 +1,31 @@
 "use client";
 
 import React, { useCallback, useEffect } from "react";
-import { FormGroup } from "@/components/ui/form-group";
-import { CommonForm } from "@/components/shared/common-form";
-import { Button } from "@/components/ui/button";
-import { CommonFormButtonBox } from "@/components/shared/common-form/common-form-button-box";
 import {
   useDeleteThunderAnnouncementMutation,
   useGetThunderAnnouncementByIdQuery,
-  usePutThunderAnnouncementPremiumMutation,
+  usePutThunderAnnouncementPremiumMutation
 } from "@/queries/thunderAnnouncements";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { formatDate } from "@/utils/date";
-import { ThunderAnnouncementImageType } from "@/models/thunderAnnouncements";
+
+import { Button } from "@/components/ui/button";
+import { CommonForm } from "@/components/shared/common-form";
+import { CommonFormButtonBox } from "@/components/shared/common-form/common-form-button-box";
+import { FormGroup } from "@/components/ui/form-group";
 import ImageBox from "@/components/shared/image-box";
+import { ThunderAnnouncementImageType } from "@/models/thunderAnnouncements";
 import { cn } from "@/lib/utils";
-import { useDialog } from "@/components/shared/dialog/context";
-import { toast } from "react-toastify";
+import { formatDate } from "@/utils/date";
 import { parseImageUrl } from "@/utils/image";
+import { toast } from "react-toastify";
+import { useDialog } from "@/components/shared/dialog/context";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const thunderAnnouncementSchema = z.object({
   title: z.string(),
   createdAt: z.string(),
-  selectedServices: z.string(),
+  selectedServices: z.array(z.string()),
   location: z.string(),
   timeCondition: z.string(),
   priceType: z.string(),
@@ -32,9 +33,9 @@ const thunderAnnouncementSchema = z.object({
   images: z.array(
     z.object({
       id: z.number(),
-      imgUrl: z.string(),
-    }),
-  ),
+      imgUrl: z.string()
+    })
+  )
 });
 
 type ThunderAnnouncementFormType = z.infer<typeof thunderAnnouncementSchema>;
@@ -48,7 +49,7 @@ interface ThunderAnnouncementFormProps {
 export default function ThunderAnnouncementForm({
   contentsId,
   onRefresh,
-  onClose,
+  onClose
 }: ThunderAnnouncementFormProps) {
   const dialog = useDialog();
 
@@ -57,12 +58,12 @@ export default function ThunderAnnouncementForm({
     defaultValues: {
       title: "",
       createdAt: "",
-      selectedServices: "",
+      selectedServices: [],
       location: "",
       timeCondition: "",
       priceType: "",
-      description: "",
-    },
+      description: ""
+    }
   });
 
   const getThunderAnnouncementByIdQuery =
@@ -75,24 +76,25 @@ export default function ThunderAnnouncementForm({
   const handleUpdatePremium = useCallback(async () => {
     try {
       const isPremium = getThunderAnnouncementByIdQuery.data?.isPremium;
+      const isApproved = isPremium === 1; // 1이면 승인 상태, 아니면 보류/일반 상태
 
       const confirmed = await dialog.confirm(
-        isPremium === 1
-          ? `해당 게시물을 일반공고로 내리겠습니까?`
-          : `해당 게시물을 프리미엄으로 올리겠습니까?`,
+        isApproved
+          ? `해당 게시물을 프리미엄 보류 상태로 변경하시겠습니까?`
+          : `해당 게시물을 프리미엄 승인 상태로 변경하시겠습니까?`
       );
 
       if (confirmed) {
         const result = await putThunderAnnouncementPremiumMutation.mutateAsync({
-          thunderAnnouncementId: contentsId,
-          isPremium: isPremium === 1 ? 0 : 1,
+          thunderAnnouncementId: contentsId!,
+          isApproved: !isApproved // 현재 상태의 반대로 설정 (승인 ↔ 보류)
         });
 
-        if (result.isPremium !== undefined) {
+        if (result.isApproved !== undefined) {
           toast.success(
-            result.isPremium === 1
-              ? "해당 공고를 프리미엄으로 올렸습니다."
-              : "해당 공고를 일반공고로 내렸습니다.",
+            result.isApproved
+              ? "해당 공고를 프리미엄 승인 상태로 변경했습니다."
+              : "해당 공고를 프리미엄 보류 상태로 변경했습니다."
           );
           getThunderAnnouncementByIdQuery.refetch();
           onRefresh();
@@ -106,10 +108,12 @@ export default function ThunderAnnouncementForm({
       toast.error("잠시 후 다시 시도해주세요.");
     }
   }, [
-    getThunderAnnouncementByIdQuery.data?.isPremium,
+    getThunderAnnouncementByIdQuery,
     contentsId,
     onRefresh,
     onClose,
+    putThunderAnnouncementPremiumMutation,
+    dialog
   ]);
 
   const handleDelete = useCallback(async () => {
@@ -126,7 +130,13 @@ export default function ThunderAnnouncementForm({
       console.error(error);
       toast.error("잠시 후 다시 시도해주세요.");
     }
-  }, [contentsId]);
+  }, [
+    contentsId,
+    dialog,
+    deleteThunderAnnouncementMutation,
+    onRefresh,
+    onClose
+  ]);
 
   useEffect(() => {
     if (getThunderAnnouncementByIdQuery.data) {
@@ -151,7 +161,7 @@ export default function ThunderAnnouncementForm({
           .join(", "),
         priceType: getThunderAnnouncementByIdQuery.data.priceType,
         description: getThunderAnnouncementByIdQuery.data.description,
-        images: getThunderAnnouncementByIdQuery.data.images,
+        images: getThunderAnnouncementByIdQuery.data.images
       });
     }
   }, [getThunderAnnouncementByIdQuery.data, form]);
@@ -176,7 +186,11 @@ export default function ThunderAnnouncementForm({
         />
         <CommonForm.ReadonlyRow
           label={"시술"}
-          value={form.watch("selectedServices") || "-"}
+          value={
+            Array.isArray(form.watch("selectedServices"))
+              ? form.watch("selectedServices").join(", ")
+              : "-"
+          }
         />
         <CommonForm.ReadonlyRow
           label={"위치"}
@@ -206,7 +220,7 @@ export default function ThunderAnnouncementForm({
                         key={`thunder-announcement-image-url-${image.id}`}
                         src={parseImageUrl(image.imgUrl as string)}
                         images={images.map((image) => ({
-                          src: image.imgUrl,
+                          src: image.imgUrl
                         }))}
                         index={index}
                       />
@@ -224,8 +238,8 @@ export default function ThunderAnnouncementForm({
           onClick={() => handleUpdatePremium()}
         >
           {getThunderAnnouncementByIdQuery.data?.isPremium === 1
-            ? "일반공고로 내리기"
-            : "프리미엄으로 올리기"}
+            ? "프리미엄 보류로 변경"
+            : "프리미엄 승인으로 변경"}
         </Button>
         <Button
           variant={"negative"}
