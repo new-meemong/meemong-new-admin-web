@@ -42,6 +42,7 @@ export default function ContentsDetailModal({
       return (
         <ThunderAnnouncementForm
           contentsId={contents?.id}
+          categoryId={categoryId}
           onRefresh={onRefresh}
           onClose={onClose}
         />

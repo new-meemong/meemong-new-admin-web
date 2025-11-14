@@ -2,11 +2,15 @@ import { UserRoleType } from "@/models/users";
 
 export interface IAnnouncement {
   id: number;
-  title: string;
-  displayName: string; // 닉네임
-  role: UserRoleType;
-  createdAt: string; // 가입일
-  deletedAt: string; // 삭제일
+  category: string;
+  priceType: string;
+  description: string;
+  createdAt: string;
+  userInfo: {
+    userId: number;
+    displayName: string;
+    role: UserRoleType;
+  };
 }
 
 export interface IAnnouncementForm {
@@ -23,3 +27,9 @@ export type AnnouncementImageType = {
   id: number;
   image: string;
 };
+
+export type AnnouncementPriceType =
+  | "무료작업"
+  | "무료시술"
+  | "페이 모델 (모델료 지급)"
+  | "재료비 발생";

@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { CommonForm } from "@/components/shared/common-form";
 import { CommonFormButtonBox } from "@/components/shared/common-form/common-form-button-box";
+import { ContentsCategoryType } from "@/models/contents";
 import { Form } from "@/components/ui/form";
 import { FormGroup } from "@/components/ui/form-group";
 import ImageBox from "@/components/shared/image-box";
@@ -44,12 +45,14 @@ type ThunderAnnouncementFormType = z.infer<typeof thunderAnnouncementSchema>;
 
 interface ThunderAnnouncementFormProps {
   contentsId?: number;
+  categoryId?: ContentsCategoryType;
   onRefresh: () => void;
   onClose: () => void;
 }
 
 export default function ThunderAnnouncementForm({
   contentsId,
+  categoryId,
   onRefresh,
   onClose
 }: ThunderAnnouncementFormProps) {
@@ -271,15 +274,15 @@ export default function ThunderAnnouncementForm({
         />
       </FormGroup>
       <CommonFormButtonBox>
-        <Button
-          variant={"submit"}
-          size={"submit-multi"}
-          onClick={() => handleUpdatePremium()}
-        >
-          {getThunderAnnouncementByIdQuery.data?.isPremium === 1
-            ? "프리미엄 보류로 변경"
-            : "프리미엄 승인으로 변경"}
-        </Button>
+        {categoryId === "0" && (
+          <Button
+            variant={"submit"}
+            size={"submit-multi"}
+            onClick={() => handleUpdatePremium()}
+          >
+            프리미엄 승인으로 변경
+          </Button>
+        )}
         <Button
           variant={"default"}
           size={"submit-multi"}

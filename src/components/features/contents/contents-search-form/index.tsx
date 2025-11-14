@@ -222,7 +222,7 @@ function ContentsSearchForm({
         className={cn("w-[114px] ml-[10px]")}
         name="searchType"
         value={methods.params.searchType!}
-        defaultValue={"UID"}
+        defaultValue={tabId === "0" || tabId === "1" ? "NAME" : "UID"}
         onChange={methods.handleSelect}
         options={SEARCH_TYPE_OPTIONS}
       />
