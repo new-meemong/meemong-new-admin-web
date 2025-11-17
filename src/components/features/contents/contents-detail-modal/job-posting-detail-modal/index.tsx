@@ -1,7 +1,7 @@
 "use client";
 
 import { ContentsCategoryType, IContents } from "@/models/contents";
-import React, { useCallback } from "react";
+import React from "react";
 
 import { CONTENTS_CATEGORY_MAP } from "@/constants/contents";
 import { ChevronRight } from "lucide-react";
@@ -10,11 +10,10 @@ import JobPostingDetailForm from "@/components/features/contents/contents-detail
 import { Modal } from "@/components/shared/modal";
 import { ModalBody } from "@/components/shared/modal/modal-body";
 import { ModalHeader } from "@/components/shared/modal/modal-header";
-import ResumeDetailForm from "@/components/features/contents/contents-detail-modal/resume-detail-form";
 import { cn } from "@/lib/utils";
 import { useGetUserDetailQuery } from "@/queries/users";
 
-interface ContentsDetailModalProps {
+interface JobPostingDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   contents: IContents;
@@ -22,22 +21,14 @@ interface ContentsDetailModalProps {
   onRefresh?: () => void;
 }
 
-export default function ContentsDetailModal({
+export default function JobPostingDetailModal({
   isOpen,
   onClose,
   contents,
-  categoryId
-}: ContentsDetailModalProps) {
+  categoryId,
+  onRefresh: _onRefresh
+}: JobPostingDetailModalProps) {
   const getUserDetailQuery = useGetUserDetailQuery(contents?.userInfo?.userId);
-
-  const renderFormGroup = useCallback(() => {
-    if (categoryId === "2") {
-      return <JobPostingDetailForm userId={contents?.userInfo?.userId} />;
-    } else if (categoryId === "3") {
-      return <ResumeDetailForm userId={contents?.userInfo?.userId} />;
-    }
-    return null;
-  }, [categoryId, contents?.userInfo?.userId]);
 
   return (
     <Modal
@@ -61,16 +52,13 @@ export default function ContentsDetailModal({
           </div>
           <div className={cn("flex-1 flex flex-col gap-4 pr-6")}>
             <h3 className={cn("typo-title-2-semibold text-foreground")}>
-              {categoryId === "2"
-                ? "구인공고 목록"
-                : categoryId === "3"
-                  ? "이력서 목록"
-                  : "목록"}
+              구인공고 목록
             </h3>
-            {renderFormGroup()}
+            <JobPostingDetailForm userId={contents?.userInfo?.userId} />
           </div>
         </div>
       </ModalBody>
     </Modal>
   );
 }
+

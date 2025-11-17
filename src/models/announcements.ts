@@ -21,11 +21,17 @@ export interface IAnnouncementForm {
   description: string;
   createdAt: string;
   images: AnnouncementImageType[];
+  imgList?: AnnouncementImgListType[];
 }
 
 export type AnnouncementImageType = {
   id: number;
   image: string;
+};
+
+export type AnnouncementImgListType = {
+  id: number;
+  imageURL: string;
 };
 
 export type AnnouncementPriceType =

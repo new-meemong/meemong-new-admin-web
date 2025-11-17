@@ -32,6 +32,11 @@ export type ThunderAnnouncementImageType = {
   imgUrl: string;
 };
 
+export type ThunderAnnouncementImgListType = {
+  id: number;
+  imageURL: string;
+};
+
 export type ThunderAnnouncementLocationType = {
   id: number;
   upperRegion: string;
@@ -66,6 +71,7 @@ export interface IThunderAnnouncementForm {
   createdAt: string;
   description: string;
   images: ThunderAnnouncementImageType[];
+  imgList?: ThunderAnnouncementImgListType[];
   locations: ThunderAnnouncementLocationType[];
   timeConditions: ThunderAnnouncementTimeCondition[];
 }

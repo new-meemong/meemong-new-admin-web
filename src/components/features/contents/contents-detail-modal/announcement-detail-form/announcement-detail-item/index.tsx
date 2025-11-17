@@ -9,6 +9,7 @@ import { IAnnouncementForm } from "@/models/announcements";
 import ImageBox from "@/components/shared/image-box";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
+import { parseImageUrl } from "@/utils/image";
 import { toast } from "react-toastify";
 import { useDialog } from "@/components/shared/dialog/context";
 import { useForm } from "react-hook-form";
@@ -127,6 +128,24 @@ export default function AnnouncementDetailItem({
             삭제
           </Button>
         </div>
+        {announcement.imgList && announcement.imgList.length > 0 && (
+          <div className={cn("w-full")}>
+            <div className={cn("flex flex-wrap gap-4")}>
+              {announcement.imgList.map((image, index) => (
+                <ImageBox
+                  key={`announcement-img-list-${announcement.id}-${image.id}`}
+                  src={parseImageUrl(image.imageURL)}
+                  images={announcement.imgList!.map((img) => ({
+                    src: parseImageUrl(img.imageURL),
+                  }))}
+                  index={index}
+                  width={120}
+                  height={120}
+                />
+              ))}
+            </div>
+          </div>
+        )}
         <div className={cn("w-full flex flex-row items-start gap-3")}>
           <div className={cn("flex-1 min-w-0")}>
             <CommonForm.Textarea
