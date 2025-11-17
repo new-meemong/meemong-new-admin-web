@@ -25,8 +25,7 @@ export default function JobPostingDetailModal({
   isOpen,
   onClose,
   contents,
-  categoryId,
-  onRefresh: _onRefresh
+  categoryId
 }: JobPostingDetailModalProps) {
   const getUserDetailQuery = useGetUserDetailQuery(contents?.userInfo?.userId);
 

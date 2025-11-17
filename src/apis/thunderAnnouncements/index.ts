@@ -4,8 +4,7 @@ import {
   ThunderAnnouncementAreaType,
   ThunderAnnouncementConditionType,
   ThunderAnnouncementPriceType,
-  ThunderAnnouncementType,
-  ThunderAnnouncementUpdatePremiumType
+  ThunderAnnouncementType
 } from "@/models/thunderAnnouncements";
 
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";

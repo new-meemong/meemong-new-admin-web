@@ -18,15 +18,14 @@ interface AnnouncementDetailModalProps {
   onClose: () => void;
   contents: IContents;
   categoryId: ContentsCategoryType;
-  onRefresh: () => void;
+  onRefresh?: () => void;
 }
 
 export default function AnnouncementDetailModal({
   isOpen,
   onClose,
   contents,
-  categoryId,
-  onRefresh
+  categoryId
 }: AnnouncementDetailModalProps) {
   const getUserDetailQuery = useGetUserDetailQuery(contents?.userInfo?.userId);
 

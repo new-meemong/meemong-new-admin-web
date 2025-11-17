@@ -1,15 +1,15 @@
 "use client";
 
 import { ContentsCategoryType, IContents } from "@/models/contents";
-import React from "react";
 
 import { CONTENTS_CATEGORY_MAP } from "@/constants/contents";
 import { ChevronRight } from "lucide-react";
 import ContentsDetailUserForm from "@/components/features/contents/contents-detail-modal/contents-detail-user-form";
-import ResumeDetailForm from "@/components/features/contents/contents-detail-modal/resume-detail-form";
 import { Modal } from "@/components/shared/modal";
 import { ModalBody } from "@/components/shared/modal/modal-body";
 import { ModalHeader } from "@/components/shared/modal/modal-header";
+import React from "react";
+import ResumeDetailForm from "@/components/features/contents/contents-detail-modal/resume-detail-form";
 import { cn } from "@/lib/utils";
 import { useGetUserDetailQuery } from "@/queries/users";
 
@@ -25,8 +25,7 @@ export default function ResumeDetailModal({
   isOpen,
   onClose,
   contents,
-  categoryId,
-  onRefresh: _onRefresh
+  categoryId
 }: ResumeDetailModalProps) {
   const getUserDetailQuery = useGetUserDetailQuery(contents?.userInfo?.userId);
 
@@ -61,4 +60,3 @@ export default function ResumeDetailModal({
     </Modal>
   );
 }
-
