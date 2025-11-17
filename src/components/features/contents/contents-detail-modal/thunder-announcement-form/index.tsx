@@ -4,8 +4,7 @@ import React, { useCallback, useEffect } from "react";
 import {
   useDeleteThunderAnnouncementMutation,
   useGetThunderAnnouncementByIdQuery,
-  usePutThunderAnnouncementMutation,
-  usePutThunderAnnouncementPremiumMutation
+  usePutThunderAnnouncementMutation
 } from "@/queries/thunderAnnouncements";
 
 import { Button } from "@/components/ui/button";
@@ -73,34 +72,30 @@ export default function ThunderAnnouncementForm({
 
   const getThunderAnnouncementByIdQuery =
     useGetThunderAnnouncementByIdQuery(contentsId);
-  const putThunderAnnouncementPremiumMutation =
-    usePutThunderAnnouncementPremiumMutation();
   const putThunderAnnouncementMutation = usePutThunderAnnouncementMutation();
   const deleteThunderAnnouncementMutation =
     useDeleteThunderAnnouncementMutation();
 
   const handleUpdatePremium = useCallback(async () => {
     try {
-      const isPremium = getThunderAnnouncementByIdQuery.data?.isPremium;
-      const isApproved = isPremium === 1; // 1이면 승인 상태, 아니면 보류/일반 상태
-
+      const isPremium = categoryId === "1";
       const confirmed = await dialog.confirm(
-        isApproved
-          ? `해당 게시물을 프리미엄 보류 상태로 변경하시겠습니까?`
-          : `해당 게시물을 프리미엄 승인 상태로 변경하시겠습니까?`
+        isPremium
+          ? `해당 게시물을 일반공고로 변경하시겠습니까?`
+          : `해당 게시물을 프리미엄으로 변경하시겠습니까?`
       );
 
       if (confirmed) {
-        const result = await putThunderAnnouncementPremiumMutation.mutateAsync({
+        const result = await putThunderAnnouncementMutation.mutateAsync({
           thunderAnnouncementId: contentsId!,
-          isApproved: !isApproved // 현재 상태의 반대로 설정 (승인 ↔ 보류)
+          isPremium: isPremium ? 0 : 1
         });
 
-        if (result.isApproved !== undefined) {
+        if (result.isSuccess) {
           toast.success(
-            result.isApproved
-              ? "해당 공고를 프리미엄 승인 상태로 변경했습니다."
-              : "해당 공고를 프리미엄 보류 상태로 변경했습니다."
+            isPremium
+              ? "해당 공고를 일반공고로 변경했습니다."
+              : "해당 공고를 프리미엄으로 변경했습니다."
           );
           getThunderAnnouncementByIdQuery.refetch();
           onRefresh();
@@ -114,11 +109,12 @@ export default function ThunderAnnouncementForm({
       toast.error("잠시 후 다시 시도해주세요.");
     }
   }, [
+    categoryId,
     getThunderAnnouncementByIdQuery,
     contentsId,
     onRefresh,
     onClose,
-    putThunderAnnouncementPremiumMutation,
+    putThunderAnnouncementMutation,
     dialog
   ]);
 
@@ -280,7 +276,16 @@ export default function ThunderAnnouncementForm({
             size={"submit-multi"}
             onClick={() => handleUpdatePremium()}
           >
-            프리미엄 승인으로 변경
+            프리미엄으로 변경
+          </Button>
+        )}
+        {categoryId === "1" && (
+          <Button
+            variant={"submit"}
+            size={"submit-multi"}
+            onClick={() => handleUpdatePremium()}
+          >
+            일반공고로 변경
           </Button>
         )}
         <Button

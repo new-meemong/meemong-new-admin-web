@@ -52,7 +52,11 @@ export default function ThunderAnnouncementDetailModal({
           </div>
           <div className={cn("flex-1 flex flex-col gap-4 pr-6")}>
             <h3 className={cn("typo-title-2-semibold text-foreground")}>
-              빠른공고 상세
+              {categoryId === "0"
+                ? "빠른매칭 일반공고 상세"
+                : categoryId === "1"
+                  ? "빠른매칭 프리미엄공고 상세"
+                  : "빠른공고 상세"}
             </h3>
             <ThunderAnnouncementForm
               contentsId={contents?.id}

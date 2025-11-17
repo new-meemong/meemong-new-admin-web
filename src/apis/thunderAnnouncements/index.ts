@@ -57,7 +57,7 @@ export type PutThunderAnnouncementRequest = {
   priceType?: ThunderAnnouncementPriceType;
   conditionTypes?: ThunderAnnouncementConditionType[];
   isCommentEnabled?: boolean;
-  isPremium?: ThunderAnnouncementUpdatePremiumType; // 0: 일반, 2: 프리미엄 보류
+  isPremium?: 0 | 1; // 0: 일반, 1: 프리미엄
 };
 
 export type PutThunderAnnouncementResponse = {
