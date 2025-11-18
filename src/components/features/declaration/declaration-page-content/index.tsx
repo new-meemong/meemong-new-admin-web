@@ -17,7 +17,7 @@ interface DeclarationPageContentProps {
 function DeclarationPageContent({ className }: DeclarationPageContentProps) {
   const DEFAULT_SEARCH_PARAMS: IDeclarationSearchParams = {
     status: "ALL",
-    searchType: "UID",
+    searchType: "NAME",
     searchKeyword: "",
     ...DEFAULT_PAGINATION,
   };

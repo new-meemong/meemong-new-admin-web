@@ -20,7 +20,7 @@ function UserPageContent({ className }: UserPageContentProps) {
   const DEFAULT_SEARCH_PARAMS: IUserSearchParams = {
     role: "ALL",
     blockType: "ALL",
-    searchType: "UID",
+    searchType: "NAME",
     searchKeyword: "",
     ...DEFAULT_PAGINATION,
     size: 10 // 10개씩 패치

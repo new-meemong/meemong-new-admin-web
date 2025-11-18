@@ -1,18 +1,19 @@
 "use client";
 
-import React from "react";
-import { cn } from "@/lib/utils";
+import { PaginationType, SearchType } from "@/models/common";
 import {
   SearchForm,
   SearchFormInput,
   SearchFormProps,
-  SearchFormSelectBox,
+  SearchFormSelectBox
 } from "@/components/shared/search-form";
+
 import { BlockType } from "@/models/users";
-import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMethods";
-import { PaginationType, SearchType } from "@/models/common";
-import { SEARCH_TYPE_OPTIONS } from "@/constants/common";
 import { Checkbox } from "@/components/ui/checkbox";
+import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMethods";
+import React from "react";
+import { SEARCH_TYPE_OPTIONS } from "@/constants/common";
+import { cn } from "@/lib/utils";
 import { useUsersContext } from "@/components/contexts/users-context";
 
 type BlockTypeWithAll = BlockType | "ALL";
@@ -35,24 +36,28 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
   const USER_ROLE_TYPE_OPTIONS: { value: string; label: string }[] = [
     { value: "ALL", label: "전체" },
     { value: "1", label: "모델" },
-    { value: "2", label: "디자이너" },
+    { value: "2", label: "디자이너" }
   ];
 
   const BLOCK_TYPE_OPTIONS: { value: BlockType | "ALL"; label: string }[] = [
     { value: "ALL", label: "전체" },
     { value: "1", label: "차단" },
-    { value: "2", label: "탈퇴" },
+    { value: "2", label: "탈퇴" }
   ];
 
   // ✅ value는 항상 정의된 값으로(컨트롤드 보장)
   const roleValue = methods.params.role ?? "ALL";
-  const blockTypeValue = (methods.params.blockType ?? "ALL") as BlockTypeWithAll;
-  const searchTypeValue = (methods.params.searchType ?? "UID") as SearchType;
+  const blockTypeValue = (methods.params.blockType ??
+    "ALL") as BlockTypeWithAll;
+  const searchTypeValue = (methods.params.searchType ?? "NAME") as SearchType;
   const searchKeywordValue = methods.params.searchKeyword ?? "";
 
   return (
     <>
-      <SearchForm className={cn("user-search-form", "mb-0", className)} {...props}>
+      <SearchForm
+        className={cn("user-search-form", "mb-0", className)}
+        {...props}
+      >
         <SearchFormSelectBox<IUserSearchParams>
           name="role"
           value={roleValue}

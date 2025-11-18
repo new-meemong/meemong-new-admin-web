@@ -37,7 +37,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     jobCategory: "ALL",
     announcementCategory: "ALL",
     priceType: "ALL",
-    searchType: tabId === "0" || tabId === "1" || tabId === "4" ? "NAME" : "UID",
+    searchType: "NAME",
     searchKeyword: "",
     ...DEFAULT_PAGINATION,
   };

@@ -56,7 +56,7 @@ function DeclarationSearchForm({
         className={cn("w-[114px] ml-[10px]")}
         name="searchType"
         value={searchForm.params.searchType!}
-        defaultValue={"UUID"}
+        defaultValue={"NAME"}
         onChange={searchForm.handleSelect}
         options={SEARCH_TYPE_OPTIONS}
       />
