@@ -11,6 +11,7 @@ export interface IAnnouncement {
     displayName: string;
     role: UserRoleType;
   };
+  imgList?: AnnouncementImgListType[];
 }
 
 export interface IAnnouncementForm {

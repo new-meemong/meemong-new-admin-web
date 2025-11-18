@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import {
   useDeleteThunderAnnouncementMutation,
-  useGetThunderAnnouncementByIdQuery,
   usePutThunderAnnouncementMutation
 } from "@/queries/thunderAnnouncements";
 
@@ -20,56 +19,27 @@ import { formatDate } from "@/utils/date";
 import { parseImageUrl } from "@/utils/image";
 import { toast } from "react-toastify";
 import { useDialog } from "@/components/shared/dialog/context";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-const thunderAnnouncementSchema = z.object({
-  title: z.string(),
-  createdAt: z.string(),
-  selectedServices: z.array(z.string()),
-  location: z.string(),
-  timeCondition: z.string(),
-  priceType: z.string(),
-  description: z.string(),
-  images: z.array(
-    z.object({
-      id: z.number(),
-      imgUrl: z.string()
-    })
-  )
-});
-
-type ThunderAnnouncementFormType = z.infer<typeof thunderAnnouncementSchema>;
+import { useFormContext } from "react-hook-form";
+import { ThunderAnnouncementFormType } from "./useThunderAnnouncementForm";
+import { useGetThunderAnnouncementByIdQuery } from "@/queries/thunderAnnouncements";
 
 interface ThunderAnnouncementFormProps {
   contentsId?: number;
   categoryId?: ContentsCategoryType;
   onRefresh: () => void;
   onClose: () => void;
+  layout?: "center" | "right" | "buttons";
 }
 
 export default function ThunderAnnouncementForm({
   contentsId,
   categoryId,
   onRefresh,
-  onClose
+  onClose,
+  layout = "center"
 }: ThunderAnnouncementFormProps) {
   const dialog = useDialog();
-
-  const form = useForm<ThunderAnnouncementFormType>({
-    resolver: zodResolver(thunderAnnouncementSchema),
-    defaultValues: {
-      title: "",
-      createdAt: "",
-      selectedServices: [],
-      location: "",
-      timeCondition: "",
-      priceType: "",
-      description: ""
-    }
-  });
-
+  const form = useFormContext<ThunderAnnouncementFormType>();
   const getThunderAnnouncementByIdQuery =
     useGetThunderAnnouncementByIdQuery(contentsId);
   const putThunderAnnouncementMutation = usePutThunderAnnouncementMutation();
@@ -174,40 +144,10 @@ export default function ThunderAnnouncementForm({
     onClose
   ]);
 
-  useEffect(() => {
-    if (getThunderAnnouncementByIdQuery.data) {
-      form.reset({
-        title: getThunderAnnouncementByIdQuery.data.title,
-        createdAt: getThunderAnnouncementByIdQuery.data.createdAt,
-        selectedServices: getThunderAnnouncementByIdQuery.data.selectedServices,
-        location: getThunderAnnouncementByIdQuery.data.locations
-          .map((location) => {
-            const _location = [];
-            if (location.upperRegion) {
-              _location.push(location.upperRegion);
-            }
-            if (location.lowerRegion) {
-              _location.push(location.lowerRegion);
-            }
-            return _location.join(" ");
-          })
-          .join(", "),
-        timeCondition: getThunderAnnouncementByIdQuery.data.timeConditions
-          .map((timeCondition) => timeCondition.conditionType)
-          .join(", "),
-        priceType: getThunderAnnouncementByIdQuery.data.priceType,
-        description: getThunderAnnouncementByIdQuery.data.description,
-        images: getThunderAnnouncementByIdQuery.data.images
-      });
-    }
-  }, [getThunderAnnouncementByIdQuery.data, form]);
+  if (layout === "center") {
+    const images = form.watch("images");
 
-  if (!getThunderAnnouncementByIdQuery.data) {
-    return <></>;
-  }
-
-  return (
-    <Form {...form}>
+    return (
       <FormGroup>
         <CommonForm.Input
           name={"title"}
@@ -241,34 +181,35 @@ export default function ThunderAnnouncementForm({
           label={"재료비타입"}
           value={form.watch("priceType") || "-"}
         />
-        <CommonForm.Textarea
-          name={"description"}
-          label={"본문내용"}
-          placeholder={"본문내용을 입력해주세요."}
-        />
-        <CommonForm.ReadonlyRow<ThunderAnnouncementImageType[]>
-          label={"사진"}
-          value={form.watch("images")}
-          formatter={(images) => {
-            return (
-              <div className={cn("flex flex-wrap gap-4")}>
-                {images && Array.isArray(images) && images.length > 0
-                  ? images.map((image, index) => (
-                      <ImageBox
-                        key={`thunder-announcement-image-url-${image.id}`}
-                        src={parseImageUrl(image.imgUrl as string)}
-                        images={images.map((image) => ({
-                          src: image.imgUrl
-                        }))}
-                        index={index}
-                      />
-                    ))
-                  : "-"}
+        <div className={cn("flex flex-col mt-[20px] gap-0")}>
+          <label className={cn("w-full shrink-0 text-foreground-strong mb-2")}>
+            사진
+          </label>
+          <div className={cn("typo-body-2-regular")}>
+            {images && Array.isArray(images) && images.length > 0 ? (
+              <div className={cn("grid grid-cols-4 gap-4")}>
+                {images.map((image, index) => (
+                  <ImageBox
+                    key={`thunder-announcement-image-url-${image.id}`}
+                    src={parseImageUrl(image.imgUrl as string)}
+                    images={images.map((image) => ({
+                      src: image.imgUrl
+                    }))}
+                    index={index}
+                  />
+                ))}
               </div>
-            );
-          }}
-        />
+            ) : (
+              "-"
+            )}
+          </div>
+        </div>
       </FormGroup>
+    );
+  }
+
+  if (layout === "buttons") {
+    return (
       <CommonFormButtonBox>
         {categoryId === "0" && (
           <Button
@@ -303,6 +244,18 @@ export default function ThunderAnnouncementForm({
           삭제
         </Button>
       </CommonFormButtonBox>
-    </Form>
+    );
+  }
+
+  return (
+    <FormGroup>
+      <CommonForm.Textarea
+        name={"description"}
+        label={"본문내용"}
+        placeholder={"본문내용을 입력해주세요."}
+        rows={25}
+        style={{ minHeight: "500px", height: "500px" }}
+      />
+    </FormGroup>
   );
 }

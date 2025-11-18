@@ -1,12 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { createPortal } from "react-dom";
-import { cn } from "@/lib/utils";
+
 import {
   ModalContextProps,
-  ModalProvider,
+  ModalProvider
 } from "@/components/shared/modal/context";
+
+import { cn } from "@/lib/utils";
+import { createPortal } from "react-dom";
 
 interface ModalProps extends ModalContextProps {
   isOpen: boolean;
@@ -36,13 +38,25 @@ export function Modal({
     }
   }, [isOpen]);
 
+  React.useEffect(() => {
+    if (!isOpen || !rest.onClose) return;
+    const onClose = rest.onClose;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isOpen, rest.onClose]);
+
   if (!show) return null;
 
   const sizeClass = {
     xs: "max-w-[480px] h-[562px] min-w-[360px]",
     sm: "max-w-[768px] h-[620px]",
     md: "max-w-[1024px] h-[720px] min-w-[768px]",
-    lg: "max-w-[1400px] h-[800px] min-w-[1200px]",
+    lg: "max-w-[1400px] h-[800px] min-w-[1200px]"
   };
 
   return createPortal(
@@ -50,7 +64,7 @@ export function Modal({
       <div
         className={cn(
           "fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity",
-          closing ? "animate-fade-out" : "animate-fade-in",
+          closing ? "animate-fade-out" : "animate-fade-in"
         )}
         onClick={() => {
           if (onClickOutside) {
@@ -63,7 +77,7 @@ export function Modal({
             "relative w-full rounded-2xl flex flex-col bg-white shadow-xl transition-all",
             "duration-300 ease-out",
             closing ? "animate-modal-out" : "animate-modal-in",
-            sizeClass[rest.size || "sm"],
+            sizeClass[rest.size || "sm"]
           )}
           onClick={(e) => e.stopPropagation()}
         >
@@ -71,6 +85,6 @@ export function Modal({
         </div>
       </div>
     </ModalProvider>,
-    document.body,
+    document.body
   );
 }

@@ -1,12 +1,19 @@
 "use client";
 
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel
+} from "@/components/ui/form";
 import React, { useCallback, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { CommonForm } from "@/components/shared/common-form";
-import { Form } from "@/components/ui/form";
 import { IAnnouncementForm } from "@/models/announcements";
 import ImageBox from "@/components/shared/image-box";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
 import { parseImageUrl } from "@/utils/image";
@@ -128,40 +135,67 @@ export default function AnnouncementDetailItem({
             삭제
           </Button>
         </div>
-        {announcement.imgList && announcement.imgList.length > 0 && (
-          <div className={cn("w-full")}>
-            <div className={cn("flex flex-wrap gap-4")}>
-              {announcement.imgList.map((image, index) => (
-                <ImageBox
-                  key={`announcement-img-list-${announcement.id}-${image.id}`}
-                  src={parseImageUrl(image.imageURL)}
-                  images={announcement.imgList!.map((img) => ({
-                    src: parseImageUrl(img.imageURL),
-                  }))}
-                  index={index}
-                  width={120}
-                  height={120}
-                />
-              ))}
+        <div className={cn("w-full flex flex-row items-start gap-4")}>
+          {announcement.imgList && announcement.imgList.length > 0 && (
+            <div className={cn("w-[40%] flex-shrink-0")}>
+              <label
+                className={cn(
+                  "w-full shrink-0 text-foreground-strong mb-2 block"
+                )}
+              >
+                사진
+              </label>
+              <div className={cn("flex flex-wrap gap-4")}>
+                {announcement.imgList.map((image, index) => (
+                  <ImageBox
+                    key={`announcement-img-list-${announcement.id}-${image.id}`}
+                    src={parseImageUrl(image.imageURL)}
+                    images={announcement.imgList!.map((img) => ({
+                      src: parseImageUrl(img.imageURL)
+                    }))}
+                    index={index}
+                    width={120}
+                    height={120}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-        <div className={cn("w-full flex flex-row items-start gap-3")}>
-          <div className={cn("flex-1 min-w-0")}>
-            <CommonForm.Textarea
-              name={"description"}
-              label={"설명"}
-              placeholder={"설명을 입력해주세요."}
+          )}
+          <div className={cn("flex-1 min-w-0 flex flex-col gap-2")}>
+            <div
+              className={cn("flex flex-row items-center justify-between mb-2")}
+            >
+              <FormLabel className={cn("text-foreground-strong shrink-0")}>
+                설명
+              </FormLabel>
+              <Button
+                variant={"default"}
+                size={"sm"}
+                className={cn("w-[60px] shrink-0")}
+                onClick={handleUpdate}
+              >
+                수정
+              </Button>
+            </div>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem className={cn("flex flex-col gap-0")}>
+                  <FormControl>
+                    <Textarea
+                      className={cn("w-full rounded-none resize-none")}
+                      placeholder={"설명을 입력해주세요."}
+                      rows={14}
+                      style={{ minHeight: "230px", height: "230px" }}
+                      {...field}
+                    />
+                  </FormControl>
+                  <CommonForm.ErrorMessage name="description" />
+                </FormItem>
+              )}
             />
           </div>
-          <Button
-            variant={"default"}
-            size={"sm"}
-            className={cn("w-[60px] mt-[20px] shrink-0")}
-            onClick={handleUpdate}
-          >
-            수정
-          </Button>
         </div>
         {announcementImages && announcementImages.length > 0 && (
           <div className={cn("w-full pt-2")}>

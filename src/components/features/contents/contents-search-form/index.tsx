@@ -100,6 +100,17 @@ function ContentsSearchForm({
     { value: "모델료", label: "모델료" },
   ];
 
+  const getSearchTypeOptions = useCallback(() => {
+    const baseOptions = [...SEARCH_TYPE_OPTIONS];
+
+    // 빠른/일반, 빠른/프리미엄, 모집공고의 경우 '내용' 옵션 추가
+    if (tabId === "0" || tabId === "1" || tabId === "4") {
+      baseOptions.push({ value: "CONTENT", label: "내용" });
+    }
+
+    return baseOptions;
+  }, [tabId]);
+
   const renderSearchForm = useCallback(() => {
     if (tabId === "2") {
       return (
@@ -224,7 +235,7 @@ function ContentsSearchForm({
         value={methods.params.searchType!}
         defaultValue={tabId === "0" || tabId === "1" || tabId === "4" ? "NAME" : "UID"}
         onChange={methods.handleSelect}
-        options={SEARCH_TYPE_OPTIONS}
+        options={getSearchTypeOptions()}
       />
       <SearchFormInput
         name="searchKeyword"

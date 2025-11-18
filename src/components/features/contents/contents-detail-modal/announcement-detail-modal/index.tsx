@@ -43,7 +43,7 @@ export default function AnnouncementDetailModal({
       </ModalHeader>
       <ModalBody>
         <div className={cn("w-full flex flex-row gap-6")}>
-          <div className={cn("w-[28%] flex-shrink-0 flex flex-col gap-4")}>
+          <div className={cn("w-[22%] flex-shrink-0 flex flex-col gap-4")}>
             <h3 className={cn("typo-title-2-semibold text-foreground")}>
               유저 정보
             </h3>
