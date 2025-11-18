@@ -28,7 +28,7 @@ function BannerSearchForm({ className, onRefresh }: BannerSearchFormProps) {
         )}
         onClick={() => modal.open()}
       >
-        배너 교체하기
+        배너 추가하기
       </Button>
       <BannerFormModal
         isOpen={modal.isOpen}

@@ -38,14 +38,15 @@ function BannerPageContent({ className }: BannerPageContentProps) {
   });
 
   // 🔑 쿼리는 searchParams(제출된 값) 기준으로만 수행
+  const userType = methods.params.userType as BannerUserType | undefined;
+  const bannerType = methods.params.bannerType as string | undefined;
+
   const getBannersQuery = useGetBannersQuery(
     {
-      userType: methods.params.userType as BannerUserType | undefined,
-      bannerType: methods.params.bannerType as string | undefined,
-      // 바텀시트일 경우 __cusorOrder 추가
-      ...(methods.params.bannerType === "바텀시트" && {
-        __cusorOrder: "createdAtDesc"
-      })
+      userType,
+      bannerType,
+      // 최근순 정렬 (생성일 기준 내림차순)
+      __cursorOrder: "createdAtDesc"
     },
     {
       enabled: true // 전체 조회를 위해 항상 활성화

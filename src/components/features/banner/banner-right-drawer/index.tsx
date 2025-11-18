@@ -70,7 +70,8 @@ function BannerRightDrawer({
           ...(newImageUrl && { imageUrl: newImageUrl }),
           ...(restFormData.redirectUrl && {
             redirectUrl: restFormData.redirectUrl
-          })
+          }),
+          ...(restFormData.endAt && { endAt: restFormData.endAt })
         });
 
         closeDrawer();

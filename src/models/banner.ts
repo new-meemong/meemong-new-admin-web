@@ -1,7 +1,6 @@
 export interface IBanner {
   id: number;
   userType: string;
-  company: string;
   bannerType: string;
   displayType: string;
   imageUrl: string;
@@ -14,7 +13,6 @@ export interface IBanner {
 
 export interface IBannerForm {
   id?: number;
-  company: string;
   userType: string;
   bannerType: string;
   displayType?: string;

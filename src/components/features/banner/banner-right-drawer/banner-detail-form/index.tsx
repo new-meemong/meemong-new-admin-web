@@ -1,16 +1,17 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { FormEvent, useCallback, useEffect } from "react";
-import { FormGroup } from "@/components/ui/form-group";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Form } from "@/components/ui/form";
+
+import { Button } from "@/components/ui/button";
 import { CommonForm } from "@/components/shared/common-form";
-import { formatDate } from "@/utils/date";
+import { Form } from "@/components/ui/form";
+import { FormGroup } from "@/components/ui/form-group";
 import { IBannerForm } from "@/models/banner";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { formatDate } from "@/utils/date";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface BannerDetailFormProps {
   formData: IBannerForm;
@@ -19,7 +20,7 @@ interface BannerDetailFormProps {
 
 export default function BannerDetailForm({
   formData,
-  onSubmit,
+  onSubmit
 }: BannerDetailFormProps) {
   const BANNER_TYPE_OPTIONS: {
     value: string;
@@ -29,11 +30,10 @@ export default function BannerDetailForm({
     { value: "번개매칭", label: "번개매칭" },
     { value: "일반", label: "일반" },
     { value: "구인구직", label: "구인구직" },
-    { value: "바텀시트", label: "바텀시트" },
+    { value: "바텀시트", label: "바텀시트" }
   ];
 
   const formSchema = z.object({
-    company: z.string(),
     createdAt: z.string(),
     endAt: z.string(),
     bannerType: z.string(),
@@ -41,34 +41,33 @@ export default function BannerDetailForm({
     imageFile: z
       .custom<File>((v) => v instanceof File, "유효한 파일이 아닙니다.")
       .optional(),
-    redirectUrl: z.string(),
+    redirectUrl: z.string()
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     values: formData as z.infer<typeof formSchema>,
-    mode: "onChange",
+    mode: "onChange"
   });
 
   const handleSubmit = useCallback(
     (event: FormEvent) => {
       event.preventDefault();
       onSubmit({
-        company: form.getValues("company"),
         endAt: form.getValues("endAt"),
         bannerType: form.getValues("bannerType"),
         imageUrl: form.getValues("imageUrl"),
         imageFile: form.getValues("imageFile"),
-        redirectUrl: form.getValues("redirectUrl"),
+        redirectUrl: form.getValues("redirectUrl")
       });
     },
-    [onSubmit, form],
+    [onSubmit, form]
   );
 
   useEffect(() => {
     if (formData) {
       form.reset({
-        ...formData,
+        ...formData
       });
     }
   }, [formData, form]);
@@ -81,12 +80,6 @@ export default function BannerDetailForm({
     <Form {...form}>
       <form onSubmit={handleSubmit}>
         <FormGroup>
-          <CommonForm.Input
-            name={"company"}
-            label={"고객사명"}
-            value={form.watch("company")}
-            placeholder={"고객사명을 입력해주세요."}
-          />
           <CommonForm.Readonly
             name={"createdAt"}
             label={"등록일"}

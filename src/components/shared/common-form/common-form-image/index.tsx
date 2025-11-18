@@ -1,23 +1,24 @@
 "use client";
 
 import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
-import {
   FieldPath,
   FieldValues,
   PathValue,
-  useFormContext,
+  useFormContext
 } from "react-hook-form";
-import { cn } from "@/lib/utils";
-import Image from "next/image";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel
+} from "@/components/ui/form";
 import React, { useEffect, useRef, useState } from "react";
 
-import IcImgPlus from "@/assets/icons/ic_img_plus.svg";
 import { CommonForm } from "@/components/shared/common-form";
+import IcImgPlus from "@/assets/icons/ic_img_plus.svg";
+import Image from "next/image";
+import ImageSwiper from "@/components/shared/image-swiper";
+import { cn } from "@/lib/utils";
 
 interface CommonFormImageProps<TFieldValues extends FieldValues> {
   /** 미리보기 및(선택적으로) URL을 담는 필드 */
@@ -42,7 +43,7 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
   placeholderImage,
   readOnly = false,
   updateUrlOnSelect = true,
-  accept = "image/*",
+  accept = "image/*"
 }: CommonFormImageProps<TFieldValues>) {
   const { setValue, watch } = useFormContext<TFieldValues>();
 
@@ -54,6 +55,7 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
     : undefined;
 
   const [preview, setPreview] = useState<string | null>(null);
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 미리보기 업데이트: fileValue가 있으면 objectURL, 아니면 imageUrl
@@ -82,7 +84,7 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
     if (fileName) {
       setValue(fileName, file as PathValue<TFieldValues, typeof fileName>, {
         shouldDirty: true,
-        shouldTouch: true,
+        shouldTouch: true
       });
     }
 
@@ -94,7 +96,7 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
     if (updateUrlOnSelect) {
       setValue(name, objectUrl as PathValue<TFieldValues, typeof name>, {
         shouldDirty: true,
-        shouldTouch: true,
+        shouldTouch: true
       });
     }
   };
@@ -102,6 +104,13 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
   const triggerFileSelect = () => {
     if (readOnly) return;
     fileInputRef.current?.click();
+  };
+
+  const handleImageClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (preview || placeholderImage) {
+      setIsImageViewerOpen(true);
+    }
   };
 
   return (
@@ -123,10 +132,14 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
               />
               <div
                 className={cn(
-                  "min-w-[350px] h-[120px] bg-border border rounded-[6px] overflow-hidden",
-                  { "cursor-pointer": !readOnly },
+                  "min-w-[350px] h-[120px] bg-border border rounded-[6px] overflow-hidden relative",
+                  { "cursor-pointer": !readOnly }
                 )}
-                onClick={triggerFileSelect}
+                onClick={
+                  preview || placeholderImage
+                    ? handleImageClick
+                    : triggerFileSelect
+                }
               >
                 {preview || placeholderImage ? (
                   <Image
@@ -134,12 +147,14 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
                     alt="이미지 미리보기"
                     width={200}
                     height={100}
-                    className="object-contain w-full h-full"
+                    className={cn(
+                      "object-contain w-full h-full cursor-pointer"
+                    )}
                   />
                 ) : (
                   <div
                     className={cn(
-                      "w-full h-full flex justify-center items-center",
+                      "w-full h-full flex justify-center items-center"
                     )}
                   >
                     <IcImgPlus />
@@ -149,6 +164,14 @@ export function CommonFormImage<TFieldValues extends FieldValues>({
             </div>
           </FormControl>
           <CommonForm.ErrorMessage name={fileName} />
+          {(preview || placeholderImage) && (
+            <ImageSwiper
+              images={[{ src: preview || placeholderImage || "" }]}
+              initialIndex={0}
+              open={isImageViewerOpen}
+              onClose={() => setIsImageViewerOpen(false)}
+            />
+          )}
         </FormItem>
       )}
     />

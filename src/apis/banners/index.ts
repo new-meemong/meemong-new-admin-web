@@ -9,7 +9,7 @@ const BASE_URL = "/api/v1/banners";
 export type GetBannersRequest = {
   userType?: BannerUserType;
   bannerType?: BannerType;
-  __cusorOrder?: string;
+  __cursorOrder?: string;
 };
 export type GetBannersResponse = PaginatedResponse<IBanner>;
 
@@ -23,7 +23,7 @@ export type PostBannerRequest = {
   displayType?: string;
   imageUrl: string;
   redirectUrl: string;
-  company?: string;
+  endAt?: string;
 };
 
 export type PostBannerResponse = {
@@ -34,8 +34,10 @@ export type PutBannerRequest = {
   id: number;
   userType?: string;
   bannerType?: string;
+  displayType?: string;
   imageUrl?: string;
   redirectUrl?: string;
+  endAt?: string | null;
 };
 
 export type PutBannerResponse = {
@@ -58,7 +60,11 @@ export type PostBannerImageUploadResponse = {
 };
 
 export const bannerAPI = {
-  getAll: async ({ userType, bannerType, __cusorOrder }: GetBannersRequest) => {
+  getAll: async ({
+    userType,
+    bannerType,
+    __cursorOrder
+  }: GetBannersRequest) => {
     const response = await fetcher<{
       dataCount: number;
       dataList: IBanner[];
@@ -66,7 +72,7 @@ export const bannerAPI = {
       query: {
         ...(userType && { userType }),
         ...(bannerType && { bannerType }),
-        ...(__cusorOrder && { __cusorOrder })
+        ...(__cursorOrder && { __cursorOrder })
       }
     });
 
