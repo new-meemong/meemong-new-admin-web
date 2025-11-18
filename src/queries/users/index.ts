@@ -1,13 +1,4 @@
 import {
-  useMutation,
-  UseMutationOptions,
-  UseMutationResult,
-  useQuery,
-  UseQueryOptions,
-  UseQueryResult,
-} from "@tanstack/react-query";
-import { IUserForm } from "@/models/users";
-import {
   GetUserBlockListResponse,
   GetUsersRequest,
   GetUsersResponse,
@@ -17,52 +8,62 @@ import {
   UpdateUserDescriptionResponse,
   UpdateUserPayModelRequest,
   UpdateUserPayModelResponse,
-  userAPI,
+  userAPI
 } from "@/apis/user";
+import {
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult,
+  useMutation,
+  useQuery
+} from "@tanstack/react-query";
+
+import { IUserForm } from "@/models/users";
 
 export const useGetUsersQuery = (
   params: GetUsersRequest,
   config?: Omit<
     UseQueryOptions<GetUsersResponse, Error>,
     "queryFn" | "queryKey"
-  >,
+  >
 ): UseQueryResult<GetUsersResponse, Error> =>
   useQuery({
-    queryKey: ["GET_USERS"],
+    queryKey: ["GET_USERS", params],
     queryFn: () => userAPI.getAll(params),
-    ...config,
+    ...config
   });
 
 export const useGetUserDetailQuery = (
   userId?: number,
-  config?: Omit<UseQueryOptions<IUserForm, Error>, "queryFn" | "queryKey">,
+  config?: Omit<UseQueryOptions<IUserForm, Error>, "queryFn" | "queryKey">
 ): UseQueryResult<IUserForm, Error> =>
   useQuery<IUserForm, Error>({
     queryKey: ["GET_USER_DETAIL", userId],
     queryFn: () => userAPI.getById(userId),
     enabled: Boolean(userId),
-    ...config,
+    ...config
   });
 
 export const useGetUserBlockListQuery = (
   userId: number,
-  config?: UseQueryOptions<GetUserBlockListResponse, Error>,
+  config?: UseQueryOptions<GetUserBlockListResponse, Error>
 ): UseQueryResult<GetUserBlockListResponse, Error> =>
   useQuery<GetUserBlockListResponse, Error>({
     queryKey: ["GET_USER_BLOCK_LIST", userId],
     queryFn: () => userAPI.getUserBlockList(userId),
-    ...config,
+    ...config
   });
 
 export const useUpdateUserBlockMutation = (
   config?: Omit<
     UseMutationOptions<UpdateUserBlockResponse, Error, UpdateUserBlockRequest>,
     "mutationFn"
-  >,
+  >
 ): UseMutationResult<UpdateUserBlockResponse, Error, UpdateUserBlockRequest> =>
   useMutation({
     mutationFn: (request) => userAPI.updateBlock(request),
-    ...config,
+    ...config
   });
 
 export const useUpdateUserDescriptionMutation = (
@@ -73,7 +74,7 @@ export const useUpdateUserDescriptionMutation = (
       UpdateUserDescriptionRequest
     >,
     "mutationFn"
-  >,
+  >
 ): UseMutationResult<
   UpdateUserDescriptionResponse,
   Error,
@@ -81,7 +82,7 @@ export const useUpdateUserDescriptionMutation = (
 > =>
   useMutation({
     mutationFn: (request) => userAPI.updateDescription(request),
-    ...config,
+    ...config
   });
 
 export const useUpdateUserPayModelMutation = (
@@ -92,7 +93,7 @@ export const useUpdateUserPayModelMutation = (
       UpdateUserPayModelRequest
     >,
     "mutationFn"
-  >,
+  >
 ): UseMutationResult<
   UpdateUserPayModelResponse,
   Error,
@@ -100,5 +101,5 @@ export const useUpdateUserPayModelMutation = (
 > =>
   useMutation({
     mutationFn: (request) => userAPI.updatePayModel(request),
-    ...config,
+    ...config
   });
