@@ -25,6 +25,7 @@ export interface IUser {
   isWithdraw: boolean; // 탈퇴여부
   isBlocked: boolean; // 차단여부
   profilePictureURL: string; // 프로필 사진
+  cacheProfilePictureURL?: string; // 캐시된 프로필 사진
 }
 
 export interface IUserForm extends IUser {

@@ -1,16 +1,16 @@
 "use client";
 
-import { BlockType, UserRoleType } from "@/models/users";
-import React from "react";
 import UserSearchForm, {
   IUserSearchParams
 } from "@/components/features/user/user-search-form";
 
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
+import React from "react";
+import { UserRoleType } from "@/models/users";
 import UserTable from "@/components/features/user/user-table";
 import { cn } from "@/lib/utils";
-import useSearchMethods from "@/components/shared/search-form/useSearchMethods";
 import { useGetUsersQuery } from "@/queries/users";
+import useSearchMethods from "@/components/shared/search-form/useSearchMethods";
 
 interface UserPageContentProps {
   className?: string;
@@ -37,10 +37,12 @@ function UserPageContent({ className }: UserPageContentProps) {
         methods.params.role === "ALL"
           ? undefined
           : (Number(methods.params.role) as UserRoleType),
+      // API는 blockType을 숫자 1만 받음 (1: 차단)
+      // "ALL"이 아니고 "1"인 경우에만 1을 전송
       blockType:
-        methods.params.blockType === "ALL"
+        methods.params.blockType === "ALL" || methods.params.blockType !== "1"
           ? undefined
-          : (methods.params.blockType as BlockType),
+          : (1 as const),
       searchType: methods.params.searchType,
       searchKeyword: methods.params.searchKeyword,
       page: (methods.params.page as number) ?? DEFAULT_PAGINATION.page,
