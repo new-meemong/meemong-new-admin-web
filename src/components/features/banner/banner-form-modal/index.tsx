@@ -12,7 +12,7 @@ import {
 } from "@/queries/banners";
 
 import BannerForm from "@/components/features/banner/banner-form-modal/banner-form";
-import { IBannerForm } from "@/models/banner";
+import { IBanner, IBannerForm } from "@/models/banner";
 import { Modal } from "@/components/shared/modal";
 import { ModalBody } from "@/components/shared/modal/modal-body";
 import { ModalHeader } from "@/components/shared/modal/modal-header";
@@ -22,6 +22,7 @@ import { useDialog } from "@/components/shared/dialog/context";
 
 interface BannerFormModalProps {
   bannerId?: number;
+  banner?: IBanner;
   isOpen: boolean;
   closable?: boolean;
   onClose: () => void;
@@ -30,6 +31,7 @@ interface BannerFormModalProps {
 
 export default function BannerFormModal({
   bannerId,
+  banner,
   isOpen,
   onClose,
   onSubmit
@@ -39,9 +41,25 @@ export default function BannerFormModal({
   const postBannerMutation = usePostBannerMutation();
   const postBannerImageUploadMutation = usePostBannerImageUploadMutation();
 
+  // banner prop이 있으면 API 호출하지 않음
   const getBannerDetailQuery = useGetBannerDetailQuery(bannerId!, {
-    enabled: Boolean(bannerId)
+    enabled: Boolean(bannerId) && !banner
   });
+
+  // IBanner를 IBannerForm으로 변환
+  const bannerFormData: IBannerForm | undefined = banner
+    ? {
+        id: banner.id,
+        company: banner.company,
+        userType: banner.userType,
+        bannerType: banner.bannerType,
+        displayType: banner.displayType,
+        imageUrl: banner.imageUrl,
+        redirectUrl: banner.redirectUrl,
+        createdAt: banner.createdAt,
+        endAt: banner.endAt
+      }
+    : getBannerDetailQuery.data;
 
   const defaultFormData: IBannerForm = {
     userType: DEFAULT_BANNER_USER_TYPE,
@@ -49,7 +67,7 @@ export default function BannerFormModal({
     company: "",
     imageUrl: "",
     redirectUrl: "",
-    ...getBannerDetailQuery.data
+    ...bannerFormData
   };
 
   const handleSubmit = useCallback(

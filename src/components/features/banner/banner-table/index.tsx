@@ -1,19 +1,20 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
-import { cn } from "@/lib/utils";
 import { ColumnDef, Row } from "@tanstack/react-table";
-import CommonTable, {
-  CommonTableProps,
-} from "@/components/shared/common-table";
 import CommonPagination, {
-  CommonPaginationProps,
+  CommonPaginationProps
 } from "@/components/shared/common-pagination";
-import { formatDate } from "@/utils/date";
-import { IBanner } from "@/models/banner";
+import CommonTable, {
+  CommonTableProps
+} from "@/components/shared/common-table";
+import React, { useCallback, useState } from "react";
+
+import BannerFormModal from "@/components/features/banner/banner-form-modal";
 import BannerImageBox from "@/components/features/banner/banner-image-box";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
-import BannerFormModal from "@/components/features/banner/banner-form-modal";
+import { IBanner } from "@/models/banner";
+import { cn } from "@/lib/utils";
+import { formatDate } from "@/utils/date";
 import { useModal } from "@/components/shared/modal/useModal";
 
 interface BannerTableProps
@@ -35,20 +36,22 @@ function BannerTable({
 }: BannerTableProps) {
   const modal = useModal();
 
-  const [selectedBannerId, setSelectedBannerId] = useState<number | undefined>(undefined);
+  const [selectedBanner, setSelectedBanner] = useState<IBanner | undefined>(
+    undefined
+  );
 
   const columns: ColumnDef<IBanner>[] = [
     {
       accessorKey: "company",
       header: "고객사명",
       cell: (info) => info.getValue() || "-",
-      enableSorting: false,
+      enableSorting: false
     },
     {
       accessorKey: "imageUrl",
       header: "이미지",
       cell: (info) => <BannerImageBox src={info.getValue() as string} />,
-      enableSorting: false,
+      enableSorting: false
     },
     {
       accessorKey: "bannerType",
@@ -64,33 +67,33 @@ function BannerTable({
 
         return bannerTypeItem.join(" ") || "-";
       },
-      enableSorting: false,
+      enableSorting: false
     },
     {
       accessorKey: "createdAt",
       header: "등록일",
-      cell: (info) => formatDate(info.getValue() as string),
+      cell: (info) => formatDate(info.getValue() as string)
     },
     {
       accessorKey: "clickCount",
       header: "클릭수",
       cell: (info) => info.getValue(),
-      enableSorting: false,
+      enableSorting: false
     },
     {
       accessorKey: "redirectUrl",
       header: "링크",
       cell: (info) => info.getValue(),
-      enableSorting: false,
-    },
+      enableSorting: false
+    }
   ];
 
   const handleClickRow = useCallback(
     (row: Row<IBanner>) => {
-      setSelectedBannerId(row.original?.id);
+      setSelectedBanner(row.original);
       modal.open();
     },
-    [],
+    [modal]
   );
 
   return (
@@ -110,7 +113,7 @@ function BannerTable({
       <BannerFormModal
         isOpen={modal.isOpen}
         onClose={modal.close}
-        bannerId={selectedBannerId}
+        banner={selectedBanner}
         onSubmit={() => {
           onRefresh();
         }}
