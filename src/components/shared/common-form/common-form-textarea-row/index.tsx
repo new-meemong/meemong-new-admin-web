@@ -1,19 +1,22 @@
-import { cn } from "@/lib/utils";
+import * as React from "react";
+
+import { FieldPath, FieldValues, useFormContext } from "react-hook-form";
 import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
+  FormLabel
 } from "@/components/ui/form";
+
 import { Textarea } from "@/components/ui/textarea";
-import { FieldPath, FieldValues, useFormContext } from "react-hook-form";
-import * as React from "react";
+import { cn } from "@/lib/utils";
 
 interface CommonFormTextareaRowProps<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>,
-> extends React.ComponentProps<"textarea"> {
+  TName extends FieldPath<TFieldValues>
+> extends Omit<React.ComponentProps<"textarea">, "className"> {
   className?: string;
+  textareaClassName?: string;
   name: TName;
   label: string;
   children?: React.ReactNode;
@@ -21,6 +24,7 @@ interface CommonFormTextareaRowProps<
 
 export function CommonFormTextareaRow<TFieldValues extends FieldValues>({
   className,
+  textareaClassName,
   name,
   label,
   children,
@@ -40,7 +44,11 @@ export function CommonFormTextareaRow<TFieldValues extends FieldValues>({
             {label}
           </FormLabel>
           <FormControl>
-            <Textarea className={cn("w-full")} {...field} {...props} />
+            <Textarea
+              className={cn("w-full", textareaClassName)}
+              {...field}
+              {...props}
+            />
           </FormControl>
           {children}
         </FormItem>

@@ -275,6 +275,7 @@ export default function UserDetailForm({
               label={"소개글"}
               value={form.watch("description") || ""}
               name={"description"}
+              textareaClassName={cn("min-h-[192px]")}
             >
               <div className={cn("ml-2")}>
                 <Button
