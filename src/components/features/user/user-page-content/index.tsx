@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useEffect, useRef, useCallback, useState } from "react";
-import { cn } from "@/lib/utils";
-import UserSearchForm, {
-  IUserSearchParams,
-} from "@/components/features/user/user-search-form";
-import useSearchMethods from "@/components/shared/search-form/useSearchMethods";
-import UserTable from "@/components/features/user/user-table";
-import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { BlockType, UserRoleType } from "@/models/users";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import UserSearchForm, {
+  IUserSearchParams
+} from "@/components/features/user/user-search-form";
+
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { IUser } from "@/models/users";
+import UserTable from "@/components/features/user/user-table";
+import { cn } from "@/lib/utils";
+import useSearchMethods from "@/components/shared/search-form/useSearchMethods";
 import { userAPI } from "@/apis/user";
 
 interface UserPageContentProps {
@@ -22,15 +23,15 @@ function UserPageContent({ className }: UserPageContentProps) {
     blockType: "ALL",
     searchType: "UID",
     searchKeyword: "",
-    ...DEFAULT_PAGINATION,
+    ...DEFAULT_PAGINATION
   };
 
   const methods = useSearchMethods<IUserSearchParams>({
-    defaultParams: DEFAULT_SEARCH_PARAMS,
+    defaultParams: DEFAULT_SEARCH_PARAMS
   });
 
   const [allUsers, setAllUsers] = useState<IUser[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -63,7 +64,7 @@ function UserPageContent({ className }: UserPageContentProps) {
         searchType: methods.params.searchType,
         searchKeyword: methods.params.searchKeyword,
         page: nextPage,
-        size: pageSize,
+        size: pageSize
       });
 
       if (result) {
@@ -117,7 +118,7 @@ function UserPageContent({ className }: UserPageContentProps) {
           searchType: methods.params.searchType,
           searchKeyword: methods.params.searchKeyword,
           page: 1,
-          size: INITIAL_PAGE_SIZE, // 초기 로드는 30개
+          size: INITIAL_PAGE_SIZE // 초기 로드는 30개
         });
 
         if (result) {
@@ -136,15 +137,23 @@ function UserPageContent({ className }: UserPageContentProps) {
 
         // 스크롤 가능 여부 체크 후 추가 로드 (스크롤이 생길 때까지 반복)
         const checkAndLoadMore = async () => {
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
 
-          const hasScrollbar = document.documentElement.scrollHeight > document.documentElement.clientHeight;
-          const tableContainer = document.querySelector('.user-table-wrapper');
+          const hasScrollbar =
+            document.documentElement.scrollHeight >
+            document.documentElement.clientHeight;
+          const tableContainer = document.querySelector(".user-table-wrapper");
           const containerHasScroll = tableContainer
-            ? (tableContainer as HTMLElement).scrollHeight > (tableContainer as HTMLElement).clientHeight
+            ? (tableContainer as HTMLElement).scrollHeight >
+              (tableContainer as HTMLElement).clientHeight
             : false;
 
-          if (!hasScrollbar && !containerHasScroll && hasMore && !isLoadingRef.current) {
+          if (
+            !hasScrollbar &&
+            !containerHasScroll &&
+            hasMore &&
+            !isLoadingRef.current
+          ) {
             await loadMoreUsers();
             // 추가 로드 완료 후 다시 체크
             await checkAndLoadMore();
@@ -152,7 +161,7 @@ function UserPageContent({ className }: UserPageContentProps) {
         };
 
         checkAndLoadMore();
-      } catch (error) {
+      } catch {
         isLoadingRef.current = false;
         setIsLoading(false);
       }
@@ -223,7 +232,7 @@ function UserPageContent({ className }: UserPageContentProps) {
               searchType: methods.params.searchType,
               searchKeyword: methods.params.searchKeyword,
               page: 1,
-              size: INITIAL_PAGE_SIZE, // 새로고침 시에도 30개
+              size: INITIAL_PAGE_SIZE // 새로고침 시에도 30개
             })
             .then((result) => {
               if (result) {
