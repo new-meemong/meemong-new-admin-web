@@ -7,12 +7,13 @@ import {
   DrawerHeader,
   DrawerOverlay,
   DrawerPortal,
-  DrawerTitle,
+  DrawerTitle
 } from "@/components/ui/drawer";
-import React, { ReactNode } from "react";
-import { useDrawer } from "@/stores/drawer";
+import React, { ReactNode, useEffect } from "react";
+
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDrawer } from "@/stores/drawer";
 
 export interface RightDrawerProps {
   className?: string;
@@ -31,9 +32,24 @@ export default function RightDrawer({
   children,
   footer,
   onClose,
-  closable = true,
+  closable = true
 }: RightDrawerProps) {
   const { isOpen, setOpen, preventCloseOnOverlayClick } = useDrawer();
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (onClose) {
+          onClose();
+        } else {
+          setOpen(false);
+        }
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isOpen, onClose, setOpen]);
 
   return (
     <Drawer
@@ -49,7 +65,9 @@ export default function RightDrawer({
         <DrawerOverlay
           className={cn("drawer-overlay", overlayClassName)}
           onClick={(e) => {
-            if (!preventCloseOnOverlayClick) {
+            if (onClose) {
+              onClose();
+            } else {
               setOpen(false);
             }
             e.stopPropagation();
@@ -58,7 +76,7 @@ export default function RightDrawer({
         <DrawerContent className={cn("drawer-content", className)}>
           <DrawerHeader
             className={cn(
-              "flex flex-row p-[24px] py-[16px] items-center justify-start gap-[8px] border-b",
+              "flex flex-row p-[24px] py-[16px] items-center justify-start gap-[8px] border-b"
             )}
           >
             {closable && onClose && (
@@ -66,7 +84,7 @@ export default function RightDrawer({
                 onClick={onClose}
                 className={cn(
                   "relative w-[24px] h-[24px] text-gray-400 cursor-pointer rounded-4",
-                  "hover:text-[rgba(0,0,0,0.88)] hover:bg-[rgba(0,0,0,0.06)] transition-all duration-200",
+                  "hover:text-[rgba(0,0,0,0.88)] hover:bg-[rgba(0,0,0,0.06)] transition-all duration-200"
                 )}
                 aria-label="Close"
               >

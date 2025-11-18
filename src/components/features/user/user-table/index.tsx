@@ -22,6 +22,7 @@ interface UserTableProps
   extends Omit<CommonTableProps<IUser> & CommonPaginationProps, "columns"> {
   className?: string;
   onRefresh: () => void;
+  showPagination?: boolean;
 }
 
 function UserTable({
@@ -33,6 +34,7 @@ function UserTable({
   onPageChange,
   onSizeChange,
   onRefresh,
+  showPagination = true,
   ...props
 }: UserTableProps) {
   const { isPhotoMode } = useUsersContext();
@@ -175,13 +177,15 @@ function UserTable({
           onClickRow={handleClickRow}
         />
       )}
-      <CommonPagination
-        currentPage={currentPage || 1}
-        pageSize={pageSize}
-        totalCount={totalCount ?? 0}
-        onPageChange={onPageChange}
-        onSizeChange={onSizeChange}
-      />
+      {showPagination && (
+        <CommonPagination
+          currentPage={currentPage || 1}
+          pageSize={pageSize}
+          totalCount={totalCount ?? 0}
+          onPageChange={onPageChange}
+          onSizeChange={onSizeChange}
+        />
+      )}
       <UserRightDrawer userId={selectedUserId!} onRefresh={onRefresh} />
     </div>
   );
