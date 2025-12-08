@@ -1,22 +1,23 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
-import { cn } from "@/lib/utils";
-import { ColumnDef, Row } from "@tanstack/react-table";
-import { IUser, UserRoleType } from "@/models/users";
-import UserRightDrawer from "@/components/features/user/user-right-drawer";
-import CommonTable, {
-  CommonTableProps,
-} from "@/components/shared/common-table";
+import { CellContext, ColumnDef, Row } from "@tanstack/react-table";
 import CommonPagination, {
-  CommonPaginationProps,
+  CommonPaginationProps
 } from "@/components/shared/common-pagination";
-import { formatDate } from "@/utils/date";
+import CommonTable, {
+  CommonTableProps
+} from "@/components/shared/common-table";
+import { IUser, UserRoleType } from "@/models/users";
+import React, { useCallback, useState } from "react";
+
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
+import ImageTable from "@/components/shared/image-table";
+import UserRightDrawer from "@/components/features/user/user-right-drawer";
+import { cn } from "@/lib/utils";
+import { formatDate } from "@/utils/date";
+import { getUserRole } from "@/utils/user";
 import { useDrawer } from "@/stores/drawer";
 import { useUsersContext } from "@/components/contexts/users-context";
-import ImageTable from "@/components/shared/image-table";
-import { getUserRole } from "@/utils/user";
 
 interface UserTableProps
   extends Omit<CommonTableProps<IUser> & CommonPaginationProps, "columns"> {
@@ -65,7 +66,7 @@ function UserTable({
         return cellValue;
       },
       size: 80,
-      enableSorting: false,
+      enableSorting: false
     },
     {
       accessorKey: "displayName",
@@ -73,13 +74,13 @@ function UserTable({
       cell: (info) => (
         <span
           className={cn(
-            "cursor-pointer text-secondary-foreground hover:underline",
+            "cursor-pointer text-secondary-foreground hover:underline"
           )}
         >
           {info.getValue() as string}
         </span>
       ),
-      enableSorting: false,
+      enableSorting: false
     },
     {
       accessorKey: "role",
@@ -95,7 +96,7 @@ function UserTable({
         }
       },
       size: 120,
-      enableSorting: false,
+      enableSorting: false
     },
     {
       accessorKey: "createdAt",
@@ -103,7 +104,7 @@ function UserTable({
       cell: (info) =>
         formatDate(info.getValue() as string, "YYYY.MM.DD") || "-",
       size: 120,
-      enableSorting: true,
+      enableSorting: true
     },
     {
       accessorKey: "recentLoginTime",
@@ -111,15 +112,15 @@ function UserTable({
       cell: (info) =>
         formatDate(info.getValue() as string, "YYYY.MM.DD") || "-",
       size: 120,
-      enableSorting: true,
+      enableSorting: true
     },
     ...(showModelColumns
       ? [
           {
             accessorKey: "isBreakTime",
             header: "휴식중",
-            cell: (info: any) => {
-              const isBreakTime = info.getValue() as boolean;
+            cell: (info: CellContext<IUser, boolean>) => {
+              const isBreakTime = info.getValue();
               return isBreakTime ? (
                 <span className={cn("text-primary")}>휴식중</span>
               ) : (
@@ -127,13 +128,13 @@ function UserTable({
               );
             },
             size: 100,
-            enableSorting: false,
+            enableSorting: false
           } as ColumnDef<IUser>,
           {
             accessorKey: "isRecommended",
             header: "추천모델",
-            cell: (info: any) => {
-              const isRecommended = info.getValue() as boolean;
+            cell: (info: CellContext<IUser, boolean>) => {
+              const isRecommended = info.getValue();
               return isRecommended ? (
                 <span className={cn("text-primary")}>추천</span>
               ) : (
@@ -141,8 +142,8 @@ function UserTable({
               );
             },
             size: 100,
-            enableSorting: false,
-          } as ColumnDef<IUser>,
+            enableSorting: false
+          } as ColumnDef<IUser>
         ]
       : []),
     {
@@ -157,7 +158,7 @@ function UserTable({
         }
       },
       size: 80,
-      enableSorting: false,
+      enableSorting: false
     },
     {
       accessorKey: "isBlocked",
@@ -173,8 +174,8 @@ function UserTable({
         }
       },
       size: 80,
-      enableSorting: false,
-    },
+      enableSorting: false
+    }
   ];
 
   const handleClickRow = useCallback((row: Row<IUser>) => {
@@ -196,7 +197,7 @@ function UserTable({
             return (
               <div
                 className={cn(
-                  "w-full h-full relative flex cursor-pointer items-center justify-center",
+                  "w-full h-full relative flex cursor-pointer items-center justify-center"
                 )}
               >
                 {user.profilePictureURL ? (
@@ -217,7 +218,7 @@ function UserTable({
                     {isModel && (
                       <span
                         className={cn(
-                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold",
+                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold"
                         )}
                       >
                         모델
@@ -226,7 +227,7 @@ function UserTable({
                     {isDesigner && (
                       <span
                         className={cn(
-                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold",
+                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold"
                         )}
                       >
                         디자이너
@@ -241,7 +242,7 @@ function UserTable({
                     {user.isBreakTime && (
                       <span
                         className={cn(
-                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold",
+                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold"
                         )}
                       >
                         휴식중
@@ -250,7 +251,7 @@ function UserTable({
                     {user.isRecommended && (
                       <span
                         className={cn(
-                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold",
+                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold"
                         )}
                       >
                         추천모델
