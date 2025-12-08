@@ -54,6 +54,15 @@ export type UpdateUserPayModelResponse = {
   paymodel: boolean;
 };
 
+export type UpdateUserDisplayNameRequest = {
+  userId: number;
+  displayName: string;
+};
+
+export type UpdateUserDisplayNameResponse = {
+  data: null;
+};
+
 export const userAPI = {
   getAll: ({
     role,
@@ -123,6 +132,19 @@ export const userAPI = {
         method: "PUT",
         body: JSON.stringify({
           paymodel: request.paymodel
+        })
+      }
+    );
+
+    return response;
+  },
+  updateDisplayName: async (request: UpdateUserDisplayNameRequest) => {
+    const response = await fetcher<UpdateUserDisplayNameResponse>(
+      `${BASE_URL}/${request.userId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          displayName: request.displayName
         })
       }
     );

@@ -20,6 +20,7 @@ import { formatDate } from "@/utils/date";
 import UserBlockInfoList from "@/components/features/user/user-right-drawer/user-block-info-list";
 import {
   useUpdateUserDescriptionMutation,
+  useUpdateUserDisplayNameMutation,
   useUpdateUserPayModelMutation,
 } from "@/queries/users";
 import { toast } from "react-toastify";
@@ -83,6 +84,7 @@ export default function UserDetailForm({
 
   const updateUserDescriptionMutation = useUpdateUserDescriptionMutation();
   const updateUserPayModelMutation = useUpdateUserPayModelMutation();
+  const updateUserDisplayNameMutation = useUpdateUserDisplayNameMutation();
 
   const userId: string = useMemo(() => {
     let _userId: string = String(form.watch("id"));
@@ -169,6 +171,21 @@ export default function UserDetailForm({
     }
   }, [form.getValues("id"), form.getValues("description")]);
 
+  const handleUpdateDisplayName = useCallback(async () => {
+    try {
+      await updateUserDisplayNameMutation.mutateAsync({
+        userId: form.getValues("id"),
+        displayName: form.getValues("displayName"),
+      });
+
+      toast.success("닉네임을 수정했습니다.");
+      onRefresh();
+    } catch (error) {
+      console.error(error);
+      toast.error("잠시 후 다시 시도해주세요.");
+    }
+  }, [form.getValues("id"), form.getValues("displayName"), onRefresh]);
+
   useEffect(() => {
     if (formData) {
       form.reset({
@@ -197,10 +214,21 @@ export default function UserDetailForm({
                   : "-";
             }}
           />
-          <CommonForm.ReadonlyRow
+          <CommonForm.InputRow
             label={"닉네임"}
-            value={form.watch("displayName") || "-"}
-          />
+            name={"displayName"}
+            inputClassName={cn("min-w-0")}
+          >
+            <div className={cn("ml-2")}>
+              <Button
+                variant={"outline"}
+                type={"button"}
+                onClick={handleUpdateDisplayName}
+              >
+                수정
+              </Button>
+            </div>
+          </CommonForm.InputRow>
           <CommonForm.ReadonlyRow
             label={"이름"}
             value={form.watch("name") || "-"}

@@ -6,6 +6,8 @@ import {
   UpdateUserBlockResponse,
   UpdateUserDescriptionRequest,
   UpdateUserDescriptionResponse,
+  UpdateUserDisplayNameRequest,
+  UpdateUserDisplayNameResponse,
   UpdateUserPayModelRequest,
   UpdateUserPayModelResponse,
   userAPI
@@ -101,5 +103,24 @@ export const useUpdateUserPayModelMutation = (
 > =>
   useMutation({
     mutationFn: (request) => userAPI.updatePayModel(request),
+    ...config
+  });
+
+export const useUpdateUserDisplayNameMutation = (
+  config?: Omit<
+    UseMutationOptions<
+      UpdateUserDisplayNameResponse,
+      Error,
+      UpdateUserDisplayNameRequest
+    >,
+    "mutationFn"
+  >
+): UseMutationResult<
+  UpdateUserDisplayNameResponse,
+  Error,
+  UpdateUserDisplayNameRequest
+> =>
+  useMutation({
+    mutationFn: (request) => userAPI.updateDisplayName(request),
     ...config
   });
