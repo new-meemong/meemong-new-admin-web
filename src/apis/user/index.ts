@@ -9,7 +9,7 @@ const BASE_URL = "/api/v1/admins/users";
 
 export type GetUsersRequest = {
   role?: UserRoleType; // 1 | 2 (1: model, 2: designer)
-  blockType?: 1; // 1: 차단만 (API는 숫자 1만 받음)
+  blockType?: 1 | 2; // 1: 차단, 2: 탈퇴 (차단이랑 같음)
   searchType?: SearchType;
   searchKeyword?: string;
   page?: number;
@@ -66,8 +66,7 @@ export const userAPI = {
     fetcher<GetUsersResponse>(BASE_URL, {
       query: {
         ...(role && { role }),
-        // blockType은 숫자 1만 전송 (API 스펙에 따르면 1: 차단만)
-        ...(blockType && { blockType: 1 }),
+        ...(blockType && { blockType }),
         ...(searchKeyword && searchType && { searchKeyword, searchType }),
         page,
         size

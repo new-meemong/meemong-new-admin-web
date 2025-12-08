@@ -37,12 +37,11 @@ function UserPageContent({ className }: UserPageContentProps) {
         methods.params.role === "ALL"
           ? undefined
           : (Number(methods.params.role) as UserRoleType),
-      // API는 blockType을 숫자 1만 받음 (1: 차단)
-      // "ALL"이 아니고 "1"인 경우에만 1을 전송
+      // blockType: 1 (차단) 또는 2 (탈퇴)
       blockType:
-        methods.params.blockType === "ALL" || methods.params.blockType !== "1"
+        methods.params.blockType === "ALL"
           ? undefined
-          : (1 as const),
+          : (Number(methods.params.blockType) as 1 | 2),
       searchType: methods.params.searchType,
       searchKeyword: methods.params.searchKeyword,
       page: (methods.params.page as number) ?? DEFAULT_PAGINATION.page,
@@ -69,6 +68,7 @@ function UserPageContent({ className }: UserPageContentProps) {
         totalCount={getUsersQuery.data?.totalCount ?? 0}
         currentPage={(methods.params.page as number) ?? DEFAULT_PAGINATION.page}
         pageSize={(methods.params.size as number) ?? DEFAULT_PAGINATION.size}
+        selectedRole={(methods.params.role as "ALL" | "1" | "2") ?? "ALL"}
         onRefresh={() => {
           getUsersQuery.refetch();
         }}

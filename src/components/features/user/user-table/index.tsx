@@ -23,6 +23,7 @@ interface UserTableProps
   className?: string;
   onRefresh: () => void;
   showPagination?: boolean;
+  selectedRole?: "ALL" | "1" | "2"; // 유저타입 필터 값
 }
 
 function UserTable({
@@ -35,12 +36,16 @@ function UserTable({
   onSizeChange,
   onRefresh,
   showPagination = true,
+  selectedRole = "ALL",
   ...props
 }: UserTableProps) {
   const { isPhotoMode } = useUsersContext();
   const { openDrawer } = useDrawer();
 
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+
+  // 디자이너가 아닌 경우 (전체 또는 모델) 휴식중/추천모델 컬럼 표시
+  const showModelColumns = selectedRole !== "2";
 
   const columns: ColumnDef<IUser>[] = [
     {
@@ -108,6 +113,38 @@ function UserTable({
       size: 120,
       enableSorting: true,
     },
+    ...(showModelColumns
+      ? [
+          {
+            accessorKey: "isBreakTime",
+            header: "휴식중",
+            cell: (info: any) => {
+              const isBreakTime = info.getValue() as boolean;
+              return isBreakTime ? (
+                <span className={cn("text-primary")}>휴식중</span>
+              ) : (
+                "-"
+              );
+            },
+            size: 100,
+            enableSorting: false,
+          } as ColumnDef<IUser>,
+          {
+            accessorKey: "isRecommended",
+            header: "추천모델",
+            cell: (info: any) => {
+              const isRecommended = info.getValue() as boolean;
+              return isRecommended ? (
+                <span className={cn("text-primary")}>추천</span>
+              ) : (
+                "-"
+              );
+            },
+            size: 100,
+            enableSorting: false,
+          } as ColumnDef<IUser>,
+        ]
+      : []),
     {
       accessorKey: "isWithdraw",
       header: "탈퇴여부",
@@ -151,23 +188,79 @@ function UserTable({
         <ImageTable
           data={data || []}
           columns={columns}
-          renderItem={(row) => (
-            <div
-              className={cn(
-                "w-full h-full flex cursor-pointer items-center justify-center",
-              )}
-            >
-              {row.original.profilePictureURL ? (
-                <img
-                  src={row.original.profilePictureURL}
-                  alt={row.original.displayName}
-                  className={cn("w-full object-cover aspect-square")}
-                />
-              ) : (
-                row.original.displayName
-              )}
-            </div>
-          )}
+          renderItem={(row) => {
+            const user = row.original;
+            const isDesigner = getUserRole(user.role) === "DESIGNER";
+            const isModel = getUserRole(user.role) === "MODEL";
+
+            return (
+              <div
+                className={cn(
+                  "w-full h-full relative flex cursor-pointer items-center justify-center",
+                )}
+              >
+                {user.profilePictureURL ? (
+                  <img
+                    src={user.profilePictureURL}
+                    alt={user.displayName}
+                    className={cn("w-full h-full object-cover aspect-square")}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-muted aspect-square">
+                    {user.displayName}
+                  </div>
+                )}
+
+                {/* 왼쪽 상단: 전체일 때만 모델/디자이너 구분 */}
+                {selectedRole === "ALL" && (
+                  <div className="absolute top-2 left-2 flex flex-col gap-1">
+                    {isModel && (
+                      <span
+                        className={cn(
+                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold",
+                        )}
+                      >
+                        모델
+                      </span>
+                    )}
+                    {isDesigner && (
+                      <span
+                        className={cn(
+                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold",
+                        )}
+                      >
+                        디자이너
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {/* 오른쪽 상단: 디자이너가 아닐 때만 휴식중/추천모델 */}
+                {!isDesigner && (
+                  <div className="absolute top-2 right-2 flex flex-col gap-1">
+                    {user.isBreakTime && (
+                      <span
+                        className={cn(
+                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold",
+                        )}
+                      >
+                        휴식중
+                      </span>
+                    )}
+                    {user.isRecommended && (
+                      <span
+                        className={cn(
+                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold",
+                        )}
+                      >
+                        추천모델
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          }}
           onClickRow={handleClickRow}
         />
       ) : (

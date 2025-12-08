@@ -26,6 +26,8 @@ export interface IUser {
   isBlocked: boolean; // 차단여부
   profilePictureURL: string; // 프로필 사진
   cacheProfilePictureURL?: string; // 캐시된 프로필 사진
+  isBreakTime: boolean; // 휴식 시간 여부
+  isRecommended: boolean; // 추천 여부
 }
 
 export interface IUserForm extends IUser {
