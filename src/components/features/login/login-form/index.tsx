@@ -23,12 +23,15 @@ export default function LoginForm() {
         event.stopPropagation();
         const response = await postAdminLoginMutation.mutateAsync({
           name,
-          password,
+          password
         });
         const token = response.token;
 
         if (token) {
           document.cookie = `accessToken=${token}; path=/; max-age=7776000; secure`;
+          // 로그인한 아이디와 비밀번호를 세션 스토리지에 저장
+          sessionStorage.setItem("adminName", name);
+          sessionStorage.setItem("adminPassword", password);
         }
 
         router.push("/user");
@@ -36,7 +39,7 @@ export default function LoginForm() {
         console.log(error);
       }
     },
-    [name, password],
+    [name, password, postAdminLoginMutation, router]
   );
 
   return (
@@ -65,11 +68,7 @@ export default function LoginForm() {
           />
         </div>
         <div className={cn("w-full mt-3")}>
-          <Button
-            type={"submit"}
-            className={cn("w-full")}
-            size={"submit"}
-          >
+          <Button type={"submit"} className={cn("w-full")} size={"submit"}>
             로그인
           </Button>
         </div>
