@@ -41,6 +41,11 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
           icon={<IcPopupMenu />}
           label={"팝업 관리"}
         />
+        <SideNavItem
+          href={"/brand"}
+          icon={<IcBannerMenu />}
+          label={"브랜드 관리"}
+        />
       </SideNav>
       <main className="flex-1 overflow-auto bg-background">{children}</main>
     </div>
