@@ -102,16 +102,16 @@ function UserTable({
       accessorKey: "createdAt",
       header: "가입일",
       cell: (info) =>
-        formatDate(info.getValue() as string, "YYYY.MM.DD") || "-",
-      size: 120,
+        formatDate(info.getValue() as string, "YYYY.MM.DD HH:mm") || "-",
+      size: 160,
       enableSorting: true
     },
     {
       accessorKey: "recentLoginTime",
       header: "최근접속",
       cell: (info) =>
-        formatDate(info.getValue() as string, "YYYY.MM.DD") || "-",
-      size: 120,
+        formatDate(info.getValue() as string, "YYYY.MM.DD HH:mm:ss") || "-",
+      size: 180,
       enableSorting: true
     },
     ...(showModelColumns
