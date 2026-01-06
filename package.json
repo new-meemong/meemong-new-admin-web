@@ -52,5 +52,11 @@
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.0",
     "typescript": "^5"
+  },
+  "optionalDependencies": {
+    "@tailwindcss/oxide-darwin-x64": "^4.0.0",
+    "@tailwindcss/oxide-darwin-arm64": "^4.0.0",
+    "@tailwindcss/oxide-linux-x64-gnu": "^4.0.0",
+    "@tailwindcss/oxide-linux-arm64-gnu": "^4.0.0"
   }
 }

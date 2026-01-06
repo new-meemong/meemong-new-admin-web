@@ -51,10 +51,10 @@ export default function BrandFormModal({
           onSubmit();
           onClose();
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error(error);
         const errorMessage =
-          error?.message || "잠시 후 다시 시도해주세요.";
+          error instanceof Error ? error.message : "잠시 후 다시 시도해주세요.";
         toast.error(errorMessage);
       }
     },
