@@ -24,7 +24,7 @@ export default function ContentsDetailUserForm({
     name: z.string(),
     loginType: z.string(),
     createdAt: z.string(),
-    recentLoginTime: z.string(),
+    recentLoginTime: z.string().nullable().optional(),
     profileUrl: z.string(),
     isWithdraw: z.boolean(),
   });
@@ -61,9 +61,11 @@ export default function ContentsDetailUserForm({
         id: String(formData.id),
         role: Number(formData.role),
         isWithdraw: Boolean(formData.isWithdraw),
+        recentLoginTime: formData.recentLoginTime ?? undefined,
+        profileUrl: formData.profilePictureURL || "",
       });
     }
-  }, [formData]);
+  }, [formData, form]);
 
   if (!formData) {
     return "...loading";

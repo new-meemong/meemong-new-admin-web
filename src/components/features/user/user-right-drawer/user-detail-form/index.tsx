@@ -46,7 +46,8 @@ export default function UserDetailForm({
     address: z.string(),
     loginType: z.string(),
     createdAt: z.string(),
-    recentLoginTime: z.string(),
+    recentLoginTime: z.string().nullable().optional(),
+    recentRealLoginTime: z.string().nullable().optional(),
     profilePictureURL: z.string(),
     isWithdraw: z.boolean(),
     userPhotos: z.array(
@@ -190,6 +191,8 @@ export default function UserDetailForm({
     if (formData) {
       form.reset({
         ...formData,
+        recentLoginTime: formData.recentLoginTime ?? undefined,
+        recentRealLoginTime: formData.recentRealLoginTime ?? undefined,
       });
     }
   }, [formData, form]);

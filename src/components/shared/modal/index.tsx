@@ -29,7 +29,7 @@ export function Modal({
     if (isOpen) {
       setShow(true);
       setClosing(false);
-    } else if (show) {
+    } else {
       setClosing(true);
       const timeout = setTimeout(() => {
         setShow(false);
