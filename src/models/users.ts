@@ -21,7 +21,8 @@ export interface IUser {
   role: UserRoleType; // 유형
   displayName: string; // 닉네임
   createdAt: string; // 가입일
-  recentLoginTime: string; // 최근 접속일
+  recentLoginTime: string | null; // 최근 접속일 (앱정렬)
+  recentRealLoginTime: string | null; // 최근 접속일 (실제)
   isWithdraw: boolean; // 탈퇴여부
   isBlocked: boolean; // 차단여부
   profilePictureURL: string; // 프로필 사진

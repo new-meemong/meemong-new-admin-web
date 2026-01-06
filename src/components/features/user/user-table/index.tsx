@@ -108,9 +108,21 @@ function UserTable({
     },
     {
       accessorKey: "recentLoginTime",
-      header: "최근접속",
-      cell: (info) =>
-        formatDate(info.getValue() as string, "YYYY.MM.DD HH:mm:ss") || "-",
+      header: "접속시간(앱정렬)",
+      cell: (info) => {
+        const value = info.getValue() as string | null;
+        return value ? formatDate(value, "YYYY.MM.DD HH:mm:ss") || "-" : "-";
+      },
+      size: 180,
+      enableSorting: true
+    },
+    {
+      accessorKey: "recentRealLoginTime",
+      header: "접속시간(실제)",
+      cell: (info) => {
+        const value = info.getValue() as string | null;
+        return value ? formatDate(value, "YYYY.MM.DD HH:mm:ss") || "-" : "-";
+      },
       size: 180,
       enableSorting: true
     },
