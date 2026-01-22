@@ -1,31 +1,32 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import React, { FormEvent, useCallback, useEffect, useMemo } from "react";
-import { cn } from "@/lib/utils";
-import { FormGroup } from "@/components/ui/form-group";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Form } from "@/components/ui/form";
 import {
   IUserForm,
   LoginType,
   UserPhotoType,
   UserRoleType,
 } from "@/models/users";
-import { CommonForm } from "@/components/shared/common-form";
-import { LOGIN_TYPE_MAP } from "@/constants/users";
-import ImageBox from "@/components/shared/image-box";
-import { formatDate } from "@/utils/date";
-import UserBlockInfoList from "@/components/features/user/user-right-drawer/user-block-info-list";
+import React, { FormEvent, useCallback, useEffect, useMemo } from "react";
 import {
   useUpdateUserDescriptionMutation,
   useUpdateUserDisplayNameMutation,
   useUpdateUserPayModelMutation,
 } from "@/queries/users";
-import { toast } from "react-toastify";
+
 import { Button } from "@/components/ui/button";
+import { CommonForm } from "@/components/shared/common-form";
+import { Form } from "@/components/ui/form";
+import { FormGroup } from "@/components/ui/form-group";
+import ImageBox from "@/components/shared/image-box";
+import { LOGIN_TYPE_MAP } from "@/constants/users";
+import UserBlockInfoList from "@/components/features/user/user-right-drawer/user-block-info-list";
+import { cn } from "@/lib/utils";
+import { formatDate } from "@/utils/date";
 import { getUserRole } from "@/utils/user";
+import { toast } from "react-toastify";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface UserDetailFormProps {
   formData: IUserForm;
@@ -203,7 +204,7 @@ export default function UserDetailForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={onSubmit} className={cn("pb-[200px]")}>
         <FormGroup title={"기본 정보"}>
           <CommonForm.ReadonlyRow label={"회원번호"} value={userId} />
           <CommonForm.ReadonlyRow<UserRoleType>
@@ -347,7 +348,7 @@ export default function UserDetailForm({
             }}
           />
         </FormGroup>
-        <FormGroup title={"차단 정보"}>
+        <FormGroup title={"이용 정지 정보"}>
           <UserBlockInfoList user={formData} onUpdate={onRefresh} />
         </FormGroup>
       </form>
