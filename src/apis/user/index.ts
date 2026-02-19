@@ -1,4 +1,9 @@
-import { IUser, IUserBlockInfo, IUserForm, UserRoleType } from "@/models/users";
+import {
+  IUser,
+  IUserBlockInfo,
+  IUserForm,
+  UserListRoleType
+} from "@/models/users";
 
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { PaginatedResponse } from "@/apis/types";
@@ -8,10 +13,11 @@ import { fetcher } from "@/apis/core";
 const BASE_URL = "/api/v1/admins/users";
 
 export type GetUsersRequest = {
-  role?: UserRoleType; // 1 | 2 (1: model, 2: designer)
+  role?: UserListRoleType; // 1 | 2 (1: model, 2: designer)
   blockType?: 1 | 2; // 1: 차단, 2: 탈퇴 (차단이랑 같음)
   searchType?: SearchType;
   searchKeyword?: string;
+  brandId?: number;
   page?: number;
   size?: number;
 };
@@ -69,6 +75,7 @@ export const userAPI = {
     blockType,
     searchKeyword,
     searchType,
+    brandId,
     page = DEFAULT_PAGINATION.page,
     size = DEFAULT_PAGINATION.size
   }: GetUsersRequest) =>
@@ -77,6 +84,7 @@ export const userAPI = {
         ...(role && { role }),
         ...(blockType && { blockType }),
         ...(searchKeyword && searchType && { searchKeyword, searchType }),
+        ...(brandId !== undefined && { brandId }),
         page,
         size
       }

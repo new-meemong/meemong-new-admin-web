@@ -162,7 +162,7 @@ function UserTable({
       accessorKey: "isWithdraw",
       header: "탈퇴여부",
       cell: (info) => {
-        const isWithdraw = info.getValue();
+        const isWithdraw = Boolean(info.getValue());
         if (isWithdraw) {
           return <span className={cn("text-cautionary")}>탈퇴</span>;
         } else {
@@ -177,7 +177,9 @@ function UserTable({
       header: "차단",
       cell: (info) => {
         const isBlocked =
-          info.row.original.role === 3 || info.row.original.role === 4;
+          typeof info.row.original.isBlocked === "boolean"
+            ? info.row.original.isBlocked
+            : info.row.original.role === 3 || info.row.original.role === 4;
 
         if (isBlocked) {
           return <span className={cn("text-negative")}>차단</span>;

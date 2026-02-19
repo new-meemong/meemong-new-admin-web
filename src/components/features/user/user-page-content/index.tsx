@@ -6,7 +6,7 @@ import UserSearchForm, {
 
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import React from "react";
-import { UserRoleType } from "@/models/users";
+import { UserListRoleType } from "@/models/users";
 import UserTable from "@/components/features/user/user-table";
 import { cn } from "@/lib/utils";
 import { useGetUsersQuery } from "@/queries/users";
@@ -36,7 +36,7 @@ function UserPageContent({ className }: UserPageContentProps) {
       role:
         methods.params.role === "ALL"
           ? undefined
-          : (Number(methods.params.role) as UserRoleType),
+          : (Number(methods.params.role) as UserListRoleType),
       // blockType: 1 (차단) 또는 2 (탈퇴)
       blockType:
         methods.params.blockType === "ALL"
@@ -44,6 +44,10 @@ function UserPageContent({ className }: UserPageContentProps) {
           : (Number(methods.params.blockType) as 1 | 2),
       searchType: methods.params.searchType,
       searchKeyword: methods.params.searchKeyword,
+      brandId:
+        methods.params.brandId && methods.params.brandId !== "ALL"
+          ? Number(methods.params.brandId)
+          : undefined,
       page: (methods.params.page as number) ?? DEFAULT_PAGINATION.page,
       size: (methods.params.size as number) ?? DEFAULT_PAGINATION.size
     },

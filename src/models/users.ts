@@ -1,4 +1,5 @@
 export type UserRoleType = 1 | 2 | 3 | 4; // 유저 타입
+export type UserListRoleType = 1 | 2; // 유저 목록 조회용 타입
 
 export type BlockType = "0" | "1" | "2"; // 0: 전체, 1: 차단, 2: 탈퇴
 
@@ -16,6 +17,12 @@ export type UserPhotoType = {
   fileType: string;
 };
 
+export type UserBrandInfoType = {
+  id: number;
+  name: string;
+  code: string;
+};
+
 export interface IUser {
   id: number;
   role: UserRoleType; // 유형
@@ -23,15 +30,19 @@ export interface IUser {
   createdAt: string; // 가입일
   recentLoginTime: string | null; // 최근 접속일 (앱정렬)
   recentRealLoginTime: string | null; // 최근 접속일 (실제)
-  isWithdraw: boolean; // 탈퇴여부
-  isBlocked: boolean; // 차단여부
+  isWithdraw?: boolean; // 탈퇴여부
+  isBlocked?: boolean; // 차단여부
   profilePictureURL: string; // 프로필 사진
-  cacheProfilePictureURL?: string; // 캐시된 프로필 사진
+  cacheProfilePictureURL?: string | null; // 캐시된 프로필 사진
   isBreakTime: boolean; // 휴식 시간 여부
   isRecommended: boolean; // 추천 여부
+  brandId?: number;
+  Brand?: UserBrandInfoType;
 }
 
 export interface IUserForm extends IUser {
+  isWithdraw: boolean;
+  isBlocked: boolean;
   name: string; // 이름
   loginType: LoginType; // 가입형태
   profilePictureURL: string; // 프로필 url

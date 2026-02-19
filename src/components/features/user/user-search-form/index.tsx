@@ -14,6 +14,7 @@ import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMeth
 import React from "react";
 import { SEARCH_TYPE_OPTIONS } from "@/constants/common";
 import { cn } from "@/lib/utils";
+import { useGetBrandsQuery } from "@/queries/brands";
 import { useUsersContext } from "@/components/contexts/users-context";
 
 type BlockTypeWithAll = BlockType | "ALL";
@@ -23,6 +24,7 @@ export type IUserSearchParams = {
   blockType?: BlockTypeWithAll;
   searchType?: SearchType;
   searchKeyword?: string;
+  brandId?: string;
 } & PaginationType;
 
 interface UserSearchFormProps extends SearchFormProps {
@@ -51,6 +53,89 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
     "ALL") as BlockTypeWithAll;
   const searchTypeValue = (methods.params.searchType ?? "NAME") as SearchType;
   const searchKeywordValue = methods.params.searchKeyword ?? "";
+  const brandIdValue = methods.params.brandId ?? "ALL";
+  const isDesignerRole = roleValue === "2";
+  const isBrandSearch = isDesignerRole && searchTypeValue === "BRAND";
+
+  const getBrandsQuery = useGetBrandsQuery(
+    { page: 1, size: 1000 },
+    {
+      enabled: isBrandSearch
+    }
+  );
+
+  const searchTypeOptions = React.useMemo(() => {
+    if (!isDesignerRole) return SEARCH_TYPE_OPTIONS;
+    return [...SEARCH_TYPE_OPTIONS, { value: "BRAND", label: "브랜드" }];
+  }, [isDesignerRole]);
+
+  const brandOptions = React.useMemo(
+    () => [
+      { value: "ALL", label: "브랜드 선택" },
+      ...((getBrandsQuery.data?.content ?? []).map((brand) => ({
+        value: String(brand.id),
+        label: `${brand.name} (${brand.code})`
+      })) ?? [])
+    ],
+    [getBrandsQuery.data?.content]
+  );
+
+  const updateSearchParams = React.useCallback(
+    (updater: (prev: IUserSearchParams) => IUserSearchParams) => {
+      methods.setParams(updater);
+      methods.setSearchParams(updater);
+    },
+    [methods]
+  );
+
+  const handleRoleChange = React.useCallback(
+    ({ value }: { key: keyof IUserSearchParams; value: string }) => {
+      updateSearchParams((prev) => {
+        const nextRole = value;
+        const nextParams: IUserSearchParams = {
+          ...prev,
+          role: nextRole,
+          page: 1
+        };
+
+        if (nextRole !== "2" && prev.searchType === "BRAND") {
+          nextParams.searchType = "NAME";
+          nextParams.brandId = undefined;
+        }
+
+        return nextParams;
+      });
+    },
+    [updateSearchParams]
+  );
+
+  const handleSearchTypeChange = React.useCallback(
+    ({ value }: { key: keyof IUserSearchParams; value: string }) => {
+      const nextSearchType =
+        !isDesignerRole && value === "BRAND" ? "NAME" : (value as SearchType);
+
+      updateSearchParams((prev) => ({
+        ...prev,
+        searchType: nextSearchType,
+        page: 1,
+        ...(nextSearchType === "BRAND"
+          ? { searchKeyword: "" }
+          : { brandId: undefined })
+      }));
+    },
+    [isDesignerRole, updateSearchParams]
+  );
+
+  const handleBrandChange = React.useCallback(
+    ({ value }: { key: keyof IUserSearchParams; value: string }) => {
+      updateSearchParams((prev) => ({
+        ...prev,
+        brandId: value === "ALL" ? undefined : value,
+        page: 1
+      }));
+    },
+    [updateSearchParams]
+  );
 
   return (
     <>
@@ -62,7 +147,7 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
           name="role"
           value={roleValue}
           // ❌ defaultValue 제거 (controlled만 사용)
-          onChange={methods.handleSelect}
+          onChange={handleRoleChange}
           options={USER_ROLE_TYPE_OPTIONS}
           title="유저타입"
         />
@@ -77,15 +162,26 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
           className={cn("w-[114px] ml-[10px]")}
           name="searchType"
           value={searchTypeValue}
-          onChange={methods.handleSelect}
-          options={SEARCH_TYPE_OPTIONS}
+          onChange={handleSearchTypeChange}
+          options={searchTypeOptions}
         />
-        <SearchFormInput
-          className={cn("w-[165px]")}
-          name="searchKeyword"
-          onChange={methods.handleChangeText}
-          value={searchKeywordValue}
-        />
+        {isBrandSearch ? (
+          <SearchFormSelectBox<IUserSearchParams>
+            className={cn("w-[165px]")}
+            name="brandId"
+            value={brandIdValue}
+            onChange={handleBrandChange}
+            options={brandOptions}
+            disabled={getBrandsQuery.isPending}
+          />
+        ) : (
+          <SearchFormInput
+            className={cn("w-[165px]")}
+            name="searchKeyword"
+            onChange={methods.handleChangeText}
+            value={searchKeywordValue}
+          />
+        )}
       </SearchForm>
 
       <div className={cn("w-full h-[42px] flex justify-end items-center")}>
