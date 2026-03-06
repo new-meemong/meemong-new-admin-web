@@ -48,7 +48,7 @@ export default function ContentsDetailModal({
       onClickOutside={onClose}
     >
       <ModalHeader>
-        컨텐츠 관리 <ChevronRight /> {CONTENTS_CATEGORY_MAP[categoryId]}{" "}
+        콘텐츠 관리 <ChevronRight /> {CONTENTS_CATEGORY_MAP[categoryId]}{" "}
         <ChevronRight /> 상세페이지
       </ModalHeader>
       <ModalBody>

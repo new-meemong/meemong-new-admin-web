@@ -1,7 +1,6 @@
 "use client";
 
 import { ContentsCategoryType, IContents } from "@/models/contents";
-import React from "react";
 
 import { CONTENTS_CATEGORY_MAP } from "@/constants/contents";
 import { ChevronRight } from "lucide-react";
@@ -10,6 +9,7 @@ import JobPostingDetailForm from "@/components/features/contents/contents-detail
 import { Modal } from "@/components/shared/modal";
 import { ModalBody } from "@/components/shared/modal/modal-body";
 import { ModalHeader } from "@/components/shared/modal/modal-header";
+import React from "react";
 import { cn } from "@/lib/utils";
 import { useGetUserDetailQuery } from "@/queries/users";
 
@@ -38,7 +38,7 @@ export default function JobPostingDetailModal({
       onClickOutside={onClose}
     >
       <ModalHeader>
-        컨텐츠 관리 <ChevronRight /> {CONTENTS_CATEGORY_MAP[categoryId]}{" "}
+        콘텐츠 관리 <ChevronRight /> {CONTENTS_CATEGORY_MAP[categoryId]}{" "}
         <ChevronRight /> 상세페이지
       </ModalHeader>
       <ModalBody>
@@ -60,4 +60,3 @@ export default function JobPostingDetailModal({
     </Modal>
   );
 }
-

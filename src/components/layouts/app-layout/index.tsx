@@ -1,17 +1,17 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+
+import { Button } from "@/components/ui/button";
+import IcBannerMenu from "@/assets/icons/ic_banner_menu.svg";
+import IcContentsMenu from "@/assets/icons/ic_contents_menu.svg";
+import IcPopupMenu from "@/assets/icons/ic_popup_menu.svg";
+import IcReportMenu from "@/assets/icons/ic_report_menu.svg";
+import IcUserMenu from "@/assets/icons/ic_user_menu.svg";
 import SideNav from "@/components/layouts/app-layout/side-nav";
 import SideNavItem from "@/components/layouts/app-layout/side-nav/side-nav-item";
-import { Button } from "@/components/ui/button";
-
-import IcUserMenu from "@/assets/icons/ic_user_menu.svg";
-import IcContentsMenu from "@/assets/icons/ic_contents_menu.svg";
-import IcReportMenu from "@/assets/icons/ic_report_menu.svg";
-import IcBannerMenu from "@/assets/icons/ic_banner_menu.svg";
-import IcPopupMenu from "@/assets/icons/ic_popup_menu.svg";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 interface DefaultLayoutProps {
   children: React.ReactNode;
@@ -40,7 +40,7 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
         <SideNavItem
           href={"/contents"}
           icon={<IcContentsMenu />}
-          label={"컨텐츠 관리"}
+          label={"콘텐츠 관리"}
         />
         <SideNavItem
           href={"/declaration"}
