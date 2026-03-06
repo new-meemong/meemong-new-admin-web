@@ -23,6 +23,7 @@ function ContentsTab({ className, ...props }: ContentsTabProps) {
     { value: "3", label: "이력서" },
     { value: "4", label: "모집공고" },
     { value: "5", label: "샴푸실" },
+    { value: "6", label: "헤어컨설팅" },
   ];
 
   const handleClick = useCallback((value: string) => {

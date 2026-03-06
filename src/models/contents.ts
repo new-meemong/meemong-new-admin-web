@@ -1,4 +1,4 @@
-export type ContentsCategoryType = "0" | "1" | "2" | "3" | "4" | "5"; // 0: 빠른/일반, 1: 빠른/프리미엄, 2: 구인공고, 3: 이력서, 4: 모집공고, 5: 샴푸실
+export type ContentsCategoryType = "0" | "1" | "2" | "3" | "4" | "5" | "6"; // 0: 빠른/일반, 1: 빠른/프리미엄, 2: 구인공고, 3: 이력서, 4: 모집공고, 5: 샴푸실, 6: 헤어컨설팅
 
 export type JobCategoryType = "0" | "1" | "2"; // 0: 인턴, 1: 디자이너
 

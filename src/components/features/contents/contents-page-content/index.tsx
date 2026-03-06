@@ -19,6 +19,7 @@ import { ResumeRoleType } from "@/models/resumes";
 import { useGetAnnouncementsQuery } from "@/queries/announcements";
 import { ThunderAnnouncementType } from "@/models/thunderAnnouncements";
 import ShampooRoomContent from "@/components/features/contents/shampoo-room-content";
+import HairConsultationContent from "@/components/features/contents/hair-consultation-content";
 
 interface ContentsPageContentProps {
   className?: string;
@@ -244,6 +245,10 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
 
   if (tabId === "5") {
     return <ShampooRoomContent className={className} />;
+  }
+
+  if (tabId === "6") {
+    return <HairConsultationContent className={className} />;
   }
 
   return (
