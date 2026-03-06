@@ -18,6 +18,7 @@ import { useGetResumeListQuery } from "@/queries/resumes";
 import { ResumeRoleType } from "@/models/resumes";
 import { useGetAnnouncementsQuery } from "@/queries/announcements";
 import { ThunderAnnouncementType } from "@/models/thunderAnnouncements";
+import ShampooRoomContent from "@/components/features/contents/shampoo-room-content";
 
 interface ContentsPageContentProps {
   className?: string;
@@ -240,6 +241,10 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
       contentsData.refetch();
     }
   }, [methods.searchParams]);
+
+  if (tabId === "5") {
+    return <ShampooRoomContent className={className} />;
+  }
 
   return (
     <div className={cn("contents-page-content", className)}>
