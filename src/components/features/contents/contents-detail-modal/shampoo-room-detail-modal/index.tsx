@@ -3,6 +3,7 @@
 import {
   Calendar,
   ChevronRight,
+  CornerDownRight,
   Eye,
   Heart,
   MapPin,
@@ -18,11 +19,18 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
-import { IShampooRoom, ShampooRoomCategory } from "@/models/shampooRooms";
-import React, { useCallback, useEffect } from "react";
 import {
+  IShampooRoom,
+  IShampooRoomComment,
+  IShampooRoomReply,
+  ShampooRoomCategory
+} from "@/models/shampooRooms";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  useDeleteShampooRoomCommentMutation,
   useDeleteShampooRoomMutation,
   useGetShampooRoomByIdQuery,
+  useGetShampooRoomCommentsQuery,
   usePutShampooRoomMutation
 } from "@/queries/shampooRooms";
 
@@ -35,6 +43,7 @@ import { ModalBody } from "@/components/shared/modal/modal-body";
 import { ModalHeader } from "@/components/shared/modal/modal-header";
 import SelectBox from "@/components/shared/select-box";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
 import { toast } from "react-toastify";
 import { useDialog } from "@/components/shared/dialog/context";
@@ -81,10 +90,20 @@ export default function ShampooRoomDetailModal({
   const detailQuery = useGetShampooRoomByIdQuery(shampooRoom.id, {
     enabled: isOpen
   });
+  const commentsQuery = useGetShampooRoomCommentsQuery(
+    { shampooRoomId: shampooRoom.id },
+    { enabled: isOpen }
+  );
   const detail = detailQuery.data;
+  const commentCount =
+    commentsQuery.data?.dataCount ?? shampooRoom.commentCount;
 
   const putMutation = usePutShampooRoomMutation();
   const deleteMutation = useDeleteShampooRoomMutation();
+  const deleteCommentMutation = useDeleteShampooRoomCommentMutation();
+  const [deletingCommentId, setDeletingCommentId] = useState<number | null>(
+    null
+  );
 
   const form = useForm<FormType>({
     resolver: zodResolver(schema),
@@ -137,6 +156,28 @@ export default function ShampooRoomDetailModal({
       toast.error("잠시 후 다시 시도해주세요.");
     }
   }, [dialog, deleteMutation, shampooRoom.id, onRefresh, onClose]);
+
+  const handleDeleteComment = useCallback(
+    async (shampooRoomsCommentId: number) => {
+      try {
+        const confirmed = await dialog.confirm("해당 댓글을 삭제하시겠습니까?");
+        if (!confirmed) return;
+        setDeletingCommentId(shampooRoomsCommentId);
+        await deleteCommentMutation.mutateAsync({
+          shampooRoomId: shampooRoom.id,
+          shampooRoomsCommentId
+        });
+        toast.success("댓글을 삭제했습니다.");
+        await commentsQuery.refetch();
+        onRefresh();
+      } catch {
+        toast.error("잠시 후 다시 시도해주세요.");
+      } finally {
+        setDeletingCommentId(null);
+      }
+    },
+    [dialog, deleteCommentMutation, shampooRoom.id, commentsQuery, onRefresh]
+  );
 
   return (
     <Modal
@@ -208,7 +249,7 @@ export default function ShampooRoomDetailModal({
               />
               <StatChip
                 icon={<MessageCircle className="w-3.5 h-3.5" />}
-                value={shampooRoom.commentCount}
+                value={commentCount}
                 label="댓글"
               />
               <div className="flex items-center gap-1 text-sm text-foreground">
@@ -308,6 +349,16 @@ export default function ShampooRoomDetailModal({
                 </span>
               </div>
             )}
+
+            <div className="h-px bg-border" />
+
+            <ShampooRoomCommentsSection
+              comments={commentsQuery.data?.dataList ?? []}
+              totalCount={commentCount}
+              isLoading={commentsQuery.isLoading}
+              deletingCommentId={deletingCommentId}
+              onDeleteComment={handleDeleteComment}
+            />
           </div>
         </FormProvider>
       </ModalBody>
@@ -400,5 +451,171 @@ function EditContent() {
         </FormItem>
       )}
     />
+  );
+}
+
+function ShampooRoomCommentsSection({
+  comments,
+  totalCount,
+  isLoading,
+  deletingCommentId,
+  onDeleteComment
+}: {
+  comments: IShampooRoomComment[];
+  totalCount: number;
+  isLoading: boolean;
+  deletingCommentId: number | null;
+  onDeleteComment: (commentId: number) => void;
+}) {
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-3">
+        <span className="text-sm font-medium text-foreground-weak">댓글</span>
+        <div className="h-24 rounded-xl bg-muted animate-pulse" />
+        <div className="h-24 rounded-xl bg-muted animate-pulse" />
+      </div>
+    );
+  }
+
+  if (!comments.length) {
+    return (
+      <div className="flex flex-col gap-3">
+        <span className="text-sm font-medium text-foreground-weak">
+          댓글 ({totalCount})
+        </span>
+        <div className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-foreground-weak">
+          댓글이 없습니다.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <span className="text-sm font-medium text-foreground-weak">
+        댓글 ({totalCount})
+      </span>
+      {comments.map((comment) => (
+        <div
+          key={comment.id}
+          className="rounded-xl border border-border bg-background overflow-hidden"
+        >
+          <CommentCard
+            comment={comment}
+            deletingCommentId={deletingCommentId}
+            onDeleteComment={onDeleteComment}
+          />
+
+          {comment.replies?.length > 0 && (
+            <div className="border-t border-border bg-muted/20">
+              {comment.replies.map((reply, i) => (
+                <div
+                  key={reply.id}
+                  className={cn(
+                    "px-4 py-3",
+                    i !== comment.replies.length - 1 &&
+                      "border-b border-border/50"
+                  )}
+                >
+                  <div className="flex items-start gap-2.5">
+                    <CornerDownRight className="w-3.5 h-3.5 text-foreground-weak mt-1 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <CommentCard
+                        comment={reply}
+                        deletingCommentId={deletingCommentId}
+                        onDeleteComment={onDeleteComment}
+                        isReply
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CommentCard({
+  comment,
+  deletingCommentId,
+  onDeleteComment,
+  isReply = false
+}: {
+  comment: IShampooRoomComment | IShampooRoomReply;
+  deletingCommentId: number | null;
+  onDeleteComment: (commentId: number) => void;
+  isReply?: boolean;
+}) {
+  const name = comment.user.displayName || "-";
+  const address = [comment.user.address, comment.user.address2]
+    .filter(Boolean)
+    .join(" ");
+  const isDeleted = Boolean(comment.deletedAt);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-start gap-2.5 min-w-0">
+          <div
+            className={cn(
+              "rounded-full bg-secondary-background text-secondary-foreground flex items-center justify-center font-bold flex-shrink-0",
+              isReply ? "w-7 h-7 text-xs" : "w-8 h-8 text-sm"
+            )}
+          >
+            {name.slice(0, 1)}
+          </div>
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-sm font-medium text-foreground">
+                {name}
+              </span>
+              {comment.isSecret && (
+                <span className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-xs text-foreground-weak">
+                  비밀
+                </span>
+              )}
+              {comment.isEdited && (
+                <span className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-xs text-foreground-weak">
+                  수정됨
+                </span>
+              )}
+              {isDeleted && (
+                <span className="inline-flex items-center rounded-md bg-destructive/10 px-1.5 py-0.5 text-xs text-destructive">
+                  삭제됨
+                </span>
+              )}
+            </div>
+            {address && (
+              <span className="text-xs text-foreground-weak truncate">
+                {address}
+              </span>
+            )}
+            <span className="text-xs text-foreground-weak">
+              {formatDate(comment.createdAt, "YYYY.MM.DD / hh:mm")}
+            </span>
+          </div>
+        </div>
+
+        {!isDeleted && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDeleteComment(comment.id)}
+            disabled={deletingCommentId === comment.id}
+            className="h-7 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="w-3 h-3" />
+            삭제
+          </Button>
+        )}
+      </div>
+
+      <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap pl-10">
+        {isDeleted ? "삭제된 댓글입니다." : comment.content}
+      </p>
+    </div>
   );
 }

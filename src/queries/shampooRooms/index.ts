@@ -1,4 +1,7 @@
 import {
+  DeleteShampooRoomCommentRequest,
+  GetShampooRoomCommentsRequest,
+  GetShampooRoomCommentsResponse,
   GetShampooRoomsRequest,
   GetShampooRoomsResponse,
   PutShampooRoomRequest,
@@ -43,6 +46,20 @@ export const useGetShampooRoomByIdQuery = (
     ...config
   });
 
+export const useGetShampooRoomCommentsQuery = (
+  params: GetShampooRoomCommentsRequest,
+  config?: Omit<
+    UseQueryOptions<GetShampooRoomCommentsResponse, Error>,
+    "queryKey" | "queryFn"
+  >
+): UseQueryResult<GetShampooRoomCommentsResponse, Error> =>
+  useQuery({
+    queryKey: ["GET_SHAMPOO_ROOM_COMMENTS", params],
+    queryFn: () => shampooRoomAPI.getComments(params),
+    enabled: Boolean(params.shampooRoomId),
+    ...config
+  });
+
 export const usePutShampooRoomMutation = (
   config?: Omit<
     UseMutationOptions<PutShampooRoomResponse, Error, PutShampooRoomRequest>,
@@ -60,5 +77,17 @@ export const useDeleteShampooRoomMutation = (
 ): UseMutationResult<void, Error, number> =>
   useMutation({
     mutationFn: (id: number) => shampooRoomAPI.delete(id),
+    ...config
+  });
+
+export const useDeleteShampooRoomCommentMutation = (
+  config?: Omit<
+    UseMutationOptions<void, Error, DeleteShampooRoomCommentRequest>,
+    "mutationFn"
+  >
+): UseMutationResult<void, Error, DeleteShampooRoomCommentRequest> =>
+  useMutation({
+    mutationFn: (request: DeleteShampooRoomCommentRequest) =>
+      shampooRoomAPI.deleteComment(request),
     ...config
   });

@@ -35,3 +35,39 @@ export interface IShampooRoom {
 export interface IShampooRoomDetail extends Omit<IShampooRoom, "user"> {
   user: IShampooRoomUserDetail;
 }
+
+export interface IShampooRoomCommentUser {
+  id: number;
+  displayName: string;
+  address: string | null;
+  address2: string | null;
+}
+
+export interface IShampooRoomReply {
+  id: number;
+  content: string;
+  isSecret: boolean;
+  isEdited: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  userId: number;
+  shampooRoomId: number;
+  parentCommentId: number;
+  user: IShampooRoomCommentUser;
+}
+
+export interface IShampooRoomComment {
+  id: number;
+  content: string;
+  isSecret: boolean;
+  isEdited: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  userId: number;
+  shampooRoomId: number;
+  parentCommentId: null;
+  user: IShampooRoomCommentUser;
+  replies: IShampooRoomReply[];
+}

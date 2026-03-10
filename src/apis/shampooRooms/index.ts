@@ -1,5 +1,6 @@
 import {
   IShampooRoom,
+  IShampooRoomComment,
   IShampooRoomDetail,
   IShampooRoomImage,
   ShampooRoomCategory
@@ -26,6 +27,15 @@ export type GetShampooRoomByIdResponse = {
   data: IShampooRoomDetail;
 };
 
+export type GetShampooRoomCommentsRequest = {
+  shampooRoomId: number;
+};
+
+export type GetShampooRoomCommentsResponse = {
+  dataCount: number;
+  dataList: IShampooRoomComment[];
+};
+
 export type PutShampooRoomRequest = {
   id: number;
   title?: string;
@@ -36,6 +46,11 @@ export type PutShampooRoomRequest = {
 
 export type PutShampooRoomResponse = {
   data: { id: number };
+};
+
+export type DeleteShampooRoomCommentRequest = {
+  shampooRoomId: number;
+  shampooRoomsCommentId: number;
 };
 
 export const shampooRoomAPI = {
@@ -62,6 +77,13 @@ export const shampooRoomAPI = {
     return response.data;
   },
 
+  getComments: ({
+    shampooRoomId
+  }: GetShampooRoomCommentsRequest): Promise<GetShampooRoomCommentsResponse> =>
+    fetcher<GetShampooRoomCommentsResponse>(
+      `${BASE_URL}/${shampooRoomId}/comments`
+    ),
+
   update: async ({
     id,
     ...body
@@ -75,5 +97,16 @@ export const shampooRoomAPI = {
     fetcher<void>(`${BASE_URL}/${id}`, {
       method: "DELETE",
       body: JSON.stringify({})
-    })
+    }),
+
+  deleteComment: async ({
+    shampooRoomId,
+    shampooRoomsCommentId
+  }: DeleteShampooRoomCommentRequest): Promise<void> =>
+    fetcher<void>(
+      `${BASE_URL}/${shampooRoomId}/comments/${shampooRoomsCommentId}`,
+      {
+        method: "DELETE"
+      }
+    )
 };
