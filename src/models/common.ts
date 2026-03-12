@@ -1,5 +1,5 @@
 export type SearchType =
-  | "UID"
+  | "USERS_ID"
   | "NAME"
   | "NAME_EQUALS"
   | "PHONE"

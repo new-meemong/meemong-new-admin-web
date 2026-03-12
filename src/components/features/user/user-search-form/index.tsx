@@ -12,7 +12,6 @@ import { BlockType } from "@/models/users";
 import { Checkbox } from "@/components/ui/checkbox";
 import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMethods";
 import React from "react";
-import { SEARCH_TYPE_OPTIONS } from "@/constants/common";
 import { cn } from "@/lib/utils";
 import { useGetBrandsQuery } from "@/queries/brands";
 import { useUsersContext } from "@/components/contexts/users-context";
@@ -31,6 +30,14 @@ interface UserSearchFormProps extends SearchFormProps {
   methods: IUseSearchMethods<IUserSearchParams>;
   className?: string;
 }
+
+const USER_SEARCH_TYPE_OPTIONS: { value: SearchType; label: string }[] = [
+  { value: "USERS_ID", label: "아이디" },
+  { value: "NAME", label: "닉네임" },
+  { value: "NAME_EQUALS", label: "닉네임(일치)" },
+  { value: "PHONE", label: "전화번호" },
+  { value: "PROFILE_DESCRIPTION", label: "프로필 소개" }
+];
 
 function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
   const { isPhotoMode, setIsPhotoMode } = useUsersContext();
@@ -65,8 +72,8 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
   );
 
   const searchTypeOptions = React.useMemo(() => {
-    if (!isDesignerRole) return SEARCH_TYPE_OPTIONS;
-    return [...SEARCH_TYPE_OPTIONS, { value: "BRAND", label: "브랜드" }];
+    if (!isDesignerRole) return USER_SEARCH_TYPE_OPTIONS;
+    return [...USER_SEARCH_TYPE_OPTIONS, { value: "BRAND", label: "브랜드" }];
   }, [isDesignerRole]);
 
   const brandOptions = React.useMemo(
