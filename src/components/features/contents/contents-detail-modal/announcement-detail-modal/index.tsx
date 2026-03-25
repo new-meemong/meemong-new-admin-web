@@ -51,9 +51,9 @@ export default function AnnouncementDetailModal({
           </div>
           <div className={cn("flex-1 flex flex-col gap-4 pr-6")}>
             <h3 className={cn("typo-title-2-semibold text-foreground")}>
-              모집공고 목록
+              모집공고 상세
             </h3>
-            <AnnouncementDetailForm userId={contents?.userInfo?.userId} />
+            <AnnouncementDetailForm id={contents?.id} onClose={onClose} />
           </div>
         </div>
       </ModalBody>

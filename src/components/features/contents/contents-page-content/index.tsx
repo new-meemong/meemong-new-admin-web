@@ -1,25 +1,26 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import { cn } from "@/lib/utils";
-import useSearchMethods from "@/components/shared/search-form/useSearchMethods";
-import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import ContentsSearchForm, {
-  IContentsSearchParams,
+  IContentsSearchParams
 } from "@/components/features/contents/contents-search-form";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+
 import ContentsTable from "@/components/features/contents/contents-table";
-import { useContentsContext } from "@/components/contexts/contents-context";
-import { UserRoleType } from "@/models/users";
-import { useGetThunderAnnouncementsQuery } from "@/queries/thunderAnnouncements";
-import { IContents } from "@/models/contents";
-import { useGetJobPostingsQuery } from "@/queries/jobPostings";
-import { JobPostingRoleType } from "@/models/jobPostings";
-import { useGetResumeListQuery } from "@/queries/resumes";
-import { ResumeRoleType } from "@/models/resumes";
-import { useGetAnnouncementsQuery } from "@/queries/announcements";
-import { ThunderAnnouncementType } from "@/models/thunderAnnouncements";
-import ShampooRoomContent from "@/components/features/contents/shampoo-room-content";
+import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import HairConsultationContent from "@/components/features/contents/hair-consultation-content";
+import { IContents } from "@/models/contents";
+import { JobPostingRoleType } from "@/models/jobPostings";
+import { ResumeRoleType } from "@/models/resumes";
+import ShampooRoomContent from "@/components/features/contents/shampoo-room-content";
+import { ThunderAnnouncementType } from "@/models/thunderAnnouncements";
+import { UserRoleType } from "@/models/users";
+import { cn } from "@/lib/utils";
+import { useContentsContext } from "@/components/contexts/contents-context";
+import { useGetBeautyApplicationsQuery } from "@/queries/beautyApplications";
+import { useGetJobPostingsQuery } from "@/queries/jobPostings";
+import { useGetResumeListQuery } from "@/queries/resumes";
+import { useGetThunderAnnouncementsQuery } from "@/queries/thunderAnnouncements";
+import useSearchMethods from "@/components/shared/search-form/useSearchMethods";
 
 interface ContentsPageContentProps {
   className?: string;
@@ -41,11 +42,11 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     priceType: "ALL",
     searchType: "NAME",
     searchKeyword: "",
-    ...DEFAULT_PAGINATION,
+    ...DEFAULT_PAGINATION
   };
 
   const methods = useSearchMethods<IContentsSearchParams>({
-    defaultParams: DEFAULT_SEARCH_PARAMS,
+    defaultParams: DEFAULT_SEARCH_PARAMS
   });
 
   const thunderAnnouncementType: string | undefined = useMemo(() => {
@@ -68,11 +69,11 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
       searchKeyword: methods.params.searchKeyword,
       type: thunderAnnouncementType as ThunderAnnouncementType,
       page: methods.params.page,
-      size: methods.params.size,
+      size: methods.params.size
     },
     {
-      enabled: false,
-    },
+      enabled: false
+    }
   );
 
   const getJobPostingsQuery = useGetJobPostingsQuery(
@@ -85,11 +86,11 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
       searchType: methods.params.searchType,
       searchKeyword: methods.params.searchKeyword,
       page: methods.params.page,
-      size: methods.params.size,
+      size: methods.params.size
     },
     {
-      enabled: false,
-    },
+      enabled: false
+    }
   );
 
   const getResumesQuery = useGetResumeListQuery(
@@ -101,14 +102,14 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
       searchType: methods.params.searchType,
       searchKeyword: methods.params.searchKeyword,
       page: methods.params.page,
-      size: methods.params.size,
+      size: methods.params.size
     },
     {
-      enabled: false,
-    },
+      enabled: false
+    }
   );
 
-  const getAnnouncementsQuery = useGetAnnouncementsQuery(
+  const getAnnouncementsQuery = useGetBeautyApplicationsQuery(
     {
       category:
         methods.params.announcementCategory === "ALL"
@@ -121,11 +122,11 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
       searchType: methods.params.searchType,
       searchKeyword: methods.params.searchKeyword,
       page: methods.params.page,
-      size: methods.params.size,
+      size: methods.params.size
     },
     {
-      enabled: false,
-    },
+      enabled: false
+    }
   );
 
   const parseContentsData = useCallback((data: unknown[]): IContents[] => {
@@ -150,7 +151,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
         announcementTitle: contentsItem?.description,
         priceType: contentsItem?.priceType,
         createdAt: contentsItem?.createdAt,
-        deletedAt: contentsItem?.deletedAt,
+        deletedAt: contentsItem?.deletedAt
       };
     }) as IContents[];
   }, []);
@@ -169,21 +170,21 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
           [],
         totalCount: getThunderAnnouncementsQuery.data?.totalCount ?? 0,
         isLoading: getThunderAnnouncementsQuery.isLoading,
-        refetch: getThunderAnnouncementsQuery.refetch,
+        refetch: getThunderAnnouncementsQuery.refetch
       };
     } else if (tabId === "2") {
       return {
         data: parseContentsData(getJobPostingsQuery.data?.content || []) ?? [],
         totalCount: getJobPostingsQuery.data?.totalCount ?? 0,
         isLoading: getJobPostingsQuery.isLoading,
-        refetch: getJobPostingsQuery.refetch,
+        refetch: getJobPostingsQuery.refetch
       };
     } else if (tabId === "3") {
       return {
         data: parseContentsData(getResumesQuery.data?.content || []) ?? [],
         totalCount: getResumesQuery.data?.totalCount ?? 0,
         isLoading: getResumesQuery.isLoading,
-        refetch: getResumesQuery.refetch,
+        refetch: getResumesQuery.refetch
       };
     } else if (tabId === "4") {
       return {
@@ -191,7 +192,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
           parseContentsData(getAnnouncementsQuery.data?.content || []) ?? [],
         totalCount: getAnnouncementsQuery.data?.totalCount ?? 0,
         isLoading: getAnnouncementsQuery.isLoading,
-        refetch: getAnnouncementsQuery.refetch,
+        refetch: getAnnouncementsQuery.refetch
       };
     }
 
@@ -199,7 +200,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
       data: [] as IContents[],
       totalCount: 0,
       isLoading: false,
-      refetch: () => {},
+      refetch: () => {}
     };
   }, [
     tabId,
@@ -210,7 +211,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     getResumesQuery.data,
     getResumesQuery.isLoading,
     getAnnouncementsQuery.data,
-    getAnnouncementsQuery.isLoading,
+    getAnnouncementsQuery.isLoading
   ]);
 
   useEffect(() => {
@@ -226,13 +227,13 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
       ...DEFAULT_SEARCH_PARAMS,
       size,
       tabId,
-      page: 1,
+      page: 1
     });
     methods.setSearchParams({
       ...DEFAULT_SEARCH_PARAMS,
       size,
       tabId,
-      page: 1,
+      page: 1
     });
   }, [tabId]);
 
