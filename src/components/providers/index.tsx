@@ -14,7 +14,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
         {children}
         <ToastContainer
           position={"top-right"}
+          autoClose={2000}
           hideProgressBar={true}
+          pauseOnHover={false}
+          pauseOnFocusLoss={false}
           theme="colored"
         />
         <ReactQueryDevtools initialIsOpen={false} />

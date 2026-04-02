@@ -1,42 +1,52 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
-import { useForm, FormProvider, useFormContext } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { ChevronRight, Eye, Heart, MessageCircle, Calendar, Scissors, Trash2, Pencil } from "lucide-react";
-import { toast } from "react-toastify";
-import { cn } from "@/lib/utils";
-import { Modal } from "@/components/shared/modal";
-import { ModalHeader } from "@/components/shared/modal/modal-header";
-import { ModalBody } from "@/components/shared/modal/modal-body";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
+  Calendar,
+  ChevronRight,
+  Eye,
+  Heart,
+  MessageCircle,
+  Pencil,
+  Scissors,
+  Trash2
+} from "lucide-react";
+import {
+  FormControl,
   FormField,
   FormItem,
-  FormControl,
   FormMessage
 } from "@/components/ui/form";
-import { useDialog } from "@/components/shared/dialog/context";
-import ImageBox from "@/components/shared/image-box";
-import { formatDate } from "@/utils/date";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import {
-  IHairConsultationListItem,
-  IHairConsultationDetail,
+  IHairConsultationAnswer,
   IHairConsultationComment,
-  IHairConsultationAnswer
+  IHairConsultationDetail,
+  IHairConsultationListItem
 } from "@/models/hairConsultations";
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  useDeleteHairConsultationMutation,
+  useGetHairConsultationAnswerByIdQuery,
+  useGetHairConsultationAnswersQuery,
   useGetHairConsultationByIdQuery,
   useGetHairConsultationCommentsQuery,
-  useGetHairConsultationAnswersQuery,
-  useGetHairConsultationAnswerByIdQuery,
-  usePutHairConsultationMutation,
-  useDeleteHairConsultationMutation
+  usePutHairConsultationMutation
 } from "@/queries/hairConsultations";
+
+import { Button } from "@/components/ui/button";
+import ImageBox from "@/components/shared/image-box";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Modal } from "@/components/shared/modal";
+import { ModalBody } from "@/components/shared/modal/modal-body";
+import { ModalHeader } from "@/components/shared/modal/modal-header";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { formatDate } from "@/utils/date";
+import { toast } from "react-toastify";
+import { useDialog } from "@/components/shared/dialog/context";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const schema = z.object({
   title: z.string().min(1, "제목을 입력해주세요."),
@@ -62,7 +72,9 @@ export default function HairConsultationDetailModal({
   const dialog = useDialog();
   const [activeTab, setActiveTab] = useState<TabType>("info");
 
-  const detailQuery = useGetHairConsultationByIdQuery(item.id, { enabled: isOpen });
+  const detailQuery = useGetHairConsultationByIdQuery(item.id, {
+    enabled: isOpen
+  });
   const commentsQuery = useGetHairConsultationCommentsQuery(
     { hairConsultationId: item.id, __limit: 50 },
     { enabled: isOpen }
@@ -91,16 +103,14 @@ export default function HairConsultationDetailModal({
     try {
       const confirmed = await dialog.confirm("해당 게시글을 수정하시겠습니까?");
       if (!confirmed) return;
-      const result = await putMutation.mutateAsync({
+      await putMutation.mutateAsync({
         hairConsultationId: item.id,
         title: form.getValues("title"),
         content: form.getValues("content")
       });
-      if (result.success) {
-        toast.success("게시글을 수정했습니다.");
-        detailQuery.refetch();
-        onRefresh();
-      } else throw new Error();
+      toast.success("게시글을 수정했습니다.");
+      detailQuery.refetch();
+      onRefresh();
     } catch {
       toast.error("잠시 후 다시 시도해주세요.");
     }
@@ -110,29 +120,38 @@ export default function HairConsultationDetailModal({
     try {
       const confirmed = await dialog.confirm("해당 게시글을 삭제하시겠습니까?");
       if (!confirmed) return;
-      const result = await deleteMutation.mutateAsync(item.id);
-      if (result.success) {
-        toast.success("게시글을 삭제했습니다.");
-        onRefresh();
-        onClose();
-      } else throw new Error();
+      await deleteMutation.mutateAsync(item.id);
+      toast.success("게시글을 삭제했습니다.");
+      onRefresh();
+      onClose();
     } catch {
       toast.error("잠시 후 다시 시도해주세요.");
     }
   }, [dialog, deleteMutation, item.id, onRefresh, onClose]);
 
-  const commentCount =
-    commentsQuery.data?.dataCount ?? item.commentCount;
+  const commentCount = commentsQuery.data?.dataCount ?? item.commentCount;
   const answerCount = answersQuery.data?.dataCount;
 
   const TABS: { key: TabType; label: string }[] = [
     { key: "info", label: "상세정보" },
-    { key: "comments", label: `댓글${commentCount > 0 ? ` (${commentCount})` : ""}` },
-    { key: "answers", label: `컨설팅 답변${answerCount != null ? ` (${answerCount})` : ""}` }
+    {
+      key: "comments",
+      label: `댓글${commentCount > 0 ? ` (${commentCount})` : ""}`
+    },
+    {
+      key: "answers",
+      label: `컨설팅 답변${answerCount != null ? ` (${answerCount})` : ""}`
+    }
   ];
 
   return (
-    <Modal isOpen={isOpen} size="lg" closable onClose={onClose} onClickOutside={onClose}>
+    <Modal
+      isOpen={isOpen}
+      size="lg"
+      closable
+      onClose={onClose}
+      onClickOutside={onClose}
+    >
       <ModalHeader>
         콘텐츠 관리 <ChevronRight className="w-4 h-4" /> 헤어컨설팅{" "}
         <ChevronRight className="w-4 h-4" /> 상세페이지
@@ -146,18 +165,35 @@ export default function HairConsultationDetailModal({
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-full bg-secondary-background flex items-center justify-center text-base font-bold text-secondary-foreground">
-                  {item.hairConsultationCreateUserId?.toString().slice(-2) ?? "?"}
+                  {item.hairConsultationCreateUserId?.toString().slice(-2) ??
+                    "?"}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs text-foreground-weak">작성자 ID</span>
-                  <span className="text-base font-semibold text-foreground">{item.hairConsultationCreateUserId ?? "-"}</span>
+                  <span className="text-xs text-foreground-weak">
+                    작성자 ID
+                  </span>
+                  <span className="text-base font-semibold text-foreground">
+                    {item.hairConsultationCreateUserId ?? "-"}
+                  </span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 flex-wrap">
-                <StatChip icon={<Eye className="w-3.5 h-3.5" />} value={item.viewCount} label="조회" />
-                <StatChip icon={<Heart className="w-3.5 h-3.5" />} value={item.likeCount} label="좋아요" />
-                <StatChip icon={<MessageCircle className="w-3.5 h-3.5" />} value={item.commentCount} label="댓글" />
+                <StatChip
+                  icon={<Eye className="w-3.5 h-3.5" />}
+                  value={item.viewCount}
+                  label="조회"
+                />
+                <StatChip
+                  icon={<Heart className="w-3.5 h-3.5" />}
+                  value={item.likeCount}
+                  label="좋아요"
+                />
+                <StatChip
+                  icon={<MessageCircle className="w-3.5 h-3.5" />}
+                  value={item.commentCount}
+                  label="댓글"
+                />
                 <div className="flex items-center gap-1 text-sm text-foreground">
                   <Calendar className="w-3.5 h-3.5 text-foreground-weak" />
                   <span>{formatDate(item.createdAt, "YYYY.MM.DD")}</span>
@@ -220,7 +256,10 @@ export default function HairConsultationDetailModal({
             {/* 탭 콘텐츠 */}
             <div className="flex-1 overflow-y-auto px-6 py-5">
               {activeTab === "info" && (
-                <DetailInfoTab detail={detail} isLoading={detailQuery.isLoading} />
+                <DetailInfoTab
+                  detail={detail}
+                  isLoading={detailQuery.isLoading}
+                />
               )}
               {activeTab === "comments" && (
                 <CommentsTab
@@ -333,7 +372,10 @@ function DetailInfoTab({
         detail.aspirationImageTypes?.length > 0 ? (
           <div className="flex flex-wrap gap-1">
             {detail.aspirationImageTypes.map((t, i) => (
-              <span key={i} className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
+              <span
+                key={i}
+                className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-xs font-medium"
+              >
                 {t}
               </span>
             ))}
@@ -374,7 +416,9 @@ function DetailInfoTab({
             <span className="w-[80px] flex-shrink-0 text-sm font-medium text-foreground-weak pt-0.5">
               {row.label}
             </span>
-            <span className="text-sm text-foreground flex-1 font-medium">{row.value}</span>
+            <span className="text-sm text-foreground flex-1 font-medium">
+              {row.value}
+            </span>
           </div>
         ))}
       </div>
@@ -446,20 +490,27 @@ function CommentsTab({
   return (
     <div className="flex flex-col gap-3">
       {comments.map((comment) => (
-        <div key={comment.id} className="rounded-xl border border-border bg-background overflow-hidden">
+        <div
+          key={comment.id}
+          className="rounded-xl border border-border bg-background overflow-hidden"
+        >
           <div className="flex items-start gap-3 p-4">
             <UserAvatar name={comment.user.name} role={comment.user.role} />
             <div className="flex-1 min-w-0 flex flex-col gap-1.5">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-medium">{comment.user.name}</span>
+                  <span className="text-sm font-medium">
+                    {comment.user.name}
+                  </span>
                   <RoleBadge role={comment.user.role} />
                 </div>
                 <span className="text-sm text-foreground flex-shrink-0">
                   {formatDate(comment.createdAt, "YYYY.MM.DD / hh:mm")}
                 </span>
               </div>
-              <p className="text-sm text-foreground leading-relaxed">{comment.content}</p>
+              <p className="text-sm text-foreground leading-relaxed">
+                {comment.content}
+              </p>
             </div>
           </div>
 
@@ -470,22 +521,31 @@ function CommentsTab({
                   key={reply.id}
                   className={cn(
                     "flex items-start gap-3 px-4 py-3",
-                    i !== comment.replies.length - 1 && "border-b border-border/50"
+                    i !== comment.replies.length - 1 &&
+                      "border-b border-border/50"
                   )}
                 >
                   <div className="w-4 flex-shrink-0" />
-                  <UserAvatar name={reply.user.name} role={reply.user.role} size="sm" />
+                  <UserAvatar
+                    name={reply.user.name}
+                    role={reply.user.role}
+                    size="sm"
+                  />
                   <div className="flex-1 min-w-0 flex flex-col gap-1">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-medium">{reply.user.name}</span>
+                        <span className="text-sm font-medium">
+                          {reply.user.name}
+                        </span>
                         <RoleBadge role={reply.user.role} />
                       </div>
                       <span className="text-sm text-foreground flex-shrink-0">
                         {formatDate(reply.createdAt, "YYYY.MM.DD / hh:mm")}
                       </span>
                     </div>
-                    <p className="text-sm text-foreground leading-relaxed">{reply.content}</p>
+                    <p className="text-sm text-foreground leading-relaxed">
+                      {reply.content}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -536,10 +596,15 @@ function AnswersTab({
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/20">
             <div className="flex items-center gap-2.5">
-              <UserAvatar name={answer.user.displayName} role={answer.user.role} />
+              <UserAvatar
+                name={answer.user.displayName}
+                role={answer.user.role}
+              />
               <div className="flex flex-col gap-0.5">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-medium">{answer.user.displayName}</span>
+                  <span className="text-sm font-medium">
+                    {answer.user.displayName}
+                  </span>
                   <RoleBadge role={answer.user.role} />
                 </div>
                 <span className="text-sm text-foreground">
@@ -559,19 +624,29 @@ function AnswersTab({
                   {answer.priceType === "RANGE"
                     ? `${answer.minPrice?.toLocaleString()}원 ~ ${answer.maxPrice?.toLocaleString()}원`
                     : answer.price != null
-                    ? `${answer.price.toLocaleString()}원`
-                    : "가격 미정"}
+                      ? `${answer.price.toLocaleString()}원`
+                      : "가격 미정"}
                 </p>
               </div>
             </div>
           </div>
 
           <div className="px-4 py-3 flex flex-wrap gap-1.5">
-            {answer.faceShape && <HairTag label="얼굴형" value={answer.faceShape} />}
-            {answer.bangsTypes.map((v, i) => <HairTag key={i} label="앞머리" value={v} />)}
-            {answer.hairLengths.map((v, i) => <HairTag key={i} label="길이" value={v} />)}
-            {answer.hairLayers.map((v, i) => <HairTag key={i} label="레이어" value={v} />)}
-            {answer.hairCurls.map((v, i) => <HairTag key={i} label="컬" value={v} />)}
+            {answer.faceShape && (
+              <HairTag label="얼굴형" value={answer.faceShape} />
+            )}
+            {answer.bangsTypes.map((v, i) => (
+              <HairTag key={i} label="앞머리" value={v} />
+            ))}
+            {answer.hairLengths.map((v, i) => (
+              <HairTag key={i} label="길이" value={v} />
+            ))}
+            {answer.hairLayers.map((v, i) => (
+              <HairTag key={i} label="레이어" value={v} />
+            ))}
+            {answer.hairCurls.map((v, i) => (
+              <HairTag key={i} label="컬" value={v} />
+            ))}
           </div>
         </button>
       ))}
@@ -601,8 +676,8 @@ function AnswerDetailView({
     answer.priceType === "RANGE"
       ? `${answer.minPrice?.toLocaleString()}원 ~ ${answer.maxPrice?.toLocaleString()}원`
       : answer.price != null
-      ? `${answer.price.toLocaleString()}원`
-      : "가격 미정";
+        ? `${answer.price.toLocaleString()}원`
+        : "가격 미정";
 
   const infoRows: { label: string; value: React.ReactNode }[] = [
     { label: "제목", value: answer.title },
@@ -642,8 +717,14 @@ function AnswerDetailView({
           ? `${answer.hairCurls.join(", ")}${answer.isHairCurlAdvice ? " (어드바이스)" : ""}`
           : "-"
     },
-    { label: "작성일", value: formatDate(answer.createdAt, "YYYY.MM.DD / hh:mm") },
-    { label: "수정일", value: formatDate(answer.updatedAt, "YYYY.MM.DD / hh:mm") }
+    {
+      label: "작성일",
+      value: formatDate(answer.createdAt, "YYYY.MM.DD / hh:mm")
+    },
+    {
+      label: "수정일",
+      value: formatDate(answer.updatedAt, "YYYY.MM.DD / hh:mm")
+    }
   ];
 
   return (
@@ -662,7 +743,9 @@ function AnswerDetailView({
         <UserAvatar name={answer.user.displayName} role={answer.user.role} />
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-1.5">
-            <span className="text-base font-semibold">{answer.user.displayName}</span>
+            <span className="text-base font-semibold">
+              {answer.user.displayName}
+            </span>
             <RoleBadge role={answer.user.role} />
           </div>
           <span className="text-sm text-foreground">ID: {answer.user.id}</span>
@@ -687,7 +770,9 @@ function AnswerDetailView({
             <span className="w-[80px] flex-shrink-0 text-sm font-medium text-foreground-weak pt-0.5">
               {row.label}
             </span>
-            <span className="text-sm font-medium text-foreground flex-1">{row.value}</span>
+            <span className="text-sm font-medium text-foreground flex-1">
+              {row.value}
+            </span>
           </div>
         ))}
       </div>
@@ -703,7 +788,9 @@ function AnswerDetailView({
       {/* 스타일 이미지 */}
       {answer.styleImages?.length > 0 && (
         <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-foreground">스타일 이미지</span>
+          <span className="text-sm font-medium text-foreground">
+            스타일 이미지
+          </span>
           <div className="flex flex-wrap gap-2">
             {answer.styleImages.map((url, i) => (
               <ImageBox

@@ -1,27 +1,25 @@
 import {
-  useMutation,
-  UseMutationOptions,
-  UseMutationResult,
-  useQuery,
-  UseQueryOptions,
-  UseQueryResult
-} from "@tanstack/react-query";
-import {
-  DeleteHairConsultationResponse,
   GetHairConsultationAnswersRequest,
   GetHairConsultationAnswersResponse,
   GetHairConsultationCommentsRequest,
   GetHairConsultationCommentsResponse,
   GetHairConsultationsRequest,
   GetHairConsultationsResponse,
-  hairConsultationAPI,
   PutHairConsultationRequest,
-  PutHairConsultationResponse
+  hairConsultationAPI
 } from "@/apis/hairConsultations";
 import {
   IHairConsultationAnswer,
   IHairConsultationDetail
 } from "@/models/hairConsultations";
+import {
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult,
+  useMutation,
+  useQuery
+} from "@tanstack/react-query";
 
 export const useGetHairConsultationsQuery = (
   params: GetHairConsultationsRequest,
@@ -87,22 +85,23 @@ export const useGetHairConsultationAnswerByIdQuery = (
   >
 ): UseQueryResult<IHairConsultationAnswer, Error> =>
   useQuery({
-    queryKey: ["GET_HAIR_CONSULTATION_ANSWER_BY_ID", hairConsultationId, answerId],
-    queryFn: () => hairConsultationAPI.getAnswerById(hairConsultationId, answerId),
+    queryKey: [
+      "GET_HAIR_CONSULTATION_ANSWER_BY_ID",
+      hairConsultationId,
+      answerId
+    ],
+    queryFn: () =>
+      hairConsultationAPI.getAnswerById(hairConsultationId, answerId),
     enabled: Boolean(hairConsultationId) && Boolean(answerId),
     ...config
   });
 
 export const usePutHairConsultationMutation = (
   config?: Omit<
-    UseMutationOptions<
-      PutHairConsultationResponse,
-      Error,
-      PutHairConsultationRequest
-    >,
+    UseMutationOptions<void, Error, PutHairConsultationRequest>,
     "mutationFn"
   >
-): UseMutationResult<PutHairConsultationResponse, Error, PutHairConsultationRequest> =>
+): UseMutationResult<void, Error, PutHairConsultationRequest> =>
   useMutation({
     mutationFn: (request: PutHairConsultationRequest) =>
       hairConsultationAPI.update(request),
@@ -110,11 +109,8 @@ export const usePutHairConsultationMutation = (
   });
 
 export const useDeleteHairConsultationMutation = (
-  config?: Omit<
-    UseMutationOptions<DeleteHairConsultationResponse, Error, number>,
-    "mutationFn"
-  >
-): UseMutationResult<DeleteHairConsultationResponse, Error, number> =>
+  config?: Omit<UseMutationOptions<void, Error, number>, "mutationFn">
+): UseMutationResult<void, Error, number> =>
   useMutation({
     mutationFn: (hairConsultationId: number) =>
       hairConsultationAPI.delete(hairConsultationId),

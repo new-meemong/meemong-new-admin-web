@@ -63,14 +63,6 @@ export type PutHairConsultationRequest = {
   content?: string;
 };
 
-export type PutHairConsultationResponse = {
-  success: boolean;
-};
-
-export type DeleteHairConsultationResponse = {
-  success: boolean;
-};
-
 export const hairConsultationAPI = {
   getAll: ({
     __limit = 20,
@@ -140,19 +132,14 @@ export const hairConsultationAPI = {
   update: async ({
     hairConsultationId,
     ...body
-  }: PutHairConsultationRequest): Promise<PutHairConsultationResponse> =>
-    fetcher<PutHairConsultationResponse>(`${BASE_URL}/${hairConsultationId}`, {
+  }: PutHairConsultationRequest): Promise<void> =>
+    fetcher<void>(`${BASE_URL}/${hairConsultationId}`, {
       method: "PUT",
       body: JSON.stringify(body)
     }),
 
-  delete: async (
-    hairConsultationId: number
-  ): Promise<DeleteHairConsultationResponse> =>
-    fetcher<DeleteHairConsultationResponse>(
-      `${BASE_URL}/${hairConsultationId}`,
-      {
-        method: "DELETE"
-      }
-    )
+  delete: async (hairConsultationId: number): Promise<void> =>
+    fetcher<void>(`${BASE_URL}/${hairConsultationId}`, {
+      method: "DELETE"
+    })
 };
