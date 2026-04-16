@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
 import { ColumnDef, Row } from "@tanstack/react-table";
+import React, { useCallback, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import CommonTable from "@/components/shared/common-table";
+import HairConsultationDetailModal from "@/components/features/contents/contents-detail-modal/hair-consultation-detail-modal";
+import { IHairConsultationListItem } from "@/models/hairConsultations";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
-import CommonTable from "@/components/shared/common-table";
-import { Button } from "@/components/ui/button";
-import { useModal } from "@/components/shared/modal/useModal";
 import { useGetHairConsultationsQuery } from "@/queries/hairConsultations";
-import { IHairConsultationListItem } from "@/models/hairConsultations";
-import HairConsultationDetailModal from "@/components/features/contents/contents-detail-modal/hair-consultation-detail-modal";
+import { useModal } from "@/components/shared/modal/useModal";
 
 const COLUMNS: ColumnDef<IHairConsultationListItem>[] = [
   {
@@ -30,7 +31,11 @@ const COLUMNS: ColumnDef<IHairConsultationListItem>[] = [
     accessorKey: "title",
     header: "제목",
     cell: (info) => (
-      <span className={cn("cursor-pointer text-secondary-foreground hover:underline")}>
+      <span
+        className={cn(
+          "cursor-pointer text-secondary-foreground hover:underline"
+        )}
+      >
         {info.getValue() as string}
       </span>
     ),
@@ -61,10 +66,9 @@ const COLUMNS: ColumnDef<IHairConsultationListItem>[] = [
     enableSorting: false
   },
   {
-    accessorKey: "createdAt",
-    header: "작성일/시간",
-    cell: (info) =>
-      formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm"),
+    accessorKey: "contentUpdatedAt",
+    header: "최종수정일",
+    cell: (info) => formatDate(info.getValue() as string, "YYYY.MM.DD HH:MM"),
     size: 160,
     enableSorting: true
   }
@@ -78,17 +82,23 @@ export default function HairConsultationContent({
   className
 }: HairConsultationContentProps) {
   const modal = useModal();
-  const [selected, setSelected] = useState<IHairConsultationListItem | null>(null);
+  const [selected, setSelected] = useState<IHairConsultationListItem | null>(
+    null
+  );
 
   // cursor-based pagination
-  const [cursorStack, setCursorStack] = useState<(string | undefined)[]>([undefined]);
+  const [cursorStack, setCursorStack] = useState<(string | undefined)[]>([
+    undefined
+  ]);
   const [cursorIndex, setCursorIndex] = useState(0);
 
   const currentCursor = cursorStack[cursorIndex];
 
   const getHairConsultationsQuery = useGetHairConsultationsQuery({
     __limit: 20,
-    __nextCursor: currentCursor
+    __nextCursor: currentCursor,
+    __orderColumn: "contentUpdatedAt",
+    __order: "desc"
   });
 
   const dataList = getHairConsultationsQuery.data?.dataList ?? [];
@@ -120,7 +130,9 @@ export default function HairConsultationContent({
   }, [modal]);
 
   return (
-    <div className={cn("hair-consultation-content flex flex-col gap-4", className)}>
+    <div
+      className={cn("hair-consultation-content flex flex-col gap-4", className)}
+    >
       <CommonTable<IHairConsultationListItem>
         data={dataList}
         columns={COLUMNS}
