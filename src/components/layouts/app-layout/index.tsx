@@ -38,6 +38,11 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
       <SideNav>
         <SideNavItem href={"/user"} icon={<IcUserMenu />} label={"회원 관리"} />
         <SideNavItem
+          href={"/user-files"}
+          icon={<IcContentsMenu />}
+          label={"이미지 관리"}
+        />
+        <SideNavItem
           href={"/contents"}
           icon={<IcContentsMenu />}
           label={"콘텐츠 관리"}

@@ -2,18 +2,24 @@
 
 import { cn } from "@/lib/utils";
 import { useCallback, useState } from "react";
-import ImageSwiper from "@/components/shared/image-swiper";
+import ImageSwiper, {
+  ImageSwiperItem,
+} from "@/components/shared/image-swiper";
 import { parseImageUrl } from "@/utils/image";
 
 interface ImageBoxProps {
   src: string;
   title?: string;
-  images: { src: string; title?: string }[];
+  images: ImageSwiperItem[];
   index?: number;
   alt?: string;
   width?: number;
   height?: number;
   className?: string;
+  onDeleteImage?: (
+    image: ImageSwiperItem,
+    index: number,
+  ) => Promise<boolean> | boolean;
 }
 
 export default function ImageBox({
@@ -25,6 +31,7 @@ export default function ImageBox({
   width = 100,
   height = 100,
   className,
+  onDeleteImage,
 }: ImageBoxProps) {
   const [open, setOpen] = useState(false);
 
@@ -67,6 +74,7 @@ export default function ImageBox({
           initialIndex={index}
           open={open}
           onClose={() => setOpen(false)}
+          onDeleteImage={onDeleteImage}
         />
       )}
     </>

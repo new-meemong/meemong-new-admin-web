@@ -25,7 +25,8 @@ export default function AnnouncementDetailModal({
   isOpen,
   onClose,
   contents,
-  categoryId
+  categoryId,
+  onRefresh
 }: AnnouncementDetailModalProps) {
   const getUserDetailQuery = useGetUserDetailQuery(contents?.userInfo?.userId);
 
@@ -53,7 +54,11 @@ export default function AnnouncementDetailModal({
             <h3 className={cn("typo-title-2-semibold text-foreground")}>
               모집공고 상세
             </h3>
-            <AnnouncementDetailForm id={contents?.id} onClose={onClose} />
+            <AnnouncementDetailForm
+              id={contents?.id}
+              onClose={onClose}
+              onRefresh={onRefresh}
+            />
           </div>
         </div>
       </ModalBody>

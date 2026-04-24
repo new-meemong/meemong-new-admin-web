@@ -1,6 +1,14 @@
 export interface FetcherOptions extends RequestInit {
   baseUrl?: string;
-  query?: Record<string, string | number | boolean | null | undefined>;
+  query?: Record<
+    string,
+    | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | (string | number | boolean | null | undefined)[]
+  >;
   /** 편의: json 객체를 넣으면 자동 직렬화 + 헤더 설정 */
   json?: unknown;
 }
@@ -14,8 +22,21 @@ function buildUrl(
   const path = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
   const url = new URL(baseFixed + path);
   if (query) {
+    const appendQuery = (
+      key: string,
+      value: string | number | boolean | null | undefined
+    ) => {
+      if (value !== undefined && value !== null) {
+        url.searchParams.append(key, String(value));
+      }
+    };
+
     Object.entries(query).forEach(([k, v]) => {
-      if (v !== undefined && v !== null) url.searchParams.append(k, String(v));
+      if (Array.isArray(v)) {
+        v.forEach((item) => appendQuery(k, item));
+        return;
+      }
+      appendQuery(k, v);
     });
   }
   return url.toString();

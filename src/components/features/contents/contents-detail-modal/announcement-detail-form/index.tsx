@@ -15,11 +15,13 @@ import { useDialog } from "@/components/shared/dialog/context";
 interface AnnouncementDetailFormProps {
   id?: number;
   onClose?: () => void;
+  onRefresh?: () => Promise<void> | void;
 }
 
 export default function AnnouncementDetailForm({
   id,
-  onClose
+  onClose,
+  onRefresh
 }: AnnouncementDetailFormProps) {
   const dialog = useDialog();
 
@@ -37,13 +39,14 @@ export default function AnnouncementDetailForm({
       if (confirmed) {
         await deleteBeautyApplicationMutation.mutateAsync(id);
         toast.success("모집공고를 삭제했습니다.");
+        await onRefresh?.();
         onClose?.();
       }
     } catch (error) {
       console.error(error);
       toast.error("잠시 후 다시 시도해주세요.");
     }
-  }, [dialog, deleteBeautyApplicationMutation, id, onClose]);
+  }, [dialog, deleteBeautyApplicationMutation, id, onClose, onRefresh]);
 
   return (
     <FormGroup>
@@ -54,6 +57,7 @@ export default function AnnouncementDetailForm({
             onDelete={handleClickDeleteButton}
             onRefresh={async () => {
               await getBeautyApplicationByIdQuery.refetch();
+              await onRefresh?.();
             }}
           />
         )}

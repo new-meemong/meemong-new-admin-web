@@ -18,12 +18,14 @@ import { CommonForm } from "@/components/shared/common-form";
 import { Form } from "@/components/ui/form";
 import { FormGroup } from "@/components/ui/form-group";
 import ImageBox from "@/components/shared/image-box";
+import { ImageSwiperItem } from "@/components/shared/image-swiper";
 import { LOGIN_TYPE_MAP } from "@/constants/users";
 import UserBlockInfoList from "@/components/features/user/user-right-drawer/user-block-info-list";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
 import { getUserRole } from "@/utils/user";
 import { toast } from "react-toastify";
+import { useDeleteUserFileMutation } from "@/queries/userFiles";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -87,6 +89,7 @@ export default function UserDetailForm({
   const updateUserDescriptionMutation = useUpdateUserDescriptionMutation();
   const updateUserPayModelMutation = useUpdateUserPayModelMutation();
   const updateUserDisplayNameMutation = useUpdateUserDisplayNameMutation();
+  const deleteUserFileMutation = useDeleteUserFileMutation();
 
   const userId: string = useMemo(() => {
     let _userId: string = String(form.watch("id"));
@@ -131,26 +134,68 @@ export default function UserDetailForm({
     [form.watch("id")],
   );
 
-  const userImages: { src: string; title?: string }[] = useMemo(() => {
-    const _userImages: { src: string; title?: string }[] = [];
+  const userImages: ImageSwiperItem[] = useMemo(() => {
+    const _userImages: ImageSwiperItem[] = [];
+    const profilePictureURL = form.watch("profilePictureURL");
+    const userPhotos = form.watch("userPhotos");
 
-    if (form.watch("profilePictureURL")) {
+    const profilePhoto = Array.isArray(userPhotos)
+      ? userPhotos.find((userPhoto) => userPhoto.s3Path === profilePictureURL)
+      : undefined;
+
+    if (profilePictureURL) {
       _userImages.push({
-        src: form.watch("profilePictureURL"),
+        id: profilePhoto?.id,
+        src: profilePictureURL,
         title: "프로필 이미지",
+        deletable: Boolean(profilePhoto?.id),
       });
     }
 
-    if (Array.isArray(form.watch("userPhotos"))) {
-      form.watch("userPhotos").forEach((userPhoto) => {
+    if (Array.isArray(userPhotos)) {
+      userPhotos.forEach((userPhoto) => {
         _userImages.push({
+          id: userPhoto.id,
           src: userPhoto.s3Path as string,
           title: userPhoto.fileType,
+          deletable: true,
         });
       });
     }
     return _userImages;
   }, [form.watch("profilePictureURL"), form.watch("userPhotos")]);
+
+  const handleDeleteUserImage = useCallback(
+    async (image: ImageSwiperItem) => {
+      if (!image.id) {
+        window.alert("삭제할 수 없는 이미지입니다.");
+        return false;
+      }
+
+      try {
+        const confirmed = window.confirm("해당 사진을 삭제하시겠습니까?");
+        if (!confirmed) return false;
+
+        await deleteUserFileMutation.mutateAsync(image.id);
+        toast.success("사진을 삭제했습니다.");
+
+        const nextUserPhotos = (form.getValues("userPhotos") || []).filter(
+          (userPhoto) => userPhoto.id !== image.id,
+        );
+        form.setValue("userPhotos", nextUserPhotos, { shouldDirty: true });
+
+        if (form.getValues("profilePictureURL") === image.src) {
+          form.setValue("profilePictureURL", "", { shouldDirty: true });
+        }
+        return true;
+      } catch (error) {
+        console.error(error);
+        toast.error("잠시 후 다시 시도해주세요.");
+        return false;
+      }
+    },
+    [deleteUserFileMutation, form],
+  );
 
   const handleUpdateDescription = useCallback(async () => {
     try {
@@ -279,7 +324,12 @@ export default function UserDetailForm({
             value={form.watch("profilePictureURL")}
             formatter={(v) => {
               return v ? (
-                <ImageBox src={v as string} images={userImages} index={0} />
+                <ImageBox
+                  src={v as string}
+                  images={userImages}
+                  index={0}
+                  onDeleteImage={handleDeleteUserImage}
+                />
               ) : (
                 "-"
               );
@@ -337,6 +387,7 @@ export default function UserDetailForm({
                           src={userPhoto.s3Path as string}
                           title={userPhoto.fileType}
                           images={userImages}
+                          onDeleteImage={handleDeleteUserImage}
                           index={
                             index + (form.watch("profilePictureURL") ? 1 : 0)
                           }

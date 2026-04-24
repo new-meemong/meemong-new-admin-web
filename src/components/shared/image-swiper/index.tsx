@@ -1,14 +1,25 @@
 import useEmblaCarousel from "embla-carousel-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2, X } from "lucide-react";
 import { createPortal } from "react-dom";
 
+export interface ImageSwiperItem {
+  src: string;
+  title?: string;
+  id?: number;
+  deletable?: boolean;
+}
+
 interface ImageSwiperProps {
-  images: { src: string; title?: string }[];
+  images: ImageSwiperItem[];
   initialIndex: number;
   open: boolean;
   onClose: () => void;
+  onDeleteImage?: (
+    image: ImageSwiperItem,
+    index: number,
+  ) => Promise<boolean> | boolean;
   onIndexChange?: (i: number) => void;
   className?: string;
 }
@@ -18,10 +29,12 @@ export default function ImageSwiper({
   initialIndex,
   open,
   onClose,
+  onDeleteImage,
   className,
 }: ImageSwiperProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: images.length > 1 });
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (emblaApi) emblaApi.scrollTo(initialIndex, true);
@@ -63,6 +76,26 @@ export default function ImageSwiper({
 
   if (!open || typeof window === "undefined") return null;
 
+  const currentImage = images[currentIndex];
+  const canDeleteCurrent =
+    Boolean(onDeleteImage) &&
+    Boolean(currentImage?.id) &&
+    currentImage?.deletable !== false;
+
+  const handleDeleteCurrent = async () => {
+    if (!onDeleteImage || !currentImage || !canDeleteCurrent) return;
+
+    try {
+      setIsDeleting(true);
+      const isDeleted = await onDeleteImage(currentImage, currentIndex);
+      if (isDeleted) {
+        onClose();
+      }
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const overlay = (
     <div
       className={cn(
@@ -71,8 +104,26 @@ export default function ImageSwiper({
       )}
     >
       <div className="flex items-center justify-between px-4 py-3">
-        <div className="text-white text-sm/6 opacity-80">
-          {currentIndex + 1} / {images.length}
+        <div className="flex items-center gap-3">
+          {canDeleteCurrent && (
+            <button
+              onClick={handleDeleteCurrent}
+              aria-label="삭제"
+              disabled={isDeleting}
+              className={cn(
+                "rounded-2xl px-3 py-2 text-sm font-medium text-white hover:bg-white/10 cursor-pointer",
+                isDeleting && "opacity-60 cursor-not-allowed",
+              )}
+            >
+              <span className="inline-flex items-center gap-1">
+                <Trash2 className="h-4 w-4" />
+                {isDeleting ? "삭제 중..." : "삭제"}
+              </span>
+            </button>
+          )}
+          <div className="text-white text-sm/6 opacity-80">
+            {currentIndex + 1} / {images.length}
+          </div>
         </div>
         <button
           onClick={onClose}

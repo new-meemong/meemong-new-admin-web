@@ -7,7 +7,7 @@ import {
   FormItem,
   FormLabel
 } from "@/components/ui/form";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { CommonForm } from "@/components/shared/common-form";
@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 import { useDialog } from "@/components/shared/dialog/context";
 import { useForm } from "react-hook-form";
 import { usePutBeautyApplicationMutation } from "@/queries/beautyApplications";
+import { useDeleteBeautyApplicationImageMutation } from "@/queries/beautyApplicationImages";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -33,7 +34,7 @@ type AnnouncementFormType = z.infer<typeof announcementSchema>;
 interface AnnouncementDetailItemProps {
   announcement: IBeautyApplicationDetail;
   onDelete: () => void;
-  onRefresh: () => void;
+  onRefresh: () => Promise<void> | void;
 }
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
@@ -60,12 +61,27 @@ export default function AnnouncementDetailItem({
   });
 
   const putBeautyApplicationMutation = usePutBeautyApplicationMutation();
+  const deleteBeautyApplicationImageMutation =
+    useDeleteBeautyApplicationImageMutation();
+  const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
 
   useEffect(() => {
     form.reset({
       description: announcement.description || ""
     });
   }, [announcement.description, form]);
+
+  useEffect(() => {
+    setDeletedImageIds([]);
+  }, [announcement.id]);
+
+  const visibleImages = useMemo(
+    () =>
+      (announcement.imgList || []).filter(
+        (image) => !deletedImageIds.includes(image.id)
+      ),
+    [announcement.imgList, deletedImageIds]
+  );
 
   const handleUpdate = useCallback(async () => {
     try {
@@ -91,6 +107,31 @@ export default function AnnouncementDetailItem({
       toast.error("잠시 후 다시 시도해주세요.");
     }
   }, [announcement.id, dialog, putBeautyApplicationMutation, form, onRefresh]);
+
+  const handleDeleteAnnouncementImage = useCallback(
+    async (image: { id?: number }) => {
+      if (!image.id) {
+        window.alert("삭제할 수 없는 이미지입니다.");
+        return false;
+      }
+
+      try {
+        const confirmed = window.confirm("해당 모집공고 이미지를 삭제하시겠습니까?");
+        if (!confirmed) return false;
+
+        await deleteBeautyApplicationImageMutation.mutateAsync(image.id);
+        toast.success("모집공고 이미지를 삭제했습니다.");
+        setDeletedImageIds((prev) => [...prev, image.id!]);
+        await onRefresh();
+        return true;
+      } catch (error) {
+        console.error(error);
+        toast.error("잠시 후 다시 시도해주세요.");
+        return false;
+      }
+    },
+    [deleteBeautyApplicationImageMutation, onRefresh]
+  );
 
   return (
     <Form {...form}>
@@ -186,7 +227,7 @@ export default function AnnouncementDetailItem({
 
         {/* 사진 + 설명 */}
         <div className={cn("w-full flex flex-row items-start gap-4 pt-2 border-t border-border")}>
-          {announcement.imgList && announcement.imgList.length > 0 && (
+          {visibleImages && visibleImages.length > 0 && (
             <div className={cn("w-[40%] flex-shrink-0")}>
               <label
                 className={cn(
@@ -196,13 +237,16 @@ export default function AnnouncementDetailItem({
                 사진
               </label>
               <div className={cn("flex flex-wrap gap-4")}>
-                {announcement.imgList.map((image, index) => (
+                {visibleImages.map((image, index) => (
                   <ImageBox
                     key={`announcement-img-list-${announcement.id}-${image.id}`}
                     src={parseImageUrl(image.imageURL)}
-                    images={announcement.imgList.map((img) => ({
-                      src: parseImageUrl(img.imageURL)
+                    images={visibleImages.map((img) => ({
+                      id: img.id,
+                      src: parseImageUrl(img.imageURL),
+                      deletable: true
                     }))}
+                    onDeleteImage={handleDeleteAnnouncementImage}
                     index={index}
                     width={120}
                     height={120}
