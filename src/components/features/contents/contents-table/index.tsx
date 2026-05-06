@@ -99,7 +99,7 @@ function ContentsTable({
             accessorKey: "createdAt",
             header: "작성일/시간",
             cell: (info) =>
-              formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm"),
+              formatDate(info.getValue() as string, "YYYY.MM.DD / HH:mm"),
             size: 150,
             enableSorting: true
           },
@@ -162,7 +162,7 @@ function ContentsTable({
             accessorKey: "createdAt",
             header: "작성일/시간",
             cell: (info) =>
-              formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm") ||
+              formatDate(info.getValue() as string, "YYYY.MM.DD / HH:mm") ||
               "-",
             size: 150,
             enableSorting: true
@@ -205,7 +205,7 @@ function ContentsTable({
             accessorKey: "createdAt",
             header: "작성일/시간",
             cell: (info) =>
-              formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm"),
+              formatDate(info.getValue() as string, "YYYY.MM.DD / HH:mm"),
             size: 150,
             enableSorting: true
           },
@@ -256,7 +256,7 @@ function ContentsTable({
             accessorKey: "createdAt",
             header: "작성일/시간",
             cell: (info) =>
-              formatDate(info.getValue() as string, "YYYY.MM.DD / hh:mm"),
+              formatDate(info.getValue() as string, "YYYY.MM.DD / HH:mm"),
             size: 150,
             enableSorting: true
           }

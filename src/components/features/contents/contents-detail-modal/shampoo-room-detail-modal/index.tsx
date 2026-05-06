@@ -594,7 +594,7 @@ function CommentCard({
               </span>
             )}
             <span className="text-xs text-foreground-weak">
-              {formatDate(comment.createdAt, "YYYY.MM.DD / hh:mm")}
+              {formatDate(comment.createdAt, "YYYY.MM.DD / HH:mm")}
             </span>
           </div>
         </div>

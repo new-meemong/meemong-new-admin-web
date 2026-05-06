@@ -397,7 +397,7 @@ function DetailInfoTab({
     },
     {
       label: "최종수정",
-      value: formatDate(detail.contentUpdatedAt, "YYYY.MM.DD / hh:mm")
+      value: formatDate(detail.contentUpdatedAt, "YYYY.MM.DD / HH:mm")
     }
   ];
 
@@ -505,7 +505,7 @@ function CommentsTab({
                   <RoleBadge role={comment.user.role} />
                 </div>
                 <span className="text-sm text-foreground flex-shrink-0">
-                  {formatDate(comment.createdAt, "YYYY.MM.DD / hh:mm")}
+                  {formatDate(comment.createdAt, "YYYY.MM.DD / HH:mm")}
                 </span>
               </div>
               <p className="text-sm text-foreground leading-relaxed">
@@ -540,7 +540,7 @@ function CommentsTab({
                         <RoleBadge role={reply.user.role} />
                       </div>
                       <span className="text-sm text-foreground flex-shrink-0">
-                        {formatDate(reply.createdAt, "YYYY.MM.DD / hh:mm")}
+                        {formatDate(reply.createdAt, "YYYY.MM.DD / HH:mm")}
                       </span>
                     </div>
                     <p className="text-sm text-foreground leading-relaxed">
@@ -608,7 +608,7 @@ function AnswersTab({
                   <RoleBadge role={answer.user.role} />
                 </div>
                 <span className="text-sm text-foreground">
-                  {formatDate(answer.createdAt, "YYYY.MM.DD / hh:mm")}
+                  {formatDate(answer.createdAt, "YYYY.MM.DD / HH:mm")}
                 </span>
               </div>
             </div>
@@ -719,11 +719,11 @@ function AnswerDetailView({
     },
     {
       label: "작성일",
-      value: formatDate(answer.createdAt, "YYYY.MM.DD / hh:mm")
+      value: formatDate(answer.createdAt, "YYYY.MM.DD / HH:mm")
     },
     {
       label: "수정일",
-      value: formatDate(answer.updatedAt, "YYYY.MM.DD / hh:mm")
+      value: formatDate(answer.updatedAt, "YYYY.MM.DD / HH:mm")
     }
   ];
 

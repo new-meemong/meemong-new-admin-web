@@ -68,7 +68,7 @@ const COLUMNS: ColumnDef<IHairConsultationListItem>[] = [
   {
     accessorKey: "contentUpdatedAt",
     header: "최종수정일",
-    cell: (info) => formatDate(info.getValue() as string, "YYYY.MM.DD HH:MM"),
+    cell: (info) => formatDate(info.getValue() as string, "YYYY.MM.DD HH:mm"),
     size: 160,
     enableSorting: true
   }
