@@ -3,12 +3,12 @@
 import {
   IUserFilesSearchParams,
   UserFilesLocationFilter,
-  UserFilesUserTypeFilter
+  UserFilesUserRoleFilter
 } from "@/components/features/user-files/user-files-search-form";
 
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import React from "react";
-import { UserFileType, UserFileUserType } from "@/models/userFiles";
+import { UserFileType } from "@/models/userFiles";
 import UserFilesSearchForm from "@/components/features/user-files/user-files-search-form";
 import UserFilesTable from "@/components/features/user-files/user-files-table";
 import { UserListRoleType } from "@/models/users";
@@ -20,21 +20,13 @@ interface UserFilesPageContentProps {
   className?: string;
 }
 
-function toRoleFilter(role: UserFilesUserTypeFilter): UserListRoleType | undefined {
-  if (role === "ALL") {
+function toUserRoleFilter(
+  userRole: UserFilesUserRoleFilter
+): UserListRoleType | undefined {
+  if (userRole === "ALL") {
     return undefined;
   }
-  return Number(role) as UserListRoleType;
-}
-
-function toUserTypeFilter(role: UserFilesUserTypeFilter): UserFileUserType | undefined {
-  if (role === "1") {
-    return "MODEL";
-  }
-  if (role === "2") {
-    return "DESIGNER";
-  }
-  return undefined;
+  return Number(userRole) as UserListRoleType;
 }
 
 function toFileTypesFilter(
@@ -48,7 +40,7 @@ function toFileTypesFilter(
 
 function UserFilesPageContent({ className }: UserFilesPageContentProps) {
   const DEFAULT_SEARCH_PARAMS: IUserFilesSearchParams = {
-    userType: "ALL",
+    userRole: "ALL",
     locationType: "ALL",
     searchType: "NAME",
     searchKeyword: "",
@@ -62,8 +54,7 @@ function UserFilesPageContent({ className }: UserFilesPageContentProps) {
 
   const getUserFilesQuery = useGetUserFilesQuery(
     {
-      role: toRoleFilter(methods.params.userType ?? "ALL"),
-      userType: toUserTypeFilter(methods.params.userType ?? "ALL"),
+      userRole: toUserRoleFilter(methods.params.userRole ?? "ALL"),
       fileTypes: toFileTypesFilter(methods.params.locationType ?? "ALL"),
       searchType: methods.params.searchType,
       searchKeyword: methods.params.searchKeyword,
@@ -94,7 +85,7 @@ function UserFilesPageContent({ className }: UserFilesPageContentProps) {
         totalCount={getUserFilesQuery.data?.totalCount ?? 0}
         currentPage={methods.params.page}
         pageSize={methods.params.size}
-        selectedUserType={methods.params.userType}
+        selectedUserRole={methods.params.userRole}
         onRefresh={() => {
           getUserFilesQuery.refetch();
         }}

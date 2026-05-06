@@ -4,29 +4,33 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import CommonPagination, {
   CommonPaginationProps
 } from "@/components/shared/common-pagination";
-import React, { useCallback, useMemo, useState } from "react";
 import { IUserFile, UserFileType } from "@/models/userFiles";
+import React, { useCallback, useMemo, useState } from "react";
 
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
-import ImageTable from "@/components/shared/image-table";
 import ImageSwiper from "@/components/shared/image-swiper";
+import ImageTable from "@/components/shared/image-table";
+import { Search } from "lucide-react";
+import { UserFilesUserRoleFilter } from "@/components/features/user-files/user-files-search-form";
 import UserRightDrawer from "@/components/features/user/user-right-drawer";
-import { UserFilesUserTypeFilter } from "@/components/features/user-files/user-files-search-form";
 import { cn } from "@/lib/utils";
+import { toast } from "react-toastify";
 import { useDeleteUserFileMutation } from "@/queries/userFiles";
 import { useDrawer } from "@/stores/drawer";
-import { Search } from "lucide-react";
-import { toast } from "react-toastify";
 
-interface UserFilesTableProps extends Omit<CommonPaginationProps, "currentPage"> {
+interface UserFilesTableProps
+  extends Omit<CommonPaginationProps, "currentPage"> {
   className?: string;
   data: IUserFile[];
-  selectedUserType?: UserFilesUserTypeFilter;
+  selectedUserRole?: UserFilesUserRoleFilter;
   currentPage?: number;
   onRefresh: () => void;
 }
 
-const USER_TYPE_LABEL_MAP: Record<Exclude<UserFilesUserTypeFilter, "ALL">, string> = {
+const USER_ROLE_LABEL_MAP: Record<
+  Exclude<UserFilesUserRoleFilter, "ALL">,
+  string
+> = {
   "1": "모델",
   "2": "디자이너"
 };
@@ -46,7 +50,7 @@ function UserFilesTable({
   onPageChange,
   onSizeChange,
   onRefresh,
-  selectedUserType = "ALL"
+  selectedUserRole = "ALL"
 }: UserFilesTableProps) {
   const { openDrawer } = useDrawer();
   const deleteUserFileMutation = useDeleteUserFileMutation();
@@ -90,7 +94,9 @@ function UserFilesTable({
 
   const handleOpenImagePreview = useCallback(
     (imageId: number) => {
-      const nextIndex = previewImages.findIndex((image) => image.id === imageId);
+      const nextIndex = previewImages.findIndex(
+        (image) => image.id === imageId
+      );
       if (nextIndex < 0) return;
       setPreviewImageIndex(nextIndex);
       setIsImagePreviewOpen(true);
@@ -130,10 +136,12 @@ function UserFilesTable({
         renderItem={(row) => {
           const userFile = row.original;
           const roleFromData = userFile.userInfo.role
-            ? USER_TYPE_LABEL_MAP[String(userFile.userInfo.role) as "1" | "2"]
+            ? USER_ROLE_LABEL_MAP[String(userFile.userInfo.role) as "1" | "2"]
             : undefined;
           const roleLabel =
-            selectedUserType === "ALL" ? roleFromData : USER_TYPE_LABEL_MAP[selectedUserType];
+            selectedUserRole === "ALL"
+              ? roleFromData
+              : USER_ROLE_LABEL_MAP[selectedUserRole];
 
           return (
             <div
@@ -166,7 +174,7 @@ function UserFilesTable({
                 <Search className="h-4 w-4" />
               </button>
 
-              {selectedUserType === "ALL" && roleLabel && (
+              {selectedUserRole === "ALL" && roleLabel && (
                 <div className="absolute top-10 left-2 flex flex-col gap-1">
                   <span
                     className={cn(

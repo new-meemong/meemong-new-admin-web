@@ -6,21 +6,18 @@ import {
   SearchFormProps,
   SearchFormSelectBox
 } from "@/components/shared/search-form";
-import {
-  UserFileSearchType,
-  UserFileType
-} from "@/models/userFiles";
+import { UserFileSearchType, UserFileType } from "@/models/userFiles";
 
 import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMethods";
 import { PaginationType } from "@/models/common";
 import React from "react";
 import { cn } from "@/lib/utils";
 
-export type UserFilesUserTypeFilter = "ALL" | "1" | "2";
+export type UserFilesUserRoleFilter = "ALL" | "1" | "2";
 export type UserFilesLocationFilter = "ALL" | UserFileType;
 
 export type IUserFilesSearchParams = {
-  userType?: UserFilesUserTypeFilter;
+  userRole?: UserFilesUserRoleFilter;
   locationType?: UserFilesLocationFilter;
   searchType?: UserFileSearchType;
   searchKeyword?: string;
@@ -31,7 +28,7 @@ interface UserFilesSearchFormProps extends SearchFormProps {
   className?: string;
 }
 
-const USER_TYPE_OPTIONS: { value: UserFilesUserTypeFilter; label: string }[] = [
+const USER_ROLE_OPTIONS: { value: UserFilesUserRoleFilter; label: string }[] = [
   { value: "ALL", label: "전체" },
   { value: "2", label: "디자이너" },
   { value: "1", label: "모델" }
@@ -57,18 +54,21 @@ function UserFilesSearchForm({
   className,
   ...props
 }: UserFilesSearchFormProps) {
-  const userTypeValue = methods.params.userType ?? "ALL";
+  const userRoleValue = methods.params.userRole ?? "ALL";
   const locationTypeValue = methods.params.locationType ?? "ALL";
   const searchTypeValue = methods.params.searchType ?? "NAME";
   const searchKeywordValue = methods.params.searchKeyword ?? "";
 
   return (
-    <SearchForm className={cn("user-files-search-form", "mb-0", className)} {...props}>
+    <SearchForm
+      className={cn("user-files-search-form", "mb-0", className)}
+      {...props}
+    >
       <SearchFormSelectBox<IUserFilesSearchParams>
-        name="userType"
-        value={userTypeValue}
+        name="userRole"
+        value={userRoleValue}
         onChange={methods.handleSelect}
-        options={USER_TYPE_OPTIONS}
+        options={USER_ROLE_OPTIONS}
         title="유저타입"
       />
       <SearchFormSelectBox<IUserFilesSearchParams>

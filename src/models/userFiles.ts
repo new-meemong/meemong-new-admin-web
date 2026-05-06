@@ -2,8 +2,6 @@ export type UserFileType = "profilePhoto" | "portfolio" | "shop";
 
 export type UserFileSearchType = "NAME" | "PHONE";
 
-export type UserFileUserType = "MODEL" | "DESIGNER";
-
 export type UserFileOrderBy = "updatedAt" | "createdAt";
 
 export type UserFileSort = "ASC" | "DESC";
