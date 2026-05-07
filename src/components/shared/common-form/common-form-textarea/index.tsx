@@ -15,12 +15,14 @@ interface CommonFormTextareaProps<
   TName extends FieldPath<TFieldValues>,
 > extends React.ComponentProps<"textarea"> {
   className?: string;
+  textareaClassName?: string;
   name: TName;
   label: string;
 }
 
 export function CommonFormTextarea<TFieldValues extends FieldValues>({
   className,
+  textareaClassName,
   name,
   label,
   ...props
@@ -37,7 +39,14 @@ export function CommonFormTextarea<TFieldValues extends FieldValues>({
             {label}
           </FormLabel>
           <FormControl>
-            <Textarea className={cn('w-full rounded-none resize-none')}  {...field} {...props} />
+            <Textarea
+              className={cn(
+                "w-full rounded-none resize-none",
+                textareaClassName,
+              )}
+              {...field}
+              {...props}
+            />
           </FormControl>
           <CommonForm.ErrorMessage name={name} />
         </FormItem>

@@ -1,49 +1,92 @@
 "use client";
 
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import useSearchForm from "@/components/shared/search-form/useSearchMethods";
 import DeclarationSearchForm, {
-  IDeclarationSearchParams,
+  IUserReportSearchParams,
 } from "@/components/features/declaration/declaration-search-form";
-import { useGetDeclarationsQuery } from "@/queries/declaration";
 import DeclarationTable from "@/components/features/declaration/declaration-table";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
+import { ReportManagementType } from "@/models/reports";
+import { getUserReportReasonLabel } from "@/constants/userReports";
+import { useGetChattingRoomReportsQuery } from "@/queries/chattingRoomReports";
+import { useGetUserReportsQuery } from "@/queries/userReports";
+import { UserReportRoleFilter } from "@/models/userReports";
 
 interface DeclarationPageContentProps {
   className?: string;
+  reportType: ReportManagementType;
 }
 
-function DeclarationPageContent({ className }: DeclarationPageContentProps) {
-  const DEFAULT_SEARCH_PARAMS: IDeclarationSearchParams = {
+function DeclarationPageContent({
+  className,
+  reportType,
+}: DeclarationPageContentProps) {
+  const DEFAULT_SEARCH_PARAMS: IUserReportSearchParams = {
+    userRole: "ALL",
     status: "ALL",
-    searchType: "NAME",
-    searchKeyword: "",
+    reason: "ALL",
     ...DEFAULT_PAGINATION,
   };
 
-  const methods = useSearchForm<IDeclarationSearchParams>({
+  const methods = useSearchForm<IUserReportSearchParams>({
     defaultParams: DEFAULT_SEARCH_PARAMS,
   });
 
-  const getDeclarationsQuery = useGetDeclarationsQuery({
-    status:
-      methods.params.status === "ALL"
-        ? undefined
-        : (methods.params.status as string),
-    searchType: methods.params.searchType,
-    searchKeyword: methods.params.searchKeyword,
-    page: methods.params.page,
-    size: methods.params.size,
-  });
+  const { data: userReportsData, refetch: refetchUserReports } =
+    useGetUserReportsQuery(
+      {
+        status:
+          methods.searchParams.status === "ALL"
+            ? undefined
+            : methods.searchParams.status,
+        userRoles: getUserRoleQueryValues(methods.searchParams.userRole),
+        page: methods.searchParams.page,
+        size: methods.searchParams.size,
+      },
+      {
+        enabled: reportType === "MYPAGE",
+      },
+    );
+
+  const { data: chattingRoomReportsData, refetch: refetchChattingRoomReports } =
+    useGetChattingRoomReportsQuery(
+      {
+        status:
+          methods.searchParams.status === "ALL"
+            ? undefined
+            : methods.searchParams.status,
+        userRoles: getUserRoleQueryValues(methods.searchParams.userRole),
+        page: methods.searchParams.page,
+        size: methods.searchParams.size,
+      },
+      {
+        enabled: reportType === "CHATTING_ROOM",
+      },
+    );
+
+  const reportsData =
+    reportType === "MYPAGE" ? userReportsData : chattingRoomReportsData;
+
+  const reports = useMemo(() => {
+    const content = reportsData?.content ?? [];
+    if (methods.searchParams.reason === "ALL") return content;
+
+    return content.filter(
+      (report) =>
+        getUserReportReasonLabel(report) === methods.searchParams.reason,
+    );
+  }, [reportsData?.content, methods.searchParams.reason]);
 
   const handleRefresh = useCallback(() => {
-    getDeclarationsQuery.refetch();
-  }, []);
+    if (reportType === "MYPAGE") {
+      refetchUserReports();
+      return;
+    }
 
-  useEffect(() => {
-    getDeclarationsQuery.refetch();
-  }, [methods.searchParams]);
+    refetchChattingRoomReports();
+  }, [refetchChattingRoomReports, refetchUserReports, reportType]);
 
   return (
     <div className={cn("contents-page-content", className)}>
@@ -57,8 +100,13 @@ function DeclarationPageContent({ className }: DeclarationPageContentProps) {
         }}
       />
       <DeclarationTable
-        data={getDeclarationsQuery.data?.content ?? []}
-        totalCount={getDeclarationsQuery.data?.totalCount ?? 0}
+        reportType={reportType}
+        data={reports}
+        totalCount={
+          methods.searchParams.reason === "ALL"
+            ? (reportsData?.totalCount ?? 0)
+            : reports.length
+        }
         currentPage={methods.params.page}
         pageSize={methods.params.size}
         onRefresh={handleRefresh}
@@ -71,6 +119,12 @@ function DeclarationPageContent({ className }: DeclarationPageContentProps) {
       />
     </div>
   );
+}
+
+function getUserRoleQueryValues(
+  userRole: IUserReportSearchParams["userRole"],
+): UserReportRoleFilter[] {
+  return userRole === "ALL" ? ["1", "2"] : [userRole];
 }
 
 export default DeclarationPageContent;

@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useCallback } from "react";
-import { cn } from "@/lib/utils";
 import { ContentsCategoryType } from "@/models/contents";
-import { Button } from "@/components/ui/button";
+import DashboardHeaderTabGroup from "@/components/shared/dashboard-header-tab-group";
+import React from "react";
 import { useContentsContext } from "@/components/contexts/contents-context";
 
 interface ContentsTabProps {
@@ -26,28 +25,14 @@ function ContentsTab({ className, ...props }: ContentsTabProps) {
     { value: "6", label: "헤어컨설팅" },
   ];
 
-  const handleClick = useCallback((value: string) => {
-    setTabId(value);
-  }, []);
-
   return (
-    <div className={cn("contents-tab flex gap-[5px]", className)} {...props}>
-      {CATEGORY_TYPE_OPTIONS.map((category, index) => (
-        <Button
-          key={`contents-tab-${index}`}
-          className={cn(
-            "w-[126px]",
-            tabId === category.value &&
-              "bg-secondary-background text-secondary-foreground hover:bg-secondary-background",
-          )}
-          variant={"outline"}
-          value={category.value}
-          onClick={() => handleClick(category.value)}
-        >
-          {category.label}
-        </Button>
-      ))}
-    </div>
+    <DashboardHeaderTabGroup<ContentsCategoryType>
+      className={className}
+      options={CATEGORY_TYPE_OPTIONS}
+      value={tabId as ContentsCategoryType}
+      onChange={setTabId}
+      {...props}
+    />
   );
 }
 

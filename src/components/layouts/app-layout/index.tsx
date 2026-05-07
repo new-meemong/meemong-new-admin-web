@@ -48,7 +48,7 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
           label={"콘텐츠 관리"}
         />
         <SideNavItem
-          href={"/declaration"}
+          href={"/reports"}
           icon={<IcReportMenu />}
           label={"신고 관리"}
         />
@@ -74,7 +74,7 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
             className={cn(
               "w-full rounded-6 gap-[12px] px-[20px] py-[16px] justify-start",
               "hover:bg-muted-foreground/10 text-foreground typo-body-2-long-semibold",
-              "border-border"
+              "border-border",
             )}
           >
             로그아웃
