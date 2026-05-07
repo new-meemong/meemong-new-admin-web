@@ -47,7 +47,9 @@ function BlockInfoListItem({
         "flex flex-row justify-start w-full border-b typo-body-2-regular py-[6px]",
       )}
     >
-      <div className={cn("description-box w-[120px] text-left flex items-center")}>
+      <div
+        className={cn("description-box w-[120px] text-left flex items-center")}
+      >
         {leftArea}
       </div>
       <div className={cn("button-box flex-1 ml-[8px]")}>{rightArea}</div>
@@ -62,6 +64,7 @@ const BLOCK_REASON_OPTIONS = [
   "부적절한 영업 행위",
   "개인정보 침해 및 노출",
   "허위 정보/사칭",
+  "허위 공고 작성",
   "불성실한 컨설팅 답변",
   "기타 운영정책 위반",
   "직접 입력",
@@ -83,13 +86,9 @@ export default function UserBlockInfoList({
   user,
   onUpdate,
 }: UserBlockInfoListProps) {
-  const [selectedReason, setSelectedReason] = useState<string>(
-    "",
-  );
+  const [selectedReason, setSelectedReason] = useState<string>("");
   const [customReason, setCustomReason] = useState<string>("");
-  const [selectedBlockDays, setSelectedBlockDays] = useState<string>(
-    "",
-  );
+  const [selectedBlockDays, setSelectedBlockDays] = useState<string>("");
   const [customBlockDays, setCustomBlockDays] = useState<string>("");
   const getUserBlockStatusQuery = useGetUserBlockStatusQuery({
     userId: user.id!,
@@ -108,9 +107,7 @@ export default function UserBlockInfoList({
 
   const isCustomReason = selectedReason === "직접 입력";
   const isCustomBlockDays = selectedBlockDays === "custom";
-  const resolvedReason = isCustomReason
-    ? customReason.trim()
-    : selectedReason;
+  const resolvedReason = isCustomReason ? customReason.trim() : selectedReason;
   const resolvedBlockDays = isCustomBlockDays
     ? Number(customBlockDays)
     : Number(selectedBlockDays);
@@ -119,7 +116,8 @@ export default function UserBlockInfoList({
     Boolean(selectedBlockDays) &&
     Number.isFinite(resolvedBlockDays) &&
     resolvedBlockDays > 0;
-  const isActionEnabled = isBlocked || (isReasonSelected && isBlockDaysSelected);
+  const isActionEnabled =
+    isBlocked || (isReasonSelected && isBlockDaysSelected);
 
   const handleChangeCustomReason: ChangeEventHandler<HTMLInputElement> =
     useCallback((event) => {
@@ -312,10 +310,7 @@ export default function UserBlockInfoList({
             blockInfo.createdAt,
             blockInfo.blockEndAt,
           );
-          const blockedAt = formatDate(
-            blockInfo.createdAt,
-            "YYYY.MM.DD HH:mm",
-          );
+          const blockedAt = formatDate(blockInfo.createdAt, "YYYY.MM.DD HH:mm");
           const unblockedAt = formatDate(
             blockInfo.blockEndAt,
             "YYYY.MM.DD HH:mm",
@@ -328,7 +323,9 @@ export default function UserBlockInfoList({
               key={`block-info-list-item-${index}`}
               leftArea={<div />}
               rightArea={
-                <div className={cn("flex flex-col gap-[8px] pt-[8px] pb-[8px]")}>
+                <div
+                  className={cn("flex flex-col gap-[8px] pt-[8px] pb-[8px]")}
+                >
                   <div className={cn("flex flex-wrap items-center gap-[8px]")}>
                     <div className={cn("min-w-[420px]")}>
                       <span className={cn("text-foreground-sub")}>
@@ -356,7 +353,9 @@ export default function UserBlockInfoList({
                       "typo-body-2-regular text-left flex items-center justify-between gap-[8px] w-full",
                     )}
                   >
-                    <div className={cn("flex flex-wrap items-center gap-[8px]")}>
+                    <div
+                      className={cn("flex flex-wrap items-center gap-[8px]")}
+                    >
                       <span className={cn("text-foreground-sub")}>상태</span>{" "}
                       <span
                         className={cn("text-foreground-strong font-semibold")}
