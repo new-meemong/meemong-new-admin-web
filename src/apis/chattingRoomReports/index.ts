@@ -5,7 +5,11 @@ import {
 } from "@/models/chattingRoomReports";
 
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
-import { PaginatedResponse } from "@/apis/types";
+import {
+  PaginatedResponse,
+  ServerPaginatedResponse,
+  normalizePaginatedResponse,
+} from "@/apis/types";
 import { fetcher } from "@/apis/core";
 
 const BASE_URL = "/api/v1/admins/chatting-room-reports";
@@ -31,16 +35,22 @@ export type PatchChattingRoomReportStatusResponse = {
   success: boolean;
 };
 
+type GetChattingRoomReportByIdResponse =
+  | IChattingRoomReport
+  | { data: IChattingRoomReport };
+
 export const chattingRoomReportsAPI = {
-  getAll: ({
+  getAll: async ({
     page = DEFAULT_PAGINATION.page,
     size = DEFAULT_PAGINATION.size,
     status,
     chattingRoomId,
     userId,
     userRoles,
-  }: GetChattingRoomReportsRequest): Promise<GetChattingRoomReportsResponse> =>
-    fetcher<GetChattingRoomReportsResponse>(BASE_URL, {
+  }: GetChattingRoomReportsRequest): Promise<GetChattingRoomReportsResponse> => {
+    const response = await fetcher<
+      ServerPaginatedResponse<IChattingRoomReport>
+    >(BASE_URL, {
       query: {
         page,
         size,
@@ -49,9 +59,17 @@ export const chattingRoomReportsAPI = {
         ...(userId && { userId }),
         ...(userRoles && userRoles.length > 0 && { "userRoles[]": userRoles }),
       },
-    }),
-  getById: (id: number): Promise<IChattingRoomReport> =>
-    fetcher<IChattingRoomReport>(`${BASE_URL}/${id}`),
+    });
+
+    return normalizePaginatedResponse(response);
+  },
+  getById: async (id: number): Promise<IChattingRoomReport> => {
+    const response = await fetcher<GetChattingRoomReportByIdResponse>(
+      `${BASE_URL}/${id}`,
+    );
+
+    return "data" in response ? response.data : response;
+  },
   updateStatus: ({
     id,
     status,

@@ -1,15 +1,21 @@
 import { BannerType, BannerUserType } from "@/constants/banner";
 import { IBanner, IBannerForm } from "@/models/banner";
+import {
+  PaginatedResponse,
+  ServerPaginatedResponse,
+  normalizePaginatedResponse
+} from "@/apis/types";
 
-import { PaginatedResponse } from "@/apis/types";
 import { fetcher } from "@/apis/core";
 
-const BASE_URL = "/api/v1/banners";
+const BASE_URL = "/api/v1/admins/banners";
 
 export type GetBannersRequest = {
   userType?: BannerUserType;
   bannerType?: BannerType;
   __cursorOrder?: string;
+  page?: number;
+  size?: number;
 };
 export type GetBannersResponse = PaginatedResponse<IBanner>;
 
@@ -63,26 +69,21 @@ export const bannerAPI = {
   getAll: async ({
     userType,
     bannerType,
-    __cursorOrder
+    __cursorOrder,
+    page,
+    size
   }: GetBannersRequest) => {
-    const response = await fetcher<{
-      dataCount: number;
-      dataList: IBanner[];
-    }>(BASE_URL, {
+    const response = await fetcher<ServerPaginatedResponse<IBanner>>(BASE_URL, {
       query: {
         ...(userType && { userType }),
         ...(bannerType && { bannerType }),
-        ...(__cursorOrder && { __cursorOrder })
+        ...(__cursorOrder && { __cursorOrder }),
+        ...(page !== undefined && { page }),
+        ...(size !== undefined && { size })
       }
     });
 
-    // API 응답을 PaginatedResponse 형식으로 변환
-    return {
-      content: response.dataList || [],
-      totalCount: response.dataCount || 0,
-      page: 1,
-      size: response.dataList?.length || 0
-    } as GetBannersResponse;
+    return normalizePaginatedResponse(response);
   },
   getById: async (bannerId?: number) => {
     const response = await fetcher<GetBannerDetailResponse>(

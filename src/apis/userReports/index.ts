@@ -4,7 +4,11 @@ import {
   UserReportRoleFilter,
   UserReportStatus,
 } from "@/models/userReports";
-import { PaginatedResponse } from "@/apis/types";
+import {
+  PaginatedResponse,
+  ServerPaginatedResponse,
+  normalizePaginatedResponse,
+} from "@/apis/types";
 import { fetcher } from "@/apis/core";
 
 const BASE_URL = "/api/v1/admins/user-reports";
@@ -29,27 +33,41 @@ export type PatchUserReportStatusResponse = {
   success: boolean;
 };
 
+type GetUserReportByIdResponse = IUserReport | { data: IUserReport };
+
 export const userReportsAPI = {
-  getAll: ({
+  getAll: async ({
     page = DEFAULT_PAGINATION.page,
     size = DEFAULT_PAGINATION.size,
     status,
     reportedUserId,
     userId,
     userRoles,
-  }: GetUserReportsRequest): Promise<GetUserReportsResponse> =>
-    fetcher<GetUserReportsResponse>(BASE_URL, {
-      query: {
-        page,
-        size,
-        ...(status && { status }),
-        ...(reportedUserId && { reportedUserId }),
-        ...(userId && { userId }),
-        ...(userRoles && userRoles.length > 0 && { "userRoles[]": userRoles }),
+  }: GetUserReportsRequest): Promise<GetUserReportsResponse> => {
+    const response = await fetcher<ServerPaginatedResponse<IUserReport>>(
+      BASE_URL,
+      {
+        query: {
+          page,
+          size,
+          ...(status && { status }),
+          ...(reportedUserId && { reportedUserId }),
+          ...(userId && { userId }),
+          ...(userRoles &&
+            userRoles.length > 0 && { "userRoles[]": userRoles }),
+        },
       },
-    }),
-  getById: (id: number): Promise<IUserReport> =>
-    fetcher<IUserReport>(`${BASE_URL}/${id}`),
+    );
+
+    return normalizePaginatedResponse(response);
+  },
+  getById: async (id: number): Promise<IUserReport> => {
+    const response = await fetcher<GetUserReportByIdResponse>(
+      `${BASE_URL}/${id}`,
+    );
+
+    return "data" in response ? response.data : response;
+  },
   updateStatus: ({
     id,
     status,

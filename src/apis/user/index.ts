@@ -2,11 +2,15 @@ import {
   IUser,
   IUserBlockInfo,
   IUserForm,
-  UserListRoleType
+  UserListRoleType,
 } from "@/models/users";
 
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
-import { PaginatedResponse } from "@/apis/types";
+import {
+  PaginatedResponse,
+  ServerPaginatedResponse,
+  normalizePaginatedResponse,
+} from "@/apis/types";
 import { SearchType } from "@/models/common";
 import { fetcher } from "@/apis/core";
 
@@ -70,41 +74,44 @@ export type UpdateUserDisplayNameResponse = {
 };
 
 export const userAPI = {
-  getAll: ({
+  getAll: async ({
     role,
     blockType,
     searchKeyword,
     searchType,
     brandId,
     page = DEFAULT_PAGINATION.page,
-    size = DEFAULT_PAGINATION.size
-  }: GetUsersRequest) =>
-    fetcher<GetUsersResponse>(BASE_URL, {
+    size = DEFAULT_PAGINATION.size,
+  }: GetUsersRequest) => {
+    const response = await fetcher<ServerPaginatedResponse<IUser>>(BASE_URL, {
       query: {
         ...(role && { role }),
         ...(blockType && { blockType }),
         ...(searchKeyword && searchType && { searchKeyword, searchType }),
         ...(brandId !== undefined && { brandId }),
         page,
-        size
-      }
-    }),
+        size,
+      },
+    });
+
+    return normalizePaginatedResponse(response);
+  },
   getById: async (userId?: number) => {
     const response = await fetcher<GetUserDetailResponse>(
-      `${BASE_URL}/${userId}`
+      `${BASE_URL}/${userId}`,
     );
     return response.data;
   },
   getUserBlockList: async (userId?: number) => {
     const response = await fetcher<GetUserBlockListResponse>(
-      `${BASE_URL}/${userId}/block-list`
+      `${BASE_URL}/${userId}/block-list`,
     );
     return response;
   },
   create: (user: Omit<IUserForm, "id">) =>
     fetcher<IUser>(BASE_URL, {
       method: "POST",
-      body: JSON.stringify(user)
+      body: JSON.stringify(user),
     }),
   updateBlock: async (request: UpdateUserBlockRequest) => {
     const response = await fetcher<UpdateUserBlockResponse>(
@@ -113,9 +120,9 @@ export const userAPI = {
         method: "PUT",
         body: JSON.stringify({
           isBlocked: request.isBlocked,
-          description: request.description
-        })
-      }
+          description: request.description,
+        }),
+      },
     );
 
     return response;
@@ -126,9 +133,9 @@ export const userAPI = {
       {
         method: "PUT",
         body: JSON.stringify({
-          description: request.description
-        })
-      }
+          description: request.description,
+        }),
+      },
     );
 
     return response;
@@ -139,9 +146,9 @@ export const userAPI = {
       {
         method: "PUT",
         body: JSON.stringify({
-          paymodel: request.paymodel
-        })
-      }
+          paymodel: request.paymodel,
+        }),
+      },
     );
 
     return response;
@@ -152,15 +159,15 @@ export const userAPI = {
       {
         method: "PUT",
         body: JSON.stringify({
-          displayName: request.displayName
-        })
-      }
+          displayName: request.displayName,
+        }),
+      },
     );
 
     return response;
   },
   delete: (id: number) =>
     fetcher<void>(`${BASE_URL}/${id}`, {
-      method: "DELETE"
-    })
+      method: "DELETE",
+    }),
 };

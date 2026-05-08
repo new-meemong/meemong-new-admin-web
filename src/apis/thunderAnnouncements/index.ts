@@ -4,11 +4,15 @@ import {
   ThunderAnnouncementAreaType,
   ThunderAnnouncementConditionType,
   ThunderAnnouncementPriceType,
-  ThunderAnnouncementType
+  ThunderAnnouncementType,
 } from "@/models/thunderAnnouncements";
 
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
-import { PaginatedResponse } from "@/apis/types";
+import {
+  PaginatedResponse,
+  ServerPaginatedResponse,
+  normalizePaginatedResponse,
+} from "@/apis/types";
 import { SearchType } from "@/models/common";
 import { UserRoleType } from "@/models/users";
 import { fetcher } from "@/apis/core";
@@ -68,39 +72,44 @@ export type DeleteThunderAnnouncementResponse = {
 };
 
 export const thunderAnnouncementAPI = {
-  getAll: ({
+  getAll: async ({
     role,
     type,
     searchKeyword,
     searchType,
     page = DEFAULT_PAGINATION.page,
-    size = DEFAULT_PAGINATION.size
-  }: GetThunderAnnouncementsRequest) =>
-    fetcher<GetThunderAnnouncementsResponse>(BASE_URL, {
+    size = DEFAULT_PAGINATION.size,
+  }: GetThunderAnnouncementsRequest) => {
+    const response = await fetcher<
+      ServerPaginatedResponse<IThunderAnnouncement>
+    >(BASE_URL, {
       query: {
         ...(role && { role }),
         ...(type && { type }),
         ...(searchKeyword && searchType && { searchKeyword, searchType }),
         page,
-        size
-      }
-    }),
+        size,
+      },
+    });
+
+    return normalizePaginatedResponse(response);
+  },
   getById: async (thunderAnnouncementId?: number) => {
     const response = await fetcher<GetThunderAnnouncementByIdResponse>(
-      `${BASE_URL}/${thunderAnnouncementId}`
+      `${BASE_URL}/${thunderAnnouncementId}`,
     );
     return response.data;
   },
   updatePremium: async ({
     thunderAnnouncementId,
-    isApproved
+    isApproved,
   }: PutThunderAnnouncementPremiumRequest) => {
     const response = await fetcher<PutThunderAnnouncementPremiumResponse>(
       `${BASE_URL}/${thunderAnnouncementId}/premium`,
       {
         method: "PUT",
-        body: JSON.stringify({ isApproved })
-      }
+        body: JSON.stringify({ isApproved }),
+      },
     );
 
     return response;
@@ -113,8 +122,8 @@ export const thunderAnnouncementAPI = {
       `${BASE_URL}/${thunderAnnouncementId}`,
       {
         method: "PUT",
-        body: JSON.stringify(body)
-      }
+        body: JSON.stringify(body),
+      },
     );
 
     return response;
@@ -123,10 +132,10 @@ export const thunderAnnouncementAPI = {
     const response = await fetcher<DeleteThunderAnnouncementResponse>(
       `${BASE_URL}/${thunderAnnouncementId}`,
       {
-        method: "DELETE"
-      }
+        method: "DELETE",
+      },
     );
 
     return response;
-  }
+  },
 };

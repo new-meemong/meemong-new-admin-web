@@ -8,9 +8,13 @@ import {
   ShootingType,
   WorkType
 } from "@/models/beautyApplications";
+import {
+  PaginatedResponse,
+  ServerPaginatedResponse,
+  normalizePaginatedResponse
+} from "@/apis/types";
 
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
-import { PaginatedResponse } from "@/apis/types";
 import { SearchType } from "@/models/common";
 import { fetcher } from "@/apis/core";
 
@@ -58,23 +62,29 @@ export type DeleteBeautyApplicationResponse = {
 };
 
 export const beautyApplicationAPI = {
-  getAll: ({
+  getAll: async ({
     category,
     priceType,
     searchKeyword,
     searchType,
     page = DEFAULT_PAGINATION.page,
     size = DEFAULT_PAGINATION.size
-  }: GetBeautyApplicationsRequest) =>
-    fetcher<GetBeautyApplicationsResponse>(BASE_URL, {
-      query: {
-        ...(category && { category }),
-        ...(priceType && { priceType }),
-        ...(searchKeyword && searchType && { searchKeyword, searchType }),
-        page,
-        size
+  }: GetBeautyApplicationsRequest) => {
+    const response = await fetcher<ServerPaginatedResponse<IBeautyApplication>>(
+      BASE_URL,
+      {
+        query: {
+          ...(category && { category }),
+          ...(priceType && { priceType }),
+          ...(searchKeyword && searchType && { searchKeyword, searchType }),
+          page,
+          size
+        }
       }
-    }),
+    );
+
+    return normalizePaginatedResponse(response);
+  },
   getById: async (id: number) => {
     const response = await fetcher<GetBeautyApplicationByIdResponse>(
       `${BASE_URL}/${id}`

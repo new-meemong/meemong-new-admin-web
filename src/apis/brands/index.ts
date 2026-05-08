@@ -1,5 +1,15 @@
-import { IBrand, IBrandCreateRequest, IBrandUpdateRequest, IBrandJoinRequest, IBrandLeaveRequest } from "@/models/brand";
-import { PaginatedResponse } from "@/apis/types";
+import {
+  IBrand,
+  IBrandCreateRequest,
+  IBrandJoinRequest,
+  IBrandLeaveRequest,
+  IBrandUpdateRequest,
+} from "@/models/brand";
+import {
+  PaginatedResponse,
+  ServerPaginatedResponse,
+  normalizePaginatedResponse,
+} from "@/apis/types";
 import { fetcher } from "@/apis/core";
 
 const BASE_URL = "/api/v1/admins/brands";
@@ -49,14 +59,14 @@ export type PostBrandLeaveResponse = {
 
 export const brandAPI = {
   getAll: async ({ page, size }: GetBrandsRequest = {}) => {
-    const response = await fetcher<GetBrandsResponse>(BASE_URL, {
+    const response = await fetcher<ServerPaginatedResponse<IBrand>>(BASE_URL, {
       query: {
         ...(page !== undefined && { page }),
         ...(size !== undefined && { size }),
       },
     });
 
-    return response;
+    return normalizePaginatedResponse(response);
   },
 
   create: async (request: PostBrandRequest) => {
@@ -93,7 +103,7 @@ export const brandAPI = {
       {
         method: "POST",
         json: body,
-      }
+      },
     );
 
     return response;
@@ -106,11 +116,9 @@ export const brandAPI = {
       {
         method: "POST",
         json: body,
-      }
+      },
     );
 
     return response;
   },
 };
-
-

@@ -6,7 +6,11 @@ import {
   UserFileType,
 } from "@/models/userFiles";
 
-import { PaginatedResponse } from "@/apis/types";
+import {
+  PaginatedResponse,
+  ServerPaginatedResponse,
+  normalizePaginatedResponse,
+} from "@/apis/types";
 import { UserListRoleType } from "@/models/users";
 import { fetcher } from "@/apis/core";
 
@@ -34,7 +38,7 @@ export type DeleteUserFileResponse = {
 };
 
 export const userFileAPI = {
-  getAll: ({
+  getAll: async ({
     userRole,
     fileTypes,
     searchType,
@@ -43,18 +47,24 @@ export const userFileAPI = {
     sort = "DESC",
     page = 1,
     size = 10,
-  }: GetUserFilesRequest = {}) =>
-    fetcher<GetUserFilesResponse>(BASE_URL, {
-      query: {
-        ...(userRole && { userRole }),
-        ...(fileTypes && fileTypes.length > 0 && { fileTypes }),
-        ...(searchKeyword && searchType && { searchKeyword, searchType }),
-        orderBy,
-        sort,
-        page,
-        size,
+  }: GetUserFilesRequest = {}) => {
+    const response = await fetcher<ServerPaginatedResponse<IUserFile>>(
+      BASE_URL,
+      {
+        query: {
+          ...(userRole && { userRole }),
+          ...(fileTypes && fileTypes.length > 0 && { fileTypes }),
+          ...(searchKeyword && searchType && { searchKeyword, searchType }),
+          orderBy,
+          sort,
+          page,
+          size,
+        },
       },
-    }),
+    );
+
+    return normalizePaginatedResponse(response);
+  },
 
   getById: async (id?: number) => {
     const response = await fetcher<GetUserFileDetailResponse>(

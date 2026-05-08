@@ -1,5 +1,9 @@
 import { fetcher } from "@/apis/core";
-import { PaginatedResponse } from "@/apis/types";
+import {
+  PaginatedResponse,
+  ServerPaginatedResponse,
+  normalizePaginatedResponse,
+} from "@/apis/types";
 import { SearchType } from "@/models/common";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import {
@@ -32,23 +36,29 @@ export type DeleteJobPostingResponse = {
 };
 
 export const jobPostingAPI = {
-  getAll: ({
+  getAll: async ({
     storeName,
     role,
     searchKeyword,
     searchType,
     page = DEFAULT_PAGINATION.page,
     size = DEFAULT_PAGINATION.size,
-  }: GetJobPostingsRequest) =>
-    fetcher<GetJobPostingsResponse>(BASE_URL, {
-      query: {
-        ...(storeName && { storeName }),
-        ...(role && { role }),
-        ...(searchKeyword && searchType && { searchKeyword, searchType }),
-        page,
-        size,
+  }: GetJobPostingsRequest) => {
+    const response = await fetcher<ServerPaginatedResponse<IJobPosting>>(
+      BASE_URL,
+      {
+        query: {
+          ...(storeName && { storeName }),
+          ...(role && { role }),
+          ...(searchKeyword && searchType && { searchKeyword, searchType }),
+          page,
+          size,
+        },
       },
-    }),
+    );
+
+    return normalizePaginatedResponse(response);
+  },
   getById: async (jobPostingId?: number) => {
     const response = await fetcher<IJobPostingForm>(
       `${BASE_URL}/${jobPostingId}`,
@@ -57,10 +67,11 @@ export const jobPostingAPI = {
     return response;
   },
   getAllByUserId: async (userId?: number) => {
-    const response = await fetcher<GetJobPostingsByUserIdResponse>(
+    const response = await fetcher<ServerPaginatedResponse<IJobPostingForm>>(
       `${BASE_URL}/user/${userId}`,
     );
-    return response;
+
+    return normalizePaginatedResponse(response);
   },
   delete: async (jobPostingId?: number) => {
     const response = await fetcher<DeleteJobPostingResponse>(

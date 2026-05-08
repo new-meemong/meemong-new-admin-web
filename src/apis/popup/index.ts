@@ -1,4 +1,8 @@
-import { PaginatedResponse } from "@/apis/types";
+import {
+  PaginatedResponse,
+  ServerPaginatedResponse,
+  normalizePaginatedResponse,
+} from "@/apis/types";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { IPopup, IPopupForm } from "@/models/popup";
 import { fetcher } from "@/apis/core";
@@ -46,20 +50,23 @@ export type PostPopupImageUploadResponse = {
 };
 
 export const popupAPI = {
-  getAll: ({
+  getAll: async ({
     userType,
     popupType,
     page = DEFAULT_PAGINATION.page,
     size = DEFAULT_PAGINATION.size,
-  }: GetPopupRequest) =>
-    fetcher<GetPopupResponse>(BASE_URL, {
+  }: GetPopupRequest) => {
+    const response = await fetcher<ServerPaginatedResponse<IPopup>>(BASE_URL, {
       query: {
         ...(userType && { userType }),
         ...(popupType && { popupType }),
         page,
         size,
       },
-    }),
+    });
+
+    return normalizePaginatedResponse(response);
+  },
   getById: async (popupId?: number) => {
     const response = await fetcher<GetPopupDetailResponse>(
       `${BASE_URL}/${popupId}`,

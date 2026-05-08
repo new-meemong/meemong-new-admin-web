@@ -46,7 +46,9 @@ function BannerPageContent({ className }: BannerPageContentProps) {
       userType,
       bannerType,
       // 최근순 정렬 (생성일 기준 내림차순)
-      __cursorOrder: "createdAtDesc"
+      __cursorOrder: "createdAtDesc",
+      page: methods.params.page as number,
+      size: methods.params.size as number
     },
     {
       enabled: true // 전체 조회를 위해 항상 활성화

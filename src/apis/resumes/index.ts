@@ -1,5 +1,9 @@
 import { fetcher } from "@/apis/core";
-import { PaginatedResponse } from "@/apis/types";
+import {
+  PaginatedResponse,
+  ServerPaginatedResponse,
+  normalizePaginatedResponse,
+} from "@/apis/types";
 import { SearchType } from "@/models/common";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { IResume, ResumeRoleType } from "@/models/resumes";
@@ -27,26 +31,30 @@ export type DeleteResumeResponse = {
 };
 
 export const resumeAPI = {
-  getAll: ({
+  getAll: async ({
     role,
     searchKeyword,
     searchType,
     page = DEFAULT_PAGINATION.page,
     size = DEFAULT_PAGINATION.size,
-  }: GetResumesRequest) =>
-    fetcher<GetResumesResponse>(BASE_URL, {
+  }: GetResumesRequest) => {
+    const response = await fetcher<ServerPaginatedResponse<IResume>>(BASE_URL, {
       query: {
         ...(role && { role }),
         ...(searchKeyword && searchType && { searchKeyword, searchType }),
         page,
         size,
       },
-    }),
+    });
+
+    return normalizePaginatedResponse(response);
+  },
   getAllByUserId: async (userId?: number) => {
-    const response = await fetcher<GetResumesByUserIdResponse>(
+    const response = await fetcher<ServerPaginatedResponse<IResumeForm>>(
       `${BASE_URL}/user/${userId}`,
     );
-    return response;
+
+    return normalizePaginatedResponse(response);
   },
   delete: async (resumeId?: number) => {
     const response = await fetcher<DeleteResumeResponse>(

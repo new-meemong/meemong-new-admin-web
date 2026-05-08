@@ -1,10 +1,14 @@
-import { PaginatedResponse } from "@/apis/types";
 import {
   BeautyApplicationImageOrderBy,
   BeautyApplicationImageSearchType,
   BeautyApplicationImageSort,
   IBeautyApplicationImage
 } from "@/models/beautyApplicationImages";
+import {
+  PaginatedResponse,
+  ServerPaginatedResponse,
+  normalizePaginatedResponse
+} from "@/apis/types";
 
 import { fetcher } from "@/apis/core";
 
@@ -31,15 +35,17 @@ export type DeleteBeautyApplicationImageResponse = {
 };
 
 export const beautyApplicationImageAPI = {
-  getAll: ({
+  getAll: async ({
     searchType,
     searchKeyword,
     orderBy = "updatedAt",
     sort = "DESC",
     page = 1,
     size = 10
-  }: GetBeautyApplicationImagesRequest = {}) =>
-    fetcher<GetBeautyApplicationImagesResponse>(BASE_URL, {
+  }: GetBeautyApplicationImagesRequest = {}) => {
+    const response = await fetcher<
+      ServerPaginatedResponse<IBeautyApplicationImage>
+    >(BASE_URL, {
       query: {
         ...(searchKeyword && searchType && { searchKeyword, searchType }),
         orderBy,
@@ -47,7 +53,10 @@ export const beautyApplicationImageAPI = {
         page,
         size
       }
-    }),
+    });
+
+    return normalizePaginatedResponse(response);
+  },
 
   getById: async (id?: number) => {
     const response = await fetcher<GetBeautyApplicationImageDetailResponse>(

@@ -1,7 +1,11 @@
 import { IUserBlock, IUserBlockStatus } from "@/models/blocks";
 
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
-import { PaginatedResponse } from "@/apis/types";
+import {
+  PaginatedResponse,
+  ServerPaginatedResponse,
+  normalizePaginatedResponse,
+} from "@/apis/types";
 import { fetcher } from "@/apis/core";
 
 const BASE_URL = "/api/v1/admins/blocks";
@@ -59,16 +63,22 @@ export const blocksAPI = {
         userId: request.userId,
       },
     }),
-  getHistories: ({
+  getHistories: async ({
     userId,
     page = DEFAULT_PAGINATION.page,
     size = DEFAULT_PAGINATION.size,
-  }: GetUserBlockHistoriesRequest) =>
-    fetcher<GetUserBlockHistoriesResponse>(`${BASE_URL}/histories`, {
-      query: {
-        userId,
-        page,
-        size,
+  }: GetUserBlockHistoriesRequest) => {
+    const response = await fetcher<ServerPaginatedResponse<IUserBlock>>(
+      `${BASE_URL}/histories`,
+      {
+        query: {
+          userId,
+          page,
+          size,
+        },
       },
-    }),
+    );
+
+    return normalizePaginatedResponse(response);
+  },
 };
