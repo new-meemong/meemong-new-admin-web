@@ -46,14 +46,21 @@ function BannerPageContent({ className }: BannerPageContentProps) {
       userType,
       bannerType,
       // 최근순 정렬 (생성일 기준 내림차순)
-      __cursorOrder: "createdAtDesc",
-      page: methods.params.page as number,
-      size: methods.params.size as number
+      __cursorOrder: "createdAtDesc"
     },
     {
       enabled: true // 전체 조회를 위해 항상 활성화
     }
   );
+
+  const currentPage = Number(methods.params.page ?? DEFAULT_PAGINATION.page);
+  const pageSize = Number(methods.params.size ?? DEFAULT_PAGINATION.size);
+  const paginatedBanners = useMemo(() => {
+    const banners = getBannersQuery.data?.content ?? [];
+    const startIndex = (currentPage - 1) * pageSize;
+    return banners.slice(startIndex, startIndex + pageSize);
+  }, [getBannersQuery.data, currentPage, pageSize]);
+  const totalCount = getBannersQuery.data?.content.length ?? 0;
 
   useEffect(() => {
     methods.setParams((prev) => ({ ...prev, ...bannerTabValues }));
@@ -64,15 +71,14 @@ function BannerPageContent({ className }: BannerPageContentProps) {
     <div className={cn("banner-page-content", className)}>
       <BannerSearchForm
         onRefresh={() => {
-          console.log("refresh");
           getBannersQuery.refetch();
         }}
       />
       <BannerTable
-        data={getBannersQuery.data?.content ?? []}
-        totalCount={getBannersQuery.data?.totalCount ?? 0}
-        currentPage={(methods.params.page as number) ?? 1}
-        pageSize={(methods.params.size as number) ?? DEFAULT_PAGINATION.size}
+        data={paginatedBanners}
+        totalCount={totalCount}
+        currentPage={currentPage}
+        pageSize={pageSize}
         onRefresh={() => {
           getBannersQuery.refetch();
         }}

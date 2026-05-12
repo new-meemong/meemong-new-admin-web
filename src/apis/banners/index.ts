@@ -8,14 +8,12 @@ import {
 
 import { fetcher } from "@/apis/core";
 
-const BASE_URL = "/api/v1/admins/banners";
+const BASE_URL = "/api/v1/banners";
 
 export type GetBannersRequest = {
   userType?: BannerUserType;
   bannerType?: BannerType;
   __cursorOrder?: string;
-  page?: number;
-  size?: number;
 };
 export type GetBannersResponse = PaginatedResponse<IBanner>;
 
@@ -24,11 +22,11 @@ export type GetBannerDetailResponse = {
 };
 
 export type PostBannerRequest = {
-  userType: string;
-  bannerType: string;
-  displayType?: string;
+  userType: BannerUserType;
+  bannerType: BannerType;
+  displayType: string;
   imageUrl: string;
-  redirectUrl: string;
+  redirectUrl?: string;
   endAt?: string;
 };
 
@@ -38,15 +36,18 @@ export type PostBannerResponse = {
 
 export type PutBannerRequest = {
   id: number;
-  userType?: string;
-  bannerType?: string;
-  displayType?: string;
+  userType?: BannerUserType;
+  bannerType?: BannerType;
   imageUrl?: string;
   redirectUrl?: string;
   endAt?: string | null;
 };
 
 export type PutBannerResponse = {
+  data: IBanner;
+};
+
+export type DeleteBannerResponse = {
   data: IBanner;
 };
 
@@ -69,17 +70,13 @@ export const bannerAPI = {
   getAll: async ({
     userType,
     bannerType,
-    __cursorOrder,
-    page,
-    size
+    __cursorOrder
   }: GetBannersRequest) => {
     const response = await fetcher<ServerPaginatedResponse<IBanner>>(BASE_URL, {
       query: {
         ...(userType && { userType }),
         ...(bannerType && { bannerType }),
-        ...(__cursorOrder && { __cursorOrder }),
-        ...(page !== undefined && { page }),
-        ...(size !== undefined && { size })
+        ...(__cursorOrder && { __cursorOrder })
       }
     });
 
@@ -105,6 +102,16 @@ export const bannerAPI = {
       method: "PUT",
       body: JSON.stringify(body)
     });
+
+    return response;
+  },
+  delete: async (bannerId: number) => {
+    const response = await fetcher<DeleteBannerResponse>(
+      `${BASE_URL}/${bannerId}`,
+      {
+        method: "DELETE"
+      }
+    );
 
     return response;
   },

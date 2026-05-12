@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  DEFAULT_BANNER_DISPLAY_TYPE,
   DEFAULT_BANNER_TYPE_BY_USER_TYPE,
   DEFAULT_BANNER_USER_TYPE
 } from "@/constants/banner";
@@ -66,11 +67,7 @@ export default function BannerFormModal({
             }
           }
 
-          if (
-            !restFormData.userType ||
-            !restFormData.bannerType ||
-            !restFormData.redirectUrl
-          ) {
+          if (!restFormData.userType || !restFormData.bannerType) {
             throw new Error("필수 필드가 누락되었습니다.");
           }
 
@@ -81,9 +78,11 @@ export default function BannerFormModal({
           await postBannerMutation.mutateAsync({
             userType: restFormData.userType,
             bannerType: restFormData.bannerType,
-            displayType: ".",
+            displayType: DEFAULT_BANNER_DISPLAY_TYPE,
             imageUrl: newImageUrl || imageUrl || "",
-            redirectUrl: restFormData.redirectUrl,
+            ...(restFormData.redirectUrl && {
+              redirectUrl: restFormData.redirectUrl
+            }),
             endAt: restFormData.endAt
           });
 

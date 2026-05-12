@@ -13,6 +13,7 @@ export interface BannerTypeOption {
 }
 
 export const DEFAULT_BANNER_USER_TYPE: BannerUserType = BANNER_USER_TYPE.MODEL;
+export const DEFAULT_BANNER_DISPLAY_TYPE = ".";
 export const DEFAULT_BANNER_TYPE_BY_USER_TYPE: Record<BannerUserType, string> =
   {
     [BANNER_USER_TYPE.MODEL]: "번개매칭",

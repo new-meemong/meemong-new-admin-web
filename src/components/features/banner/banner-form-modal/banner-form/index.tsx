@@ -1,7 +1,10 @@
 "use client";
 
 import {
+  ALL_BANNER_TYPE_VALUES,
   BANNER_TYPE_OPTIONS,
+  BANNER_USER_TYPE,
+  BannerType,
   BannerUserType,
   DEFAULT_BANNER_TYPE_BY_USER_TYPE,
   USER_TYPE_OPTIONS
@@ -36,8 +39,11 @@ export default function BannerForm({
   const readOnly = readOnlyProp ?? Boolean(formData.id);
 
   const formSchema = z.object({
-    userType: z.string(),
-    bannerType: z.string(),
+    userType: z.nativeEnum(BANNER_USER_TYPE),
+    bannerType: z.custom<BannerType>(
+      (value) => ALL_BANNER_TYPE_VALUES.includes(value as BannerType),
+      "배너위치를 선택해주세요."
+    ),
     imageUrl: z.string().optional(),
     imageFile: z
       .union([
@@ -47,7 +53,7 @@ export default function BannerForm({
         z.undefined()
       ])
       .optional(),
-    redirectUrl: z.string().min(1, "링크를 입력해주세요."),
+    redirectUrl: z.string().optional(),
     endAt: z
       .union([z.string(), z.date(), z.null()])
       .optional()
@@ -82,7 +88,6 @@ export default function BannerForm({
   });
 
   const handleSubmit = useCallback(() => {
-    console.log("🔵 BannerForm handleSubmit 호출됨");
     const endAtValue = form.getValues("endAt");
     // endAt은 문자열로 유지 (Date 객체가 아닌 경우만 ISO 문자열로 변환)
     let endAtString: string | undefined = undefined;
@@ -99,10 +104,9 @@ export default function BannerForm({
       bannerType: form.getValues("bannerType"),
       imageUrl: form.getValues("imageUrl"),
       imageFile: form.getValues("imageFile"),
-      redirectUrl: form.getValues("redirectUrl"),
+      redirectUrl: form.getValues("redirectUrl") || undefined,
       endAt: endAtString
     };
-    console.log("🔵 BannerForm formValues:", formValues);
     onSubmit(formValues);
   }, [onSubmit, form]);
 
@@ -112,7 +116,6 @@ export default function BannerForm({
         ...formData,
         endAt: formData.endAt || undefined // 문자열로 유지
       };
-      console.log("🔵 BannerForm reset data:", resetData);
       form.reset(resetData);
     }
   }, [formData, form]);
@@ -125,11 +128,7 @@ export default function BannerForm({
     <Form {...form}>
       <form
         className={cn("flex flex-col justify-between h-full")}
-        onSubmit={form.handleSubmit(handleSubmit, (errors) => {
-          console.log("❌ BannerForm validation 실패:", errors);
-          console.log("❌ BannerForm form errors:", form.formState.errors);
-          console.log("❌ BannerForm form values:", form.getValues());
-        })}
+        onSubmit={form.handleSubmit(handleSubmit)}
       >
         <FormGroup className={"flex-1 overflow-y-auto"}>
           <CommonForm.DoubleSelectBox
@@ -139,10 +138,11 @@ export default function BannerForm({
               options: USER_TYPE_OPTIONS,
               value: form.watch("userType"),
               onChange: ({ value }) => {
-                form.setValue("userType", value);
+                const userType = value as BannerUserType;
+                form.setValue("userType", userType);
                 form.setValue(
                   "bannerType",
-                  DEFAULT_BANNER_TYPE_BY_USER_TYPE[value as BannerUserType]
+                  DEFAULT_BANNER_TYPE_BY_USER_TYPE[userType] as BannerType
                 );
               },
               size: "sm",
@@ -156,7 +156,8 @@ export default function BannerForm({
                 BANNER_TYPE_OPTIONS[form.watch("userType") as BannerUserType] ||
                 [],
               value: form.watch("bannerType"),
-              onChange: ({ value }) => form.setValue("bannerType", value),
+              onChange: ({ value }) =>
+                form.setValue("bannerType", value as BannerType),
               size: "sm",
               placeholder: "배너위치를 선택해주세요.",
               className: "flex-1",
@@ -204,45 +205,12 @@ export default function BannerForm({
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      console.log("🔴 종료일 삭제 버튼 클릭");
-                      console.log(
-                        "🔴 삭제 전 endAt 값:",
-                        form.getValues("endAt")
-                      );
-                      console.log(
-                        "🔴 삭제 전 endAt 타입:",
-                        typeof form.getValues("endAt")
-                      );
-
-                      // 종료일을 undefined로 설정하여 삭제
                       form.setValue("endAt", undefined, {
                         shouldValidate: true,
                         shouldDirty: true,
                         shouldTouch: true
                       });
-
-                      console.log(
-                        "🔴 삭제 후 endAt 값:",
-                        form.getValues("endAt")
-                      );
-                      console.log(
-                        "🔴 삭제 후 endAt 타입:",
-                        typeof form.getValues("endAt")
-                      );
-
-                      // form state를 강제로 업데이트
                       form.trigger("endAt");
-
-                      setTimeout(() => {
-                        console.log(
-                          "🔴 setTimeout 후 endAt 값:",
-                          form.getValues("endAt")
-                        );
-                        console.log(
-                          "🔴 form.watch('endAt'):",
-                          form.watch("endAt")
-                        );
-                      }, 100);
                     }}
                     className={cn("flex-1")}
                   >
@@ -284,12 +252,6 @@ export default function BannerForm({
                 variant={"submit-modal"}
                 size={"lg"}
                 className={cn("flex-1")}
-                onClick={() => {
-                  console.log("🟢 배너 수정 버튼 클릭됨");
-                  console.log("🟢 form state:", form.formState);
-                  console.log("🟢 form values:", form.getValues());
-                  console.log("🟢 form errors:", form.formState.errors);
-                }}
               >
                 {submitButtonText}
               </Button>

@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import {
   bannerAPI,
+  DeleteBannerResponse,
   GetBannersRequest,
   GetBannersResponse,
   PostBannerImageUploadRequest,
@@ -63,6 +64,17 @@ export const usePutBannerMutation = (
 ): UseMutationResult<PutBannerResponse, Error, PutBannerRequest> =>
   useMutation({
     mutationFn: (request: PutBannerRequest) => bannerAPI.update(request),
+    ...config,
+  });
+
+export const useDeleteBannerMutation = (
+  config?: Omit<
+    UseMutationOptions<DeleteBannerResponse, Error, number>,
+    "mutationFn"
+  >,
+): UseMutationResult<DeleteBannerResponse, Error, number> =>
+  useMutation({
+    mutationFn: (bannerId: number) => bannerAPI.delete(bannerId),
     ...config,
   });
 
