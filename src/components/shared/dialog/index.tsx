@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 interface DialogProps {
   isOpen: boolean;
   title?: string;
-  description?: string;
+  description?: React.ReactNode;
   confirmText?: string;
   cancelText?: string;
   onConfirm?: () => void;
@@ -32,8 +32,9 @@ export function Dialog({
 
   const sizeClass = {
     sm: "max-w-[360px]",
-    md: "max-w-[512px]",
+    md: "max-w-[406px]",
   };
+  const isDetailDialog = size === "md";
 
   return createPortal(
     <div
@@ -42,22 +43,59 @@ export function Dialog({
     >
       <div
         className={cn(
-          "relative w-full rounded-xl bg-white shadow-xl p-6",
+          "relative w-full bg-white shadow-xl p-6",
+          isDetailDialog ? "rounded-[15px]" : "rounded-xl",
           sizeClass[size],
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        {title && <h2 className="text-lg font-semibold mb-2">{title}</h2>}
-        {description && (
-          <p className="text-sm text-gray-700 mb-4">{description}</p>
+        {title && (
+          <h2
+            className={cn(
+              "font-semibold text-black",
+              isDetailDialog
+                ? "typo-title-1-bold text-center mb-[22px]"
+                : "text-lg mb-2",
+            )}
+          >
+            {title}
+          </h2>
         )}
-        <div className="flex justify-end gap-2 mt-4">
+        {description && (
+          <>
+            {typeof description === "string" ? (
+              <p className="text-sm text-gray-700 whitespace-pre-line mb-4">
+                {description}
+              </p>
+            ) : (
+              <div className={cn(isDetailDialog ? "mb-[22px]" : "mb-4")}>
+                {description}
+              </div>
+            )}
+          </>
+        )}
+        <div
+          className={cn(
+            "flex gap-2 mt-4",
+            isDetailDialog ? "justify-stretch" : "justify-end",
+          )}
+        >
           {showCancel && (
-            <Button variant="outline" size="sm" onClick={onCancel}>
+            <Button
+              variant={isDetailDialog ? "negative-modal" : "outline"}
+              size={isDetailDialog ? "submit-multi" : "sm"}
+              className={cn(isDetailDialog && "max-w-none flex-1 rounded-2")}
+              onClick={onCancel}
+            >
               {cancelText}
             </Button>
           )}
-          <Button size="sm" onClick={onConfirm}>
+          <Button
+            variant={isDetailDialog ? "submit-modal" : "default"}
+            size={isDetailDialog ? "submit-multi" : "sm"}
+            className={cn(isDetailDialog && "max-w-none flex-1 rounded-2")}
+            onClick={onConfirm}
+          >
             {confirmText}
           </Button>
         </div>

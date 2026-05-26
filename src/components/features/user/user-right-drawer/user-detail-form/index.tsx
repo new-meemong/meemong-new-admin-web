@@ -21,6 +21,7 @@ import ImageBox from "@/components/shared/image-box";
 import { ImageSwiperItem } from "@/components/shared/image-swiper";
 import { LOGIN_TYPE_MAP } from "@/constants/users";
 import UserBlockInfoList from "@/components/features/user/user-right-drawer/user-block-info-list";
+import UserMongMoneyDepositForm from "@/components/features/user/user-right-drawer/user-mong-money-deposit-form";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
 import { getUserRole } from "@/utils/user";
@@ -401,6 +402,9 @@ export default function UserDetailForm({
         </FormGroup>
         <FormGroup title={"이용 정지 정보"}>
           <UserBlockInfoList user={formData} onUpdate={onRefresh} />
+        </FormGroup>
+        <FormGroup title={"몽 지급"}>
+          <UserMongMoneyDepositForm user={formData} onUpdate={onRefresh} />
         </FormGroup>
       </form>
     </Form>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, ReactNode, useContext, useState } from "react";
 import { Dialog } from "@/components/shared/dialog";
 
 type DialogOptions = {
@@ -9,14 +9,15 @@ type DialogOptions = {
   confirmText?: string;
   cancelText?: string;
   showCancel?: boolean;
+  size?: "sm" | "md";
 };
 
 type DialogContextType = {
   alert: (
-    message: string,
+    message: ReactNode,
     options?: Omit<DialogOptions, "showCancel">,
   ) => Promise<void>;
-  confirm: (message: string, options?: DialogOptions) => Promise<boolean>;
+  confirm: (message: ReactNode, options?: DialogOptions) => Promise<boolean>;
 };
 
 const DialogContext = createContext<DialogContextType | null>(null);
@@ -24,13 +25,15 @@ const DialogContext = createContext<DialogContextType | null>(null);
 export const DialogProvider = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
   const [resolve, setResolve] = useState<(value: unknown) => void>(() => {});
-  const [options, setOptions] = useState<DialogOptions & { message: string }>({
+  const [options, setOptions] = useState<
+    DialogOptions & { message: ReactNode }
+  >({
     message: "",
     showCancel: true,
   });
 
   const alert = (
-    message: string,
+    message: ReactNode,
     opts?: Omit<DialogOptions, "showCancel">,
   ): Promise<void> => {
     return new Promise((res) => {
@@ -40,7 +43,10 @@ export const DialogProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const confirm = (message: string, opts?: DialogOptions): Promise<boolean> => {
+  const confirm = (
+    message: ReactNode,
+    opts?: DialogOptions,
+  ): Promise<boolean> => {
     return new Promise((res) => {
       setOptions({ ...opts, message, showCancel: true });
       setResolve(() => res);
@@ -68,6 +74,7 @@ export const DialogProvider = ({ children }: { children: ReactNode }) => {
         confirmText={options.confirmText ?? "확인"}
         cancelText={options.cancelText ?? "취소"}
         showCancel={options.showCancel}
+        size={options.size}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
