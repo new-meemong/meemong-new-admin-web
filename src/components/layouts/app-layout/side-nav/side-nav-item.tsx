@@ -14,7 +14,7 @@ interface SideNavItemProps {
 
 function SideNavItem({ href, icon, label, className }: SideNavItemProps) {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <Link

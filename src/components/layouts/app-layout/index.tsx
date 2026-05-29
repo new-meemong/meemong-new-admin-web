@@ -8,6 +8,7 @@ import IcContentsMenu from "@/assets/icons/ic_contents_menu.svg";
 import IcPopupMenu from "@/assets/icons/ic_popup_menu.svg";
 import IcReportMenu from "@/assets/icons/ic_report_menu.svg";
 import IcUserMenu from "@/assets/icons/ic_user_menu.svg";
+import { Package } from "lucide-react";
 import SideNav from "@/components/layouts/app-layout/side-nav";
 import SideNavItem from "@/components/layouts/app-layout/side-nav/side-nav-item";
 import { cn } from "@/lib/utils";
@@ -61,6 +62,11 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
           href={"/popup"}
           icon={<IcPopupMenu />}
           label={"팝업 관리"}
+        />
+        <SideNavItem
+          href={"/salon-pick-products"}
+          icon={<Package className="h-4 w-4" />}
+          label={"상품 관리"}
         />
         <SideNavItem
           href={"/brand"}
