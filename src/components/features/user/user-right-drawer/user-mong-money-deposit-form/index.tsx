@@ -60,7 +60,7 @@ function MongMoneyDepositConfirmRow({
 }) {
   return (
     <div className={cn("flex items-start gap-[8px] typo-body-1-semibold")}>
-      <div className={cn("w-[52px] shrink-0 text-black")}>{label}:</div>
+      <div className={cn("w-[64px] shrink-0 text-black")}>{label}:</div>
       <div className={cn("min-w-0 flex-1 text-black")}>{children}</div>
     </div>
   );
@@ -69,11 +69,11 @@ function MongMoneyDepositConfirmRow({
 function MongMoneyDepositConfirmDescription({
   user,
   amount,
-  reason,
+  memo,
 }: {
   user: IUserForm;
   amount: number;
-  reason: string;
+  memo: string;
 }) {
   return (
     <div className={cn("flex flex-col gap-[8px]")}>
@@ -83,14 +83,14 @@ function MongMoneyDepositConfirmDescription({
       <MongMoneyDepositConfirmRow label="지급몽">
         {amount}
       </MongMoneyDepositConfirmRow>
-      <MongMoneyDepositConfirmRow label="사유">
+      <MongMoneyDepositConfirmRow label="지급메모">
         <div
           className={cn(
             "min-h-[30px] border border-border-alternative px-[12px] py-[5px]",
             "typo-body-2-regular break-words",
           )}
         >
-          {reason}
+          {memo}
         </div>
       </MongMoneyDepositConfirmRow>
     </div>
@@ -107,17 +107,15 @@ function getValidDepositAmount(value: string) {
   return amount;
 }
 
-function getMongMoneyDepositReason(adminDescription?: string, title?: string) {
-  return (
-    adminDescription?.replace(/^\[처리자:\s*[^\]]+\]\s*/, "") || title || "-"
-  );
+function getMongMoneyDepositReason(adminDescription?: string) {
+  return adminDescription?.replace(/^\[처리자:\s*[^\]]+\]\s*/, "") || "-";
 }
 
 export default function UserMongMoneyDepositForm({
   user,
   onUpdate,
 }: UserMongMoneyDepositFormProps) {
-  const [reason, setReason] = useState("");
+  const [depositMemo, setDepositMemo] = useState("");
   const [amountValue, setAmountValue] = useState("");
   const [sessionAdminName, setSessionAdminName] = useState("");
   const dialog = useDialog();
@@ -143,14 +141,14 @@ export default function UserMongMoneyDepositForm({
       ),
     [mongMoneyHistories, user.id],
   );
-  const trimmedReason = reason.trim();
+  const trimmedDepositMemo = depositMemo.trim();
   const depositAmount = useMemo(
     () => getValidDepositAmount(amountValue),
     [amountValue],
   );
   const adminName = getAdminAuthQuery.data?.name || sessionAdminName || "-";
   const isActionEnabled =
-    Boolean(trimmedReason) &&
+    Boolean(trimmedDepositMemo) &&
     Boolean(depositAmount) &&
     !postMongMoneyDepositMutation.isPending;
 
@@ -158,12 +156,10 @@ export default function UserMongMoneyDepositForm({
     setSessionAdminName(sessionStorage.getItem("adminName") ?? "");
   }, []);
 
-  const handleChangeReason: ChangeEventHandler<HTMLInputElement> = useCallback(
-    (event) => {
-      setReason(event.target.value);
-    },
-    [],
-  );
+  const handleChangeDepositMemo: ChangeEventHandler<HTMLInputElement> =
+    useCallback((event) => {
+      setDepositMemo(event.target.value);
+    }, []);
 
   const handleChangeAmount: ChangeEventHandler<HTMLInputElement> = useCallback(
     (event) => {
@@ -176,8 +172,8 @@ export default function UserMongMoneyDepositForm({
     async (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
 
-      if (!trimmedReason) {
-        toast.info("지급사유를 입력해주세요.");
+      if (!trimmedDepositMemo) {
+        toast.info("지급메모를 입력해주세요.");
         return;
       }
 
@@ -191,7 +187,7 @@ export default function UserMongMoneyDepositForm({
           <MongMoneyDepositConfirmDescription
             user={user}
             amount={depositAmount}
-            reason={trimmedReason}
+            memo={trimmedDepositMemo}
           />,
           {
             title: "해당 유저에게 몽을 지급하시겠습니까?",
@@ -207,12 +203,12 @@ export default function UserMongMoneyDepositForm({
           userId: user.id,
           amount: depositAmount,
           title: MANUAL_DEPOSIT_TITLE,
-          adminDescription: `[처리자: ${adminName}] ${trimmedReason}`,
+          adminDescription: `[처리자: ${adminName}] ${trimmedDepositMemo}`,
         });
 
         if (result.data?.id !== undefined) {
           toast.success("해당 회원에게 몽을 지급했습니다.");
-          setReason("");
+          setDepositMemo("");
           setAmountValue("");
           await refetchMongMoneys();
           onUpdate();
@@ -231,7 +227,7 @@ export default function UserMongMoneyDepositForm({
       onUpdate,
       postMongMoneyDepositMutation,
       refetchMongMoneys,
-      trimmedReason,
+      trimmedDepositMemo,
       user,
     ],
   );
@@ -250,9 +246,9 @@ export default function UserMongMoneyDepositForm({
               <Input
                 size="sm"
                 className={cn("w-full")}
-                value={reason}
-                onChange={handleChangeReason}
-                placeholder="지급사유"
+                value={depositMemo}
+                onChange={handleChangeDepositMemo}
+                placeholder="지급메모(처리자)"
               />
             </div>
             <div className={cn("w-[140px]")}>
@@ -309,10 +305,7 @@ export default function UserMongMoneyDepositForm({
                 >
                   <div>지급사유</div>
                   <div className={cn("truncate pr-[12px]")}>
-                    {getMongMoneyDepositReason(
-                      mongMoney.adminDescription,
-                      mongMoney.title,
-                    )}
+                    {getMongMoneyDepositReason(mongMoney.adminDescription)}
                   </div>
                   <div>지급몽</div>
                   <div>{mongMoney.amount.toLocaleString()}</div>
