@@ -9,6 +9,7 @@ import UserRightDrawer from "@/components/features/user/user-right-drawer";
 import { IMongMoney } from "@/models/mongMoneys";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
+import { getUserRole } from "@/utils/user";
 import { useGetMongMoneysQuery } from "@/queries/mongMoneys";
 import { useDrawer } from "@/stores/drawer";
 
@@ -24,6 +25,16 @@ function formatMongMoneyAdminDescription(adminDescription?: string | null) {
 
 function getMongMoneyDepositUserLabel(mongMoney: IMongMoney) {
   return mongMoney.User?.displayName || `#${mongMoney.userId}`;
+}
+
+function getMongMoneyDepositUserRoleLabel(mongMoney: IMongMoney) {
+  if (!mongMoney.User?.role) return null;
+
+  const userRole = getUserRole(mongMoney.User.role);
+  if (userRole === "MODEL") return "모델";
+  if (userRole === "DESIGNER") return "디자이너";
+
+  return null;
 }
 
 export default function MongMoneyDepositManagementPageContent({
@@ -112,6 +123,14 @@ export default function MongMoneyDepositManagementPageContent({
             </button>
           );
         },
+        enableSorting: false,
+      },
+      {
+        id: "userRole",
+        header: "가입유형",
+        size: 90,
+        cell: (info) =>
+          getMongMoneyDepositUserRoleLabel(info.row.original) ?? "-",
         enableSorting: false,
       },
       {
