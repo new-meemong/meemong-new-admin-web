@@ -1,11 +1,7 @@
 "use client";
 
 import React, { useCallback } from "react";
-import {
-  FieldPath,
-  useForm,
-  UseFormReturn,
-} from "react-hook-form";
+import { FieldPath, useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -19,6 +15,12 @@ import SalonPickProductImageField from "@/components/features/salon-pick-product
 import { ISalonPickProductForm } from "@/models/salonPickProducts";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
+import { SALON_PICK_PRODUCT_LINK_URL_PREFIX } from "@/constants/salonPickProducts";
+import {
+  getSalonPickProductLinkUrlErrorMessage,
+  getSalonPickProductLinkUrlOrDefault,
+  isSalonPickProductLinkUrl,
+} from "@/utils/salonPickProducts";
 
 const imageFileSchema = z
   .custom<File>((value) => value instanceof File, "이미지를 등록해주세요.")
@@ -31,8 +33,16 @@ const salonPickProductFormSchema = z
     productLinkUrl: z
       .string()
       .trim()
-      .min(1, "링크를 입력해주세요.")
-      .url("올바른 URL을 입력해주세요."),
+      .superRefine((value, context) => {
+        const message = getSalonPickProductLinkUrlErrorMessage(value);
+
+        if (message) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            message,
+          });
+        }
+      }),
     originalPrice: z.string().trim().min(1, "원가를 입력해주세요."),
     discountPrice: z.string().trim().min(1, "할인가를 입력해주세요."),
     chipText: z.string().trim().min(1, "칩문구를 입력해주세요."),
@@ -70,7 +80,7 @@ const inputFields: {
   {
     name: "productLinkUrl",
     label: "링크 (URL) *",
-    placeholder: "https://salonpick.co.kr/...",
+    placeholder: SALON_PICK_PRODUCT_LINK_URL_PREFIX,
   },
   {
     name: "originalPrice",
@@ -106,32 +116,62 @@ function SalonPickProductCreateInput({
 }) {
   const value = form.watch(name);
   const hasValue = typeof value === "string" && value.length > 0;
+  const isProductLinkUrlInput = name === "productLinkUrl";
 
   return (
     <FormField
       control={form.control}
       name={name}
-      render={({ field }) => (
-        <FormItem className="mt-[10px] flex flex-col gap-0">
-          <FormLabel className="mb-[5px] text-[12px] font-semibold leading-normal text-[#333340]">
-            {label}
-          </FormLabel>
-          <FormControl>
-            <input
-              {...field}
-              value={(field.value as string | undefined) ?? ""}
-              inputMode={inputMode}
-              placeholder={placeholder}
-              className={cn(
-                "h-[36px] w-[472px] rounded-[6px] border px-[12px] text-[12px] leading-normal text-[#1a1a26] outline-none placeholder:text-[#a6a6b2]",
-                hasValue
-                  ? "border-[#bfd9ff] bg-[#fafcff]"
-                  : "border-[#ccccd9] bg-[#fafaff]",
-              )}
-            />
-          </FormControl>
-        </FormItem>
-      )}
+      render={({ field, fieldState }) => {
+        const productLinkUrlError = isProductLinkUrlInput
+          ? getSalonPickProductLinkUrlErrorMessage(field.value)
+          : undefined;
+        const submittedError =
+          isProductLinkUrlInput && form.formState.isSubmitted
+            ? fieldState.error?.message
+            : undefined;
+        const errorMessage = productLinkUrlError ?? submittedError;
+        const hasError = Boolean(errorMessage);
+
+        return (
+          <FormItem className="mt-[10px] flex flex-col gap-0">
+            <FormLabel className="mb-[5px] text-[12px] font-semibold leading-normal text-[#333340]">
+              {label}
+            </FormLabel>
+            <FormControl>
+              <input
+                {...field}
+                value={(field.value as string | undefined) ?? ""}
+                onChange={(event) => {
+                  const nextValue = isProductLinkUrlInput
+                    ? getSalonPickProductLinkUrlOrDefault(event.target.value)
+                    : event.target.value;
+
+                  field.onChange(nextValue);
+                }}
+                inputMode={inputMode}
+                placeholder={placeholder}
+                className={cn(
+                  "h-[36px] w-[472px] rounded-[6px] border px-[12px] text-[12px] leading-normal text-[#1a1a26] outline-none placeholder:text-[#a6a6b2]",
+                  hasError
+                    ? "border-[#ff4d4f] bg-[#fff7f7]"
+                    : hasValue
+                      ? "border-[#bfd9ff] bg-[#fafcff]"
+                      : "border-[#ccccd9] bg-[#fafaff]",
+                )}
+              />
+            </FormControl>
+            {errorMessage ? (
+              <p
+                role="alert"
+                className="mt-[4px] text-[11px] font-normal leading-normal text-[#ff4d4f]"
+              >
+                {errorMessage}
+              </p>
+            ) : null}
+          </FormItem>
+        );
+      }}
     />
   );
 }
@@ -149,25 +189,23 @@ export default function SalonPickProductForm({
     mode: "onSubmit",
     reValidateMode: "onChange",
   });
+  const productLinkUrl = form.watch("productLinkUrl");
 
-  const handleSubmit = useCallback(() => {
-    onSubmit({
-      productName: form.getValues("productName"),
-      productLinkUrl: form.getValues("productLinkUrl"),
-      originalPrice: form.getValues("originalPrice"),
-      discountPrice: form.getValues("discountPrice"),
-      chipText: form.getValues("chipText"),
-      imageUrl: form.getValues("imageUrl"),
-      imageFile: form.getValues("imageFile"),
-    });
-  }, [form, onSubmit]);
+  const handleSubmit = useCallback(
+    (values: SalonPickProductFormValues) => {
+      onSubmit(values);
+    },
+    [onSubmit],
+  );
 
   const imageErrorMessage =
     form.formState.isSubmitted && form.formState.errors.imageFile?.message
       ? String(form.formState.errors.imageFile.message)
       : undefined;
   const isCreateDisabled =
-    isSubmitting || (form.formState.isSubmitted && !form.formState.isValid);
+    isSubmitting ||
+    !isSalonPickProductLinkUrl(productLinkUrl) ||
+    (form.formState.isSubmitted && !form.formState.isValid);
 
   return (
     <Form {...form}>
@@ -190,8 +228,7 @@ export default function SalonPickProductForm({
         </header>
         <div className="px-[24px] pt-[12px]">
           <p className="mb-[8px] text-[11px] font-normal leading-normal text-[#e55933]">
-            * 모든 항목은 필수 입력입니다. 생성 시 비활성화 상태로
-            등록됩니다.
+            * 모든 항목은 필수 입력입니다. 생성 시 비활성화 상태로 등록됩니다.
           </p>
           {inputFields.map((field) => (
             <SalonPickProductCreateInput

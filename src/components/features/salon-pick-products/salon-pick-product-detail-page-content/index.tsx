@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import dayjs from "dayjs";
 import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -14,6 +14,7 @@ import SalonPickProductImageField from "@/components/features/salon-pick-product
 import {
   MIN_ACTIVE_SALON_PICK_PRODUCT_COUNT,
   SALON_PICK_PRODUCT_CURSOR_ORDER,
+  SALON_PICK_PRODUCT_LINK_URL_PREFIX,
   SALON_PICK_PRODUCT_PAGE_SIZE,
 } from "@/constants/salonPickProducts";
 import {
@@ -25,8 +26,11 @@ import {
   usePutSalonPickProductMutation,
 } from "@/queries/salonPickProducts";
 import {
+  getSalonPickProductLinkUrlErrorMessage,
+  getSalonPickProductLinkUrlOrDefault,
   getSalonPickProductPreviousDayClickCount,
   getSalonPickProductTotalClickCount,
+  isSalonPickProductLinkUrl,
   normalizeSalonPickProductPrice,
   sortSalonPickProductCountsByDateDesc,
 } from "@/utils/salonPickProducts";
@@ -44,8 +48,16 @@ const salonPickProductDetailSchema = z
     productLinkUrl: z
       .string()
       .trim()
-      .min(1, "링크를 입력해주세요.")
-      .url("올바른 URL을 입력해주세요."),
+      .superRefine((value, context) => {
+        const message = getSalonPickProductLinkUrlErrorMessage(value);
+
+        if (message) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            message,
+          });
+        }
+      }),
     originalPrice: z.string().trim().min(1, "원가를 입력해주세요."),
     discountPrice: z.string().trim().min(1, "할인가를 입력해주세요."),
     chipText: z.string().trim().min(1, "칩문구를 입력해주세요."),
@@ -63,7 +75,7 @@ type SalonPickProductDetailFormValues = z.infer<
 
 const emptyFormValues: SalonPickProductDetailFormValues = {
   productName: "",
-  productLinkUrl: "",
+  productLinkUrl: SALON_PICK_PRODUCT_LINK_URL_PREFIX,
   originalPrice: "",
   discountPrice: "",
   chipText: "",
@@ -103,7 +115,9 @@ export default function SalonPickProductDetailPageContent() {
 
     return {
       productName: product.productName ?? "",
-      productLinkUrl: product.productLinkUrl ?? "",
+      productLinkUrl: getSalonPickProductLinkUrlOrDefault(
+        product.productLinkUrl,
+      ),
       originalPrice: product.originalPrice ?? "",
       discountPrice: product.discountPrice ?? "",
       chipText: product.chipText ?? "",
@@ -114,9 +128,31 @@ export default function SalonPickProductDetailPageContent() {
   const form = useForm<SalonPickProductDetailFormValues>({
     resolver: zodResolver(salonPickProductDetailSchema),
     values: formValues,
-    mode: "onSubmit",
-    reValidateMode: "onSubmit",
+    mode: "onChange",
+    reValidateMode: "onChange",
   });
+  const productLinkUrl = form.watch("productLinkUrl");
+
+  useEffect(() => {
+    if (!product) return;
+
+    void form.trigger("productLinkUrl");
+  }, [form, product]);
+
+  const handleProductLinkUrlChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      form.setValue(
+        "productLinkUrl",
+        getSalonPickProductLinkUrlOrDefault(event.target.value),
+        {
+          shouldDirty: true,
+          shouldTouch: true,
+          shouldValidate: true,
+        },
+      );
+    },
+    [form],
+  );
 
   const isPending =
     putSalonPickProductMutation.isPending ||
@@ -158,14 +194,11 @@ export default function SalonPickProductDetailPageContent() {
   };
 
   const showMinimumActiveAlert = async () => {
-    await dialog.alert(
-      "활성화된 슬롯이 최소 2개 이상 유지되어야 합니다.",
-      {
-        title: "활성화 해제 불가",
-        confirmText: "확인",
-        size: "md",
-      },
-    );
+    await dialog.alert("활성화된 슬롯이 최소 2개 이상 유지되어야 합니다.", {
+      title: "활성화 해제 불가",
+      confirmText: "확인",
+      size: "md",
+    });
   };
 
   const getActiveSalonPickProductCount = async () => {
@@ -278,6 +311,8 @@ export default function SalonPickProductDetailPageContent() {
             <CommonForm.Input
               name="productLinkUrl"
               label="링크 (URL)"
+              placeholder={SALON_PICK_PRODUCT_LINK_URL_PREFIX}
+              onChange={handleProductLinkUrlChange}
               className="max-w-[580px]"
             />
             <CommonForm.Input
@@ -302,7 +337,9 @@ export default function SalonPickProductDetailPageContent() {
                 type="submit"
                 variant="submit-modal"
                 size="lg"
-                disabled={isPending || !form.formState.isDirty}
+                disabled={
+                  isPending || !isSalonPickProductLinkUrl(productLinkUrl)
+                }
                 className="h-[40px] w-[128px] rounded-6"
               >
                 저장하기

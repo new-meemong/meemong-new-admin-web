@@ -13,6 +13,7 @@ import { ISalonPickProductForm } from "@/models/salonPickProducts";
 import { normalizeSalonPickProductPrice } from "@/utils/salonPickProducts";
 import { toast } from "react-toastify";
 import { useDialog } from "@/components/shared/dialog/context";
+import { SALON_PICK_PRODUCT_LINK_URL_PREFIX } from "@/constants/salonPickProducts";
 
 interface SalonPickProductFormModalProps {
   isOpen: boolean;
@@ -22,7 +23,7 @@ interface SalonPickProductFormModalProps {
 
 const defaultFormData: ISalonPickProductForm = {
   productName: "",
-  productLinkUrl: "",
+  productLinkUrl: SALON_PICK_PRODUCT_LINK_URL_PREFIX,
   originalPrice: "",
   discountPrice: "",
   chipText: "",
@@ -88,9 +89,7 @@ export default function SalonPickProductFormModal({
           productName: formData.productName,
           productLinkUrl: formData.productLinkUrl,
           originalPrice: normalizeSalonPickProductPrice(formData.originalPrice),
-          discountPrice: normalizeSalonPickProductPrice(
-            formData.discountPrice,
-          ),
+          discountPrice: normalizeSalonPickProductPrice(formData.discountPrice),
           chipText: formData.chipText,
           imageUrl,
           isActive: false,

@@ -3,9 +3,70 @@ import {
   ISalonPickProduct,
   ISalonPickProductCount,
 } from "@/models/salonPickProducts";
+import { SALON_PICK_PRODUCT_LINK_URL_PREFIX } from "@/constants/salonPickProducts";
+
+export const SALON_PICK_PRODUCT_LINK_URL_EMPTY_ERROR_MESSAGE =
+  "링크를 입력해주세요.";
+export const SALON_PICK_PRODUCT_LINK_URL_PRODUCT_NUMBER_ERROR_MESSAGE =
+  "상품 번호를 입력해주세요.";
+export const SALON_PICK_PRODUCT_LINK_URL_INVALID_ERROR_MESSAGE =
+  "올바른 상품 URL을 입력해주세요.";
 
 export function normalizeSalonPickProductPrice(price?: string | null): string {
   return String(price ?? "").replace(/[^\d]/g, "");
+}
+
+export function isSalonPickProductLinkUrl(value: unknown): boolean {
+  if (typeof value !== "string") return false;
+
+  const productLinkUrl = value.trim();
+  if (!productLinkUrl) return false;
+
+  try {
+    const url = new URL(productLinkUrl);
+    const expectedUrl = new URL(SALON_PICK_PRODUCT_LINK_URL_PREFIX);
+    const productNumber = url.searchParams.get("product_no")?.trim();
+
+    return (
+      url.origin === expectedUrl.origin &&
+      url.pathname === expectedUrl.pathname &&
+      Boolean(productNumber && /^\d+$/.test(productNumber))
+    );
+  } catch {
+    return false;
+  }
+}
+
+export function getSalonPickProductLinkUrlOrDefault(
+  value?: string | null,
+): string {
+  return value?.trim() ? value : SALON_PICK_PRODUCT_LINK_URL_PREFIX;
+}
+
+export function getSalonPickProductLinkUrlErrorMessage(value: unknown) {
+  if (typeof value !== "string" || !value.trim()) {
+    return SALON_PICK_PRODUCT_LINK_URL_EMPTY_ERROR_MESSAGE;
+  }
+
+  if (isSalonPickProductLinkUrl(value)) return undefined;
+
+  try {
+    const url = new URL(value.trim());
+    const expectedUrl = new URL(SALON_PICK_PRODUCT_LINK_URL_PREFIX);
+    const productNumber = url.searchParams.get("product_no")?.trim();
+
+    if (
+      url.origin === expectedUrl.origin &&
+      url.pathname === expectedUrl.pathname &&
+      !/^\d+$/.test(productNumber ?? "")
+    ) {
+      return SALON_PICK_PRODUCT_LINK_URL_PRODUCT_NUMBER_ERROR_MESSAGE;
+    }
+  } catch {
+    return SALON_PICK_PRODUCT_LINK_URL_INVALID_ERROR_MESSAGE;
+  }
+
+  return SALON_PICK_PRODUCT_LINK_URL_INVALID_ERROR_MESSAGE;
 }
 
 export function formatSalonPickProductPrice(price?: string | null): string {
@@ -28,8 +89,7 @@ export function normalizeSalonPickProductCounts(
       ? counts.dataList
       : isRecord(counts) && Array.isArray(counts.content)
         ? counts.content
-        : isRecord(counts) &&
-            ("date" in counts || "dailyClickCount" in counts)
+        : isRecord(counts) && ("date" in counts || "dailyClickCount" in counts)
           ? [counts]
           : [];
 
@@ -53,10 +113,9 @@ export function getSalonPickProductTotalClickCount(
 ): number {
   if (typeof product?.clickCount === "number") return product.clickCount;
 
-  return normalizeSalonPickProductCounts(product?.salonPickProductCounts).reduce(
-    (total, count) => total + count.dailyClickCount,
-    0,
-  );
+  return normalizeSalonPickProductCounts(
+    product?.salonPickProductCounts,
+  ).reduce((total, count) => total + count.dailyClickCount, 0);
 }
 
 export function getSalonPickProductPreviousDayClickCount(
@@ -66,8 +125,7 @@ export function getSalonPickProductPreviousDayClickCount(
 ): number {
   if (product?.yesterdaySalonPickProductCount === null) return 0;
   if (
-    typeof product?.yesterdaySalonPickProductCount?.dailyClickCount ===
-    "number"
+    typeof product?.yesterdaySalonPickProductCount?.dailyClickCount === "number"
   ) {
     return product.yesterdaySalonPickProductCount.dailyClickCount;
   }
