@@ -14,6 +14,7 @@ export type GetHairConsultationsRequest = {
   __nextCursor?: string;
   __orderColumn?:
     | "contentUpdatedAt"
+    | "createdAt"
     | "minPaymentPrice"
     | "maxPaymentPrice"
     | "popular"

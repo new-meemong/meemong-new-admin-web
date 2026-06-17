@@ -66,8 +66,8 @@ const COLUMNS: ColumnDef<IHairConsultationListItem>[] = [
     enableSorting: false
   },
   {
-    accessorKey: "contentUpdatedAt",
-    header: "최종수정일",
+    accessorKey: "createdAt",
+    header: "생성일",
     cell: (info) => formatDate(info.getValue() as string, "YYYY.MM.DD HH:mm"),
     size: 160,
     enableSorting: true
@@ -97,7 +97,7 @@ export default function HairConsultationContent({
   const getHairConsultationsQuery = useGetHairConsultationsQuery({
     __limit: 20,
     __nextCursor: currentCursor,
-    __orderColumn: "contentUpdatedAt",
+    __orderColumn: "createdAt",
     __order: "desc"
   });
 
