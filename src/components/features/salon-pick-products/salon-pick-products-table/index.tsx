@@ -11,7 +11,14 @@ import { Button } from "@/components/ui/button";
 import { ISalonPickProduct } from "@/models/salonPickProducts";
 import { cn } from "@/lib/utils";
 import { parseImageUrl, stripImageVariantParams } from "@/utils/image";
-import { formatSalonPickProductPrice } from "@/utils/salonPickProducts";
+import {
+  formatSalonPickProductPrice,
+  getSalonPickProductSexOrDefault,
+} from "@/utils/salonPickProducts";
+import {
+  SALON_PICK_PRODUCT_HAIR_CONCERNS,
+  SALON_PICK_PRODUCT_TREATMENT_TYPES,
+} from "@/constants/salonPickProducts";
 
 interface SalonPickProductsTableProps {
   data: ISalonPickProduct[];
@@ -25,10 +32,14 @@ function ProductThumbnail({
   imageUrl,
   productName,
   onOpen,
+  fallbackText,
+  imageAlt,
 }: {
   imageUrl?: string;
   productName: string;
   onOpen: () => void;
+  fallbackText?: string;
+  imageAlt?: string;
 }) {
   const originalSrc = imageUrl
     ? parseImageUrl(stripImageVariantParams(imageUrl))
@@ -56,14 +67,14 @@ function ProductThumbnail({
       {src ? (
         <img
           src={src}
-          alt="상품 썸네일"
+          alt={imageAlt ?? "상품 썸네일"}
           className="h-full w-full object-cover"
           onError={() => {
             if (src !== originalSrc) setSrc(originalSrc);
           }}
         />
       ) : (
-        "썸네일"
+        (fallbackText ?? "썸네일")
       )}
     </button>
   );
@@ -109,6 +120,46 @@ function formatClickCount(clickCount?: number | null) {
     : "-";
 }
 
+function getTargetingOptionText(
+  values: readonly string[] | null | undefined,
+  allOptions: readonly string[],
+) {
+  if (!values?.length) return "전체";
+
+  const isAllSelected = allOptions.every((option) => values.includes(option));
+  if (isAllSelected) return "전체";
+
+  if (values.length <= 2) return values.join(", ");
+
+  return `${values.slice(0, 2).join(", ")} 외 ${values.length - 2}`;
+}
+
+function getTargetingOptionTitle(
+  values: readonly string[] | null | undefined,
+  allOptions: readonly string[],
+) {
+  return (values?.length ? values : allOptions).join(", ");
+}
+
+function TargetingSummaryCell({
+  text,
+  title,
+}: {
+  text: string;
+  title: string;
+}) {
+  return (
+    <span className="block max-w-full truncate" title={title}>
+      {text}
+    </span>
+  );
+}
+
+type PreviewImage = {
+  imageUrl?: string | null;
+  title?: string;
+};
+
 export default function SalonPickProductsTable({
   data,
   isPending = false,
@@ -116,8 +167,7 @@ export default function SalonPickProductsTable({
   onDelete,
   className,
 }: SalonPickProductsTableProps) {
-  const [previewProduct, setPreviewProduct] =
-    useState<ISalonPickProduct | null>(null);
+  const [previewImage, setPreviewImage] = useState<PreviewImage | null>(null);
   const columns = useMemo<ColumnDef<ISalonPickProduct>[]>(
     () => [
       {
@@ -145,16 +195,14 @@ export default function SalonPickProductsTable({
         accessorKey: "originalPrice",
         header: "원가",
         size: 80,
-        cell: (info) =>
-          formatSalonPickProductPrice(info.getValue() as string),
+        cell: (info) => formatSalonPickProductPrice(info.getValue() as string),
         enableSorting: false,
       },
       {
         accessorKey: "discountPrice",
         header: "할인가",
         size: 80,
-        cell: (info) =>
-          formatSalonPickProductPrice(info.getValue() as string),
+        cell: (info) => formatSalonPickProductPrice(info.getValue() as string),
         enableSorting: false,
       },
       {
@@ -174,23 +222,84 @@ export default function SalonPickProductsTable({
             <ProductThumbnail
               imageUrl={product.imageUrl}
               productName={product.productName}
-              onOpen={() => setPreviewProduct(product)}
+              onOpen={() =>
+                setPreviewImage({
+                  imageUrl: product.imageUrl,
+                  title: product.productName,
+                })
+              }
             />
           );
         },
         enableSorting: false,
       },
       {
-        accessorKey: "isActive",
-        header: "활성화",
+        accessorKey: "bannerImageUrl",
+        header: "배너",
         size: 80,
         cell: (info) => {
           const product = info.row.original;
           return (
-            <ProductActiveSwitch
-              checked={Boolean(info.getValue())}
-              disabled={isPending}
-              onChange={(checked) => onChangeActive(product, checked)}
+            <ProductThumbnail
+              imageUrl={product.bannerImageUrl ?? undefined}
+              productName={product.productName}
+              fallbackText="없음"
+              imageAlt="배너 이미지"
+              onOpen={() =>
+                setPreviewImage({
+                  imageUrl: product.bannerImageUrl,
+                  title: `${product.productName} 배너`,
+                })
+              }
+            />
+          );
+        },
+        enableSorting: false,
+      },
+      {
+        accessorKey: "sex",
+        header: "노출성별",
+        size: 80,
+        cell: (info) => getSalonPickProductSexOrDefault(info.getValue()),
+        enableSorting: false,
+      },
+      {
+        accessorKey: "hairConcerns",
+        header: "관련 고민",
+        size: 170,
+        cell: (info) => {
+          const values = info.getValue<string[] | undefined>();
+          return (
+            <TargetingSummaryCell
+              text={getTargetingOptionText(
+                values,
+                SALON_PICK_PRODUCT_HAIR_CONCERNS,
+              )}
+              title={getTargetingOptionTitle(
+                values,
+                SALON_PICK_PRODUCT_HAIR_CONCERNS,
+              )}
+            />
+          );
+        },
+        enableSorting: false,
+      },
+      {
+        accessorKey: "preferredTreatmentTypes",
+        header: "시술종류",
+        size: 180,
+        cell: (info) => {
+          const values = info.getValue<string[] | undefined>();
+          return (
+            <TargetingSummaryCell
+              text={getTargetingOptionText(
+                values,
+                SALON_PICK_PRODUCT_TREATMENT_TYPES,
+              )}
+              title={getTargetingOptionTitle(
+                values,
+                SALON_PICK_PRODUCT_TREATMENT_TYPES,
+              )}
             />
           );
         },
@@ -212,6 +321,22 @@ export default function SalonPickProductsTable({
             info.row.original.yesterdaySalonPickProductCount?.dailyClickCount ??
               0,
           ),
+        enableSorting: false,
+      },
+      {
+        accessorKey: "isActive",
+        header: "활성화",
+        size: 80,
+        cell: (info) => {
+          const product = info.row.original;
+          return (
+            <ProductActiveSwitch
+              checked={Boolean(info.getValue())}
+              disabled={isPending}
+              onChange={(checked) => onChangeActive(product, checked)}
+            />
+          );
+        },
         enableSorting: false,
       },
       {
@@ -251,20 +376,28 @@ export default function SalonPickProductsTable({
     ],
     [isPending, onChangeActive, onDelete],
   );
-  const previewOriginalImageUrl = previewProduct?.imageUrl
-    ? parseImageUrl(stripImageVariantParams(previewProduct.imageUrl))
+  const tableMinWidth = useMemo(
+    () => columns.reduce((total, column) => total + (column.size ?? 0), 0),
+    [columns],
+  );
+  const previewOriginalImageUrl = previewImage?.imageUrl
+    ? parseImageUrl(stripImageVariantParams(previewImage.imageUrl))
     : "";
 
   return (
     <div className={cn("salon-pick-products-table-wrapper", className)}>
-      <CommonTable<ISalonPickProduct> data={data} columns={columns} />
+      <div className="overflow-x-auto">
+        <div style={{ minWidth: tableMinWidth }}>
+          <CommonTable<ISalonPickProduct> data={data} columns={columns} />
+        </div>
+      </div>
       <ImageSwiper
         images={
           previewOriginalImageUrl
             ? [
                 {
                   src: previewOriginalImageUrl,
-                  title: previewProduct?.productName,
+                  title: previewImage?.title,
                   deletable: false,
                 },
               ]
@@ -272,7 +405,7 @@ export default function SalonPickProductsTable({
         }
         initialIndex={0}
         open={Boolean(previewOriginalImageUrl)}
-        onClose={() => setPreviewProduct(null)}
+        onClose={() => setPreviewImage(null)}
       />
     </div>
   );

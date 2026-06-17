@@ -10,12 +10,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { CommonForm } from "@/components/shared/common-form";
 import { Form } from "@/components/ui/form";
+import SalonPickProductAdSettingsFields from "@/components/features/salon-pick-products/salon-pick-product-ad-settings-fields";
 import SalonPickProductImageField from "@/components/features/salon-pick-products/salon-pick-product-image-field";
 import {
+  SALON_PICK_PRODUCT_HAIR_CONCERNS,
   MIN_ACTIVE_SALON_PICK_PRODUCT_COUNT,
   SALON_PICK_PRODUCT_CURSOR_ORDER,
   SALON_PICK_PRODUCT_LINK_URL_PREFIX,
   SALON_PICK_PRODUCT_PAGE_SIZE,
+  SALON_PICK_PRODUCT_SEX,
+  SALON_PICK_PRODUCT_TREATMENT_TYPES,
 } from "@/constants/salonPickProducts";
 import {
   salonPickProductsQueryKeys,
@@ -28,9 +32,11 @@ import {
 import {
   getSalonPickProductLinkUrlErrorMessage,
   getSalonPickProductLinkUrlOrDefault,
+  getSalonPickProductHairConcernsOrDefault,
   getSalonPickProductPreviousDayClickCount,
+  getSalonPickProductSexOrDefault,
+  getSalonPickProductTreatmentTypesOrDefault,
   getSalonPickProductTotalClickCount,
-  isSalonPickProductLinkUrl,
   normalizeSalonPickProductPrice,
   sortSalonPickProductCountsByDateDesc,
 } from "@/utils/salonPickProducts";
@@ -63,6 +69,19 @@ const salonPickProductDetailSchema = z
     chipText: z.string().trim().min(1, "칩문구를 입력해주세요."),
     imageUrl: z.string().optional(),
     imageFile: imageFileSchema,
+    bannerImageUrl: z.string().nullable().optional(),
+    bannerImageFile: imageFileSchema,
+    sex: z.enum([
+      SALON_PICK_PRODUCT_SEX.ALL,
+      SALON_PICK_PRODUCT_SEX.MALE,
+      SALON_PICK_PRODUCT_SEX.FEMALE,
+    ]),
+    hairConcerns: z
+      .array(z.enum(SALON_PICK_PRODUCT_HAIR_CONCERNS))
+      .min(1, "관련 고민을 선택해주세요."),
+    preferredTreatmentTypes: z
+      .array(z.enum(SALON_PICK_PRODUCT_TREATMENT_TYPES))
+      .min(1, "시술종류를 선택해주세요."),
   })
   .refine((value) => Boolean(value.imageUrl || value.imageFile), {
     path: ["imageFile"],
@@ -80,6 +99,10 @@ const emptyFormValues: SalonPickProductDetailFormValues = {
   discountPrice: "",
   chipText: "",
   imageUrl: "",
+  bannerImageUrl: "",
+  sex: SALON_PICK_PRODUCT_SEX.ALL,
+  hairConcerns: getSalonPickProductHairConcernsOrDefault(),
+  preferredTreatmentTypes: getSalonPickProductTreatmentTypesOrDefault(),
 };
 
 export default function SalonPickProductDetailPageContent() {
@@ -122,6 +145,14 @@ export default function SalonPickProductDetailPageContent() {
       discountPrice: product.discountPrice ?? "",
       chipText: product.chipText ?? "",
       imageUrl: product.imageUrl ?? "",
+      bannerImageUrl: product.bannerImageUrl ?? "",
+      sex: getSalonPickProductSexOrDefault(product.sex),
+      hairConcerns: getSalonPickProductHairConcernsOrDefault(
+        product.hairConcerns,
+      ),
+      preferredTreatmentTypes: getSalonPickProductTreatmentTypesOrDefault(
+        product.preferredTreatmentTypes,
+      ),
     };
   }, [product]);
 
@@ -131,7 +162,6 @@ export default function SalonPickProductDetailPageContent() {
     mode: "onChange",
     reValidateMode: "onChange",
   });
-  const productLinkUrl = form.watch("productLinkUrl");
 
   useEffect(() => {
     if (!product) return;
@@ -220,7 +250,13 @@ export default function SalonPickProductDetailPageContent() {
       const confirmed = await dialog.confirm("슬롯 정보를 저장하시겠습니까?");
       if (!confirmed) return;
 
-      const imageUrl = await uploadImage(formData.imageFile, formData.imageUrl);
+      const [imageUrl, bannerImageUrl] = await Promise.all([
+        uploadImage(formData.imageFile, formData.imageUrl),
+        uploadImage(
+          formData.bannerImageFile,
+          formData.bannerImageUrl ?? undefined,
+        ),
+      ]);
 
       await putSalonPickProductMutation.mutateAsync({
         id: productId,
@@ -230,6 +266,10 @@ export default function SalonPickProductDetailPageContent() {
         discountPrice: normalizeSalonPickProductPrice(formData.discountPrice),
         chipText: formData.chipText,
         imageUrl,
+        bannerImageUrl: bannerImageUrl || null,
+        sex: formData.sex,
+        hairConcerns: formData.hairConcerns,
+        preferredTreatmentTypes: formData.preferredTreatmentTypes,
       });
 
       await invalidateSalonPickProductQueries();
@@ -239,6 +279,10 @@ export default function SalonPickProductDetailPageContent() {
       console.error(error);
       toast.error("잠시 후 다시 시도해주세요.");
     }
+  };
+
+  const handleInvalidSubmit = () => {
+    toast.error("입력값을 확인해주세요.");
   };
 
   const handleDelete = async () => {
@@ -290,7 +334,7 @@ export default function SalonPickProductDetailPageContent() {
     <Form {...form}>
       <form
         className="max-w-[1040px] rounded-10 border bg-white px-[32px] py-[28px]"
-        onSubmit={form.handleSubmit(handleSubmit)}
+        onSubmit={form.handleSubmit(handleSubmit, handleInvalidSubmit)}
       >
         <div className="grid grid-cols-[1fr_360px] gap-[54px]">
           <section className="min-w-0">
@@ -332,14 +376,27 @@ export default function SalonPickProductDetailPageContent() {
               label="칩문구"
               className="max-w-[580px]"
             />
+            <SalonPickProductAdSettingsFields<SalonPickProductDetailFormValues>
+              className="mt-[26px] max-w-[580px]"
+              variant="detail"
+              hairConcernsName="hairConcerns"
+              sexName="sex"
+              preferredTreatmentTypesName="preferredTreatmentTypes"
+              bannerSlot={
+                <SalonPickProductImageField<SalonPickProductDetailFormValues>
+                  name="bannerImageUrl"
+                  fileName="bannerImageFile"
+                  label="배너 이미지 (헤어컨설팅 상세용)"
+                  variant="preview"
+                />
+              }
+            />
             <div className="mt-[24px] flex gap-[16px]">
               <Button
                 type="submit"
                 variant="submit-modal"
                 size="lg"
-                disabled={
-                  isPending || !isSalonPickProductLinkUrl(productLinkUrl)
-                }
+                disabled={isPending}
                 className="h-[40px] w-[128px] rounded-6"
               >
                 저장하기

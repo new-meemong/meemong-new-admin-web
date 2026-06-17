@@ -10,10 +10,17 @@ import {
   usePostSalonPickProductMutation,
 } from "@/queries/salonPickProducts";
 import { ISalonPickProductForm } from "@/models/salonPickProducts";
-import { normalizeSalonPickProductPrice } from "@/utils/salonPickProducts";
+import {
+  getSalonPickProductHairConcernsOrDefault,
+  getSalonPickProductTreatmentTypesOrDefault,
+  normalizeSalonPickProductPrice,
+} from "@/utils/salonPickProducts";
 import { toast } from "react-toastify";
 import { useDialog } from "@/components/shared/dialog/context";
-import { SALON_PICK_PRODUCT_LINK_URL_PREFIX } from "@/constants/salonPickProducts";
+import {
+  SALON_PICK_PRODUCT_LINK_URL_PREFIX,
+  SALON_PICK_PRODUCT_SEX,
+} from "@/constants/salonPickProducts";
 
 interface SalonPickProductFormModalProps {
   isOpen: boolean;
@@ -28,6 +35,10 @@ const defaultFormData: ISalonPickProductForm = {
   discountPrice: "",
   chipText: "",
   imageUrl: "",
+  bannerImageUrl: "",
+  sex: SALON_PICK_PRODUCT_SEX.ALL,
+  hairConcerns: getSalonPickProductHairConcernsOrDefault(),
+  preferredTreatmentTypes: getSalonPickProductTreatmentTypesOrDefault(),
   isActive: false,
 };
 
@@ -80,10 +91,13 @@ export default function SalonPickProductFormModal({
         const confirmed = await dialog.confirm("신규 슬롯을 생성하시겠습니까?");
         if (!confirmed) return;
 
-        const imageUrl = await uploadImage(
-          formData.imageFile,
-          formData.imageUrl,
-        );
+        const [imageUrl, bannerImageUrl] = await Promise.all([
+          uploadImage(formData.imageFile, formData.imageUrl),
+          uploadImage(
+            formData.bannerImageFile,
+            formData.bannerImageUrl ?? undefined,
+          ),
+        ]);
 
         await postSalonPickProductMutation.mutateAsync({
           productName: formData.productName,
@@ -92,6 +106,10 @@ export default function SalonPickProductFormModal({
           discountPrice: normalizeSalonPickProductPrice(formData.discountPrice),
           chipText: formData.chipText,
           imageUrl,
+          bannerImageUrl: bannerImageUrl || null,
+          sex: formData.sex,
+          hairConcerns: formData.hairConcerns,
+          preferredTreatmentTypes: formData.preferredTreatmentTypes,
           isActive: false,
         });
 
@@ -114,7 +132,7 @@ export default function SalonPickProductFormModal({
       onClick={onClose}
     >
       <div
-        className="h-[680px] w-[520px] overflow-hidden rounded-[12px] bg-white shadow-xl"
+        className="h-[86vh] max-h-[820px] w-[680px] overflow-hidden rounded-[12px] bg-white shadow-xl"
         onClick={(event) => event.stopPropagation()}
       >
         <SalonPickProductForm

@@ -11,11 +11,17 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
+import SalonPickProductAdSettingsFields from "@/components/features/salon-pick-products/salon-pick-product-ad-settings-fields";
 import SalonPickProductImageField from "@/components/features/salon-pick-products/salon-pick-product-image-field";
 import { ISalonPickProductForm } from "@/models/salonPickProducts";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
-import { SALON_PICK_PRODUCT_LINK_URL_PREFIX } from "@/constants/salonPickProducts";
+import {
+  SALON_PICK_PRODUCT_HAIR_CONCERNS,
+  SALON_PICK_PRODUCT_LINK_URL_PREFIX,
+  SALON_PICK_PRODUCT_SEX,
+  SALON_PICK_PRODUCT_TREATMENT_TYPES,
+} from "@/constants/salonPickProducts";
 import {
   getSalonPickProductLinkUrlErrorMessage,
   getSalonPickProductLinkUrlOrDefault,
@@ -48,6 +54,19 @@ const salonPickProductFormSchema = z
     chipText: z.string().trim().min(1, "칩문구를 입력해주세요."),
     imageUrl: z.string().optional(),
     imageFile: imageFileSchema,
+    bannerImageUrl: z.string().nullable().optional(),
+    bannerImageFile: imageFileSchema,
+    sex: z.enum([
+      SALON_PICK_PRODUCT_SEX.ALL,
+      SALON_PICK_PRODUCT_SEX.MALE,
+      SALON_PICK_PRODUCT_SEX.FEMALE,
+    ]),
+    hairConcerns: z
+      .array(z.enum(SALON_PICK_PRODUCT_HAIR_CONCERNS))
+      .min(1, "관련 고민을 선택해주세요."),
+    preferredTreatmentTypes: z
+      .array(z.enum(SALON_PICK_PRODUCT_TREATMENT_TYPES))
+      .min(1, "시술종류를 선택해주세요."),
   })
   .refine((value) => Boolean(value.imageUrl || value.imageFile), {
     path: ["imageFile"],
@@ -210,10 +229,10 @@ export default function SalonPickProductForm({
   return (
     <Form {...form}>
       <form
-        className="relative h-[680px] w-[520px]"
+        className="flex h-full w-full flex-col"
         onSubmit={form.handleSubmit(handleSubmit)}
       >
-        <header className="flex h-[60px] items-center justify-between border-b border-[#e0e0e5] bg-[#f7f7fc] px-[24px]">
+        <header className="flex h-[60px] shrink-0 items-center justify-between border-b border-[#e0e0e5] bg-[#f7f7fc] px-[24px]">
           <h2 className="text-[18px] font-semibold leading-normal text-[#1a1a1a]">
             신규 슬롯 생성
           </h2>
@@ -226,9 +245,10 @@ export default function SalonPickProductForm({
             <X className="h-4 w-4" />
           </button>
         </header>
-        <div className="px-[24px] pt-[12px]">
+        <div className="flex-1 overflow-y-auto px-[24px] py-[12px]">
           <p className="mb-[8px] text-[11px] font-normal leading-normal text-[#e55933]">
-            * 모든 항목은 필수 입력입니다. 생성 시 비활성화 상태로 등록됩니다.
+            * 제품 기본 항목과 상품 이미지는 필수입니다. 생성 시 비활성화 상태로
+            등록됩니다.
           </p>
           {inputFields.map((field) => (
             <SalonPickProductCreateInput
@@ -244,8 +264,21 @@ export default function SalonPickProductForm({
             className="mt-[10px]"
             errorMessage={imageErrorMessage}
           />
+          <SalonPickProductAdSettingsFields<SalonPickProductFormValues>
+            className="mt-[18px]"
+            hairConcernsName="hairConcerns"
+            sexName="sex"
+            preferredTreatmentTypesName="preferredTreatmentTypes"
+            bannerSlot={
+              <SalonPickProductImageField<SalonPickProductFormValues>
+                name="bannerImageUrl"
+                fileName="bannerImageFile"
+                label="배너 이미지 (헤어컨설팅 상세용)"
+              />
+            }
+          />
         </div>
-        <footer className="absolute bottom-0 left-0 flex h-[60px] w-full justify-end gap-[12px] border-t border-[#e0e0e5] pr-[8px] pt-[10px]">
+        <footer className="flex h-[60px] shrink-0 justify-end gap-[12px] border-t border-[#e0e0e5] pr-[8px] pt-[10px]">
           <button
             onClick={onClose}
             type="button"

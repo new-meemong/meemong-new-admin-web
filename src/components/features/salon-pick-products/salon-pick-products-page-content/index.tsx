@@ -114,9 +114,15 @@ export default function SalonPickProductsPageContent({
     try {
       await deleteSalonPickProductMutation.mutateAsync(product.id);
       toast.success("슬롯을 삭제했습니다.");
-      await queryClient.invalidateQueries({
-        queryKey: salonPickProductsQueryKeys.lists,
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: salonPickProductsQueryKeys.lists,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: salonPickProductsQueryKeys.detail(product.id),
+          refetchType: "none",
+        }),
+      ]);
     } catch (error) {
       console.error(error);
       toast.error("잠시 후 다시 시도해주세요.");

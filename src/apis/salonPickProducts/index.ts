@@ -36,7 +36,7 @@ export type GetSalonPickProductDetailResponse = {
 };
 
 export type PostSalonPickProductRequest = Partial<
-  Omit<ISalonPickProductForm, "id" | "imageFile">
+  Omit<ISalonPickProductForm, "id" | "imageFile" | "bannerImageFile">
 >;
 
 export type PostSalonPickProductResponse = {
@@ -45,7 +45,9 @@ export type PostSalonPickProductResponse = {
 
 export type PutSalonPickProductRequest = {
   id: number;
-} & Partial<Omit<ISalonPickProductForm, "id" | "imageFile">>;
+} & Partial<
+  Omit<ISalonPickProductForm, "id" | "imageFile" | "bannerImageFile">
+>;
 
 export type PutSalonPickProductResponse = {
   data: ISalonPickProduct;
@@ -140,7 +142,8 @@ export const salonPickProductsAPI = {
       content,
       totalCount: content.length,
       nextCursor:
-        nextCursor && fetchedPageCount >= SALON_PICK_PRODUCT_MAX_FETCH_PAGE_COUNT
+        nextCursor &&
+        fetchedPageCount >= SALON_PICK_PRODUCT_MAX_FETCH_PAGE_COUNT
           ? nextCursor
           : undefined,
     };
@@ -186,6 +189,7 @@ export const salonPickProductsAPI = {
       `${BASE_URL}/${salonPickProductId}`,
       {
         method: "DELETE",
+        json: {},
       },
     );
 

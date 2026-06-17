@@ -3,7 +3,15 @@ import {
   ISalonPickProduct,
   ISalonPickProductCount,
 } from "@/models/salonPickProducts";
-import { SALON_PICK_PRODUCT_LINK_URL_PREFIX } from "@/constants/salonPickProducts";
+import {
+  SALON_PICK_PRODUCT_HAIR_CONCERNS,
+  SALON_PICK_PRODUCT_LINK_URL_PREFIX,
+  SALON_PICK_PRODUCT_SEX,
+  SALON_PICK_PRODUCT_TREATMENT_TYPES,
+  SalonPickProductHairConcern,
+  SalonPickProductSex,
+  SalonPickProductTreatmentType,
+} from "@/constants/salonPickProducts";
 
 export const SALON_PICK_PRODUCT_LINK_URL_EMPTY_ERROR_MESSAGE =
   "링크를 입력해주세요.";
@@ -14,6 +22,49 @@ export const SALON_PICK_PRODUCT_LINK_URL_INVALID_ERROR_MESSAGE =
 
 export function normalizeSalonPickProductPrice(price?: string | null): string {
   return String(price ?? "").replace(/[^\d]/g, "");
+}
+
+function getValidSalonPickProductOptions<T extends string>(
+  values: readonly string[] | null | undefined,
+  options: readonly T[],
+): T[] {
+  const validOptions = values?.filter((value): value is T =>
+    options.includes(value as T),
+  );
+
+  return validOptions?.length ? validOptions : [...options];
+}
+
+export function getSalonPickProductHairConcernsOrDefault(
+  hairConcerns?: readonly string[] | null,
+): SalonPickProductHairConcern[] {
+  return getValidSalonPickProductOptions(
+    hairConcerns,
+    SALON_PICK_PRODUCT_HAIR_CONCERNS,
+  );
+}
+
+export function getSalonPickProductTreatmentTypesOrDefault(
+  treatmentTypes?: readonly string[] | null,
+): SalonPickProductTreatmentType[] {
+  return getValidSalonPickProductOptions(
+    treatmentTypes,
+    SALON_PICK_PRODUCT_TREATMENT_TYPES,
+  );
+}
+
+export function getSalonPickProductSexOrDefault(
+  sex?: unknown,
+): SalonPickProductSex {
+  if (sex === SALON_PICK_PRODUCT_SEX.MALE || sex === "남성") {
+    return SALON_PICK_PRODUCT_SEX.MALE;
+  }
+
+  if (sex === SALON_PICK_PRODUCT_SEX.FEMALE || sex === "여성") {
+    return SALON_PICK_PRODUCT_SEX.FEMALE;
+  }
+
+  return SALON_PICK_PRODUCT_SEX.ALL;
 }
 
 export function isSalonPickProductLinkUrl(value: unknown): boolean {
