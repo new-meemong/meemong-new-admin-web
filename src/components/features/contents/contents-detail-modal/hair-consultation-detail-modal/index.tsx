@@ -396,7 +396,11 @@ function DetailInfoTab({
         : "-"
     },
     {
-      label: "최종수정",
+      label: "생성일",
+      value: formatDate(detail.createdAt, "YYYY.MM.DD / HH:mm")
+    },
+    {
+      label: "최종수정일",
       value: formatDate(detail.contentUpdatedAt, "YYYY.MM.DD / HH:mm")
     }
   ];
