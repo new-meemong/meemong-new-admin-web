@@ -90,6 +90,7 @@ export default function UserBlockInfoList({
   const [customReason, setCustomReason] = useState<string>("");
   const [selectedBlockDays, setSelectedBlockDays] = useState<string>("");
   const [customBlockDays, setCustomBlockDays] = useState<string>("");
+  const [adminDescription, setAdminDescription] = useState<string>("");
   const getUserBlockStatusQuery = useGetUserBlockStatusQuery({
     userId: user.id!,
   });
@@ -104,6 +105,23 @@ export default function UserBlockInfoList({
   const isBlocked = useMemo(() => {
     return Boolean(getUserBlockStatusQuery.data?.data?.isBlocked);
   }, [getUserBlockStatusQuery.data?.data?.isBlocked]);
+  const activeBlockId = useMemo(() => {
+    const blockStatus = getUserBlockStatusQuery.data?.data;
+
+    if (!blockStatus?.isBlocked) return undefined;
+
+    return blockStatus.id;
+  }, [getUserBlockStatusQuery.data?.data]);
+  const blockHistories = useMemo(
+    () =>
+      getUserBlockHistoriesQuery.data?.dataList ??
+      getUserBlockHistoriesQuery.data?.content ??
+      [],
+    [
+      getUserBlockHistoriesQuery.data?.content,
+      getUserBlockHistoriesQuery.data?.dataList,
+    ],
+  );
 
   const isCustomReason = selectedReason === "직접 입력";
   const isCustomBlockDays = selectedBlockDays === "custom";
@@ -111,6 +129,7 @@ export default function UserBlockInfoList({
   const resolvedBlockDays = isCustomBlockDays
     ? Number(customBlockDays)
     : Number(selectedBlockDays);
+  const resolvedAdminDescription = adminDescription.trim();
   const isReasonSelected = Boolean(selectedReason) && Boolean(resolvedReason);
   const isBlockDaysSelected =
     Boolean(selectedBlockDays) &&
@@ -127,6 +146,11 @@ export default function UserBlockInfoList({
   const handleChangeCustomBlockDays: ChangeEventHandler<HTMLInputElement> =
     useCallback((event) => {
       setCustomBlockDays(event.target.value);
+    }, []);
+
+  const handleChangeAdminDescription: ChangeEventHandler<HTMLInputElement> =
+    useCallback((event) => {
+      setAdminDescription(event.target.value);
     }, []);
 
   const getBlockDays = useCallback((startAt?: string, endAt?: string) => {
@@ -180,6 +204,7 @@ export default function UserBlockInfoList({
             toast.success("해당 회원을 이용정지 해제했습니다.");
             setCustomReason("");
             setCustomBlockDays("");
+            setAdminDescription("");
             getUserBlockStatusQuery.refetch();
             getUserBlockHistoriesQuery.refetch();
             onUpdate();
@@ -191,12 +216,16 @@ export default function UserBlockInfoList({
             userId: user.id,
             reason: resolvedReason,
             blockDays: resolvedBlockDays,
+            ...(resolvedAdminDescription && {
+              adminDescription: resolvedAdminDescription,
+            }),
           });
 
           if (result.data?.id !== undefined) {
             toast.success("해당 회원을 이용정지했습니다.");
             setCustomReason("");
             setCustomBlockDays("");
+            setAdminDescription("");
             getUserBlockStatusQuery.refetch();
             getUserBlockHistoriesQuery.refetch();
             onUpdate();
@@ -219,6 +248,12 @@ export default function UserBlockInfoList({
       isBlockDaysSelected,
       resolvedReason,
       resolvedBlockDays,
+      resolvedAdminDescription,
+      createUserBlockMutation,
+      postUserUnblockMutation,
+      getUserBlockStatusQuery,
+      getUserBlockHistoriesQuery,
+      onUpdate,
     ],
   );
 
@@ -301,100 +336,110 @@ export default function UserBlockInfoList({
                 disabled={isBlocked}
               />
             )}
+            <div className={cn("flex-1 min-w-[220px]")}>
+              <Input
+                size="sm"
+                className={cn("w-full")}
+                value={adminDescription}
+                onChange={handleChangeAdminDescription}
+                placeholder="관리자 메모(선택)"
+                disabled={isBlocked}
+              />
+            </div>
           </div>
         }
       />
-      {(getUserBlockHistoriesQuery.data?.content || []).map(
-        (blockInfo, index) => {
-          const blockDays = getBlockDays(
-            blockInfo.createdAt,
-            blockInfo.blockEndAt,
-          );
-          const blockedAt = formatDate(blockInfo.createdAt, "YYYY.MM.DD HH:mm");
-          const unblockedAt = formatDate(
-            blockInfo.blockEndAt,
-            "YYYY.MM.DD HH:mm",
-          );
-          const remaining = getRemainingTime(blockInfo.blockEndAt);
-          const isActive = Boolean(remaining);
+      {blockHistories.map((blockInfo) => {
+        const blockDays = getBlockDays(
+          blockInfo.createdAt,
+          blockInfo.blockEndAt,
+        );
+        const blockedAt = formatDate(blockInfo.createdAt, "YYYY.MM.DD HH:mm");
+        const unblockedAt = formatDate(
+          blockInfo.blockEndAt,
+          "YYYY.MM.DD HH:mm",
+        );
+        const remaining = getRemainingTime(blockInfo.blockEndAt);
+        const isActive = activeBlockId === blockInfo.id && Boolean(remaining);
 
-          return (
-            <BlockInfoListItem
-              key={`block-info-list-item-${index}`}
-              leftArea={<div />}
-              rightArea={
+        return (
+          <BlockInfoListItem
+            key={`block-info-list-item-${blockInfo.id}`}
+            leftArea={<div />}
+            rightArea={
+              <div className={cn("flex flex-col gap-[8px] pt-[8px] pb-[8px]")}>
+                <div className={cn("flex flex-wrap items-center gap-[8px]")}>
+                  <div className={cn("min-w-[420px]")}>
+                    <span className={cn("text-foreground-sub")}>정지사유:</span>{" "}
+                    <span
+                      className={cn("text-foreground-strong font-semibold")}
+                    >
+                      {blockInfo.reason}
+                    </span>
+                  </div>
+                  <div className={cn("w-[140px]")}>
+                    <span className={cn("text-foreground-sub")}>정지기간:</span>{" "}
+                    <span
+                      className={cn("text-foreground-strong font-semibold")}
+                    >
+                      {blockDays ? `${blockDays}일` : "-"}
+                    </span>
+                  </div>
+                </div>
+                {blockInfo.adminDescription && (
+                  <div className={cn("text-foreground-sub")}>
+                    관리자 메모:{" "}
+                    <span
+                      className={cn("text-foreground-strong font-semibold")}
+                    >
+                      {blockInfo.adminDescription}
+                    </span>
+                  </div>
+                )}
                 <div
-                  className={cn("flex flex-col gap-[8px] pt-[8px] pb-[8px]")}
+                  className={cn(
+                    "typo-body-2-regular text-left flex items-center justify-between gap-[8px] w-full",
+                  )}
                 >
                   <div className={cn("flex flex-wrap items-center gap-[8px]")}>
-                    <div className={cn("min-w-[420px]")}>
-                      <span className={cn("text-foreground-sub")}>
-                        정지사유:
-                      </span>{" "}
-                      <span
-                        className={cn("text-foreground-strong font-semibold")}
-                      >
-                        {blockInfo.reason}
-                      </span>
-                    </div>
-                    <div className={cn("w-[140px]")}>
-                      <span className={cn("text-foreground-sub")}>
-                        정지기간:
-                      </span>{" "}
-                      <span
-                        className={cn("text-foreground-strong font-semibold")}
-                      >
-                        {blockDays ? `${blockDays}일` : "-"}
-                      </span>
-                    </div>
-                  </div>
-                  <div
-                    className={cn(
-                      "typo-body-2-regular text-left flex items-center justify-between gap-[8px] w-full",
-                    )}
-                  >
-                    <div
-                      className={cn("flex flex-wrap items-center gap-[8px]")}
+                    <span className={cn("text-foreground-sub")}>상태</span>{" "}
+                    <span
+                      className={cn("text-foreground-strong font-semibold")}
                     >
-                      <span className={cn("text-foreground-sub")}>상태</span>{" "}
-                      <span
-                        className={cn("text-foreground-strong font-semibold")}
-                      >
-                        {blockedAt} 정지
-                      </span>{" "}
-                      <span className={cn("text-foreground-sub")}>/</span>{" "}
-                      <span
-                        className={cn("text-foreground-strong font-semibold")}
-                      >
-                        {unblockedAt} {isActive ? "해제 예정" : "해제"}
-                      </span>
-                    </div>
-                    {isActive && (
-                      <Button
-                        onClick={handleSubmit}
-                        variant={"outline"}
-                        size={"sm"}
-                      >
-                        이용정지 해제
-                      </Button>
-                    )}
-                  </div>
-                  {remaining && (
-                    <div
-                      className={cn(
-                        "typo-body-2-regular text-red-500 font-semibold",
-                      )}
+                      {blockedAt} 정지
+                    </span>{" "}
+                    <span className={cn("text-foreground-sub")}>/</span>{" "}
+                    <span
+                      className={cn("text-foreground-strong font-semibold")}
                     >
-                      {remaining.days}일 {remaining.hours}시간{" "}
-                      {remaining.minutes}분 남음
-                    </div>
+                      {unblockedAt} {isActive ? "해제 예정" : "해제"}
+                    </span>
+                  </div>
+                  {isActive && (
+                    <Button
+                      onClick={handleSubmit}
+                      variant={"outline"}
+                      size={"sm"}
+                    >
+                      이용정지 해제
+                    </Button>
                   )}
                 </div>
-              }
-            />
-          );
-        },
-      )}
+                {isActive && remaining && (
+                  <div
+                    className={cn(
+                      "typo-body-2-regular text-red-500 font-semibold",
+                    )}
+                  >
+                    {remaining.days}일 {remaining.hours}시간 {remaining.minutes}
+                    분 남음
+                  </div>
+                )}
+              </div>
+            }
+          />
+        );
+      })}
     </ul>
   );
 }

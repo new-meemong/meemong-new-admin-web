@@ -3,12 +3,15 @@ export interface IUserBlock {
   userId: number;
   reason: string;
   blockEndAt: string;
+  adminDescription: string;
   createdAt: string;
 }
 
 export interface IUserBlockStatus {
+  id: number;
   isBlocked: boolean;
   blockEndAt: string;
   reason: string;
+  adminDescription: string;
   createdAt: string;
 }

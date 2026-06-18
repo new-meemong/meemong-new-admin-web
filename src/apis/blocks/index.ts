@@ -14,6 +14,7 @@ export type PostUserBlockRequest = {
   userId: number;
   reason: string;
   blockDays: number;
+  adminDescription?: string;
 };
 
 export type PostUserBlockResponse = {

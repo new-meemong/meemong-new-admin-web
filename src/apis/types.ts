@@ -1,6 +1,7 @@
 // 공통 페이지 응답
 export interface PaginatedResponse<T> {
   content: T[];
+  dataList?: T[];
   totalCount: number;
   page: number;
   size: number;
@@ -36,11 +37,12 @@ export function normalizePaginatedResponse<T>(
   response: ServerPaginatedResponse<T>,
 ): PaginatedResponse<T> {
   const payload = getPaginatedPayload(response);
-  const content = payload.content ?? payload.dataList ?? [];
+  const content = payload.dataList ?? payload.content ?? [];
 
   return {
     ...payload,
     content,
+    dataList: content,
     totalCount: payload.totalCount ?? payload.dataCount ?? 0,
     page: payload.page ?? 1,
     size: payload.size ?? content.length,
