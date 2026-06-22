@@ -131,6 +131,9 @@ export default function HairConsultationDetailModal({
 
   const commentCount = commentsQuery.data?.dataCount ?? item.commentCount;
   const answerCount = answersQuery.data?.dataCount;
+  const authorId = item.user?.id ?? item.hairConsultationCreateUserId;
+  const authorDisplayName =
+    item.user?.displayName ?? (authorId != null ? String(authorId) : "-");
 
   const TABS: { key: TabType; label: string }[] = [
     { key: "info", label: "상세정보" },
@@ -165,16 +168,20 @@ export default function HairConsultationDetailModal({
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-full bg-secondary-background flex items-center justify-center text-base font-bold text-secondary-foreground">
-                  {item.hairConsultationCreateUserId?.toString().slice(-2) ??
-                    "?"}
+                  {authorId?.toString().slice(-2) ?? "?"}
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs text-foreground-weak">
-                    작성자 ID
+                    작성자
                   </span>
                   <span className="text-base font-semibold text-foreground">
-                    {item.hairConsultationCreateUserId ?? "-"}
+                    {authorDisplayName}
                   </span>
+                  {item.user?.phone && (
+                    <span className="text-xs text-foreground-weak">
+                      {item.user.phone}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -355,8 +362,11 @@ function DetailInfoTab({
   if (isLoading) return <LoadingState />;
   if (!detail) return null;
 
+  const authorAddress =
+    detail.user?.address ?? detail.hairConsultationCreateUserRegion;
+
   const infoRows: { label: string; value: React.ReactNode }[] = [
-    { label: "지역", value: detail.hairConsultationCreateUserRegion || "-" },
+    { label: "지역", value: authorAddress || "-" },
     {
       label: "희망비용",
       value:

@@ -1,3 +1,19 @@
+export type HairConsultationOrderColumn =
+  | "contentUpdatedAt"
+  | "minPaymentPrice"
+  | "maxPaymentPrice"
+  | "popular"
+  | "commentCountAndCreatedAt";
+
+export type HairConsultationSearchType = "NAME" | "PHONE";
+
+export interface IHairConsultationUser {
+  id: number;
+  address: string | null;
+  displayName: string | null;
+  phone: string | null;
+}
+
 export interface IHairConsultationListItem {
   id: number;
   title: string;
@@ -11,8 +27,9 @@ export interface IHairConsultationListItem {
   contentUpdatedAt: string;
   isFavorited: boolean;
   isRead: boolean;
-  hairConsultationCreateUserRegion: string | null;
-  hairConsultationCreateUserId: number;
+  user?: IHairConsultationUser | null;
+  hairConsultationCreateUserRegion?: string | null;
+  hairConsultationCreateUserId?: number;
 }
 
 export interface IHairConsultationImage {
@@ -50,8 +67,9 @@ export interface IHairConsultationDetail {
   myImages: IHairConsultationMyImage[];
   isFavorited: boolean;
   isRead: boolean;
-  hairConsultationCreateUserRegion: string | null;
-  hairConsultationCreateUserId: number;
+  user?: IHairConsultationUser | null;
+  hairConsultationCreateUserRegion?: string | null;
+  hairConsultationCreateUserId?: number;
 }
 
 export interface IHairConsultationCommentUser {

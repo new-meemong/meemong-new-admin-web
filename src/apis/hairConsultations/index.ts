@@ -2,7 +2,9 @@ import {
   IHairConsultationAnswer,
   IHairConsultationComment,
   IHairConsultationDetail,
-  IHairConsultationListItem
+  IHairConsultationListItem,
+  HairConsultationOrderColumn,
+  HairConsultationSearchType
 } from "@/models/hairConsultations";
 
 import { fetcher } from "@/apis/core";
@@ -12,16 +14,18 @@ const BASE_URL = "/api/v1/admins/hair-consultations";
 export type GetHairConsultationsRequest = {
   __limit?: number;
   __nextCursor?: string;
-  __orderColumn?:
-    | "contentUpdatedAt"
-    | "createdAt"
-    | "minPaymentPrice"
-    | "maxPaymentPrice"
-    | "popular"
-    | "commentCountAndCreatedAt";
+  __orderColumn?: HairConsultationOrderColumn;
   __order?: "asc" | "desc";
   addresses?: string[];
   createdInsideDurationDays?: number;
+  createdInsideDurationHours?: number;
+  isRead?: boolean;
+  isMine?: boolean;
+  isMineComment?: boolean;
+  isMineFavorite?: boolean;
+  distance?: number;
+  searchType?: HairConsultationSearchType;
+  searchKeyword?: string;
 };
 
 export type CursorListResponse<T> = {
@@ -71,9 +75,19 @@ export const hairConsultationAPI = {
     __orderColumn,
     __order,
     addresses,
-    createdInsideDurationDays
-  }: GetHairConsultationsRequest): Promise<GetHairConsultationsResponse> =>
-    fetcher<GetHairConsultationsResponse>(BASE_URL, {
+    createdInsideDurationDays,
+    createdInsideDurationHours,
+    isRead,
+    isMine,
+    isMineComment,
+    isMineFavorite,
+    distance,
+    searchType,
+    searchKeyword
+  }: GetHairConsultationsRequest): Promise<GetHairConsultationsResponse> => {
+    const trimmedSearchKeyword = searchKeyword?.trim();
+
+    return fetcher<GetHairConsultationsResponse>(BASE_URL, {
       query: {
         __limit,
         ...(__nextCursor && { __nextCursor }),
@@ -81,9 +95,18 @@ export const hairConsultationAPI = {
         ...(__order && { __order }),
         ...(addresses &&
           addresses.length > 0 && { addresses: addresses.join(",") }),
-        ...(createdInsideDurationDays && { createdInsideDurationDays })
+        ...(createdInsideDurationDays && { createdInsideDurationDays }),
+        ...(createdInsideDurationHours && { createdInsideDurationHours }),
+        ...(isRead && { isRead }),
+        ...(isMine && { isMine }),
+        ...(isMineComment && { isMineComment }),
+        ...(isMineFavorite && { isMineFavorite }),
+        ...(distance !== undefined && { distance }),
+        ...(trimmedSearchKeyword &&
+          searchType && { searchType, searchKeyword: trimmedSearchKeyword })
       }
-    }),
+    });
+  },
 
   getById: async (
     hairConsultationId: number
