@@ -3,20 +3,22 @@
 import { ColumnDef, Row } from "@tanstack/react-table";
 import React, { useCallback, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import CommonPagination from "@/components/shared/common-pagination";
 import CommonTable from "@/components/shared/common-table";
+import { GetHairConsultationsRequest } from "@/apis/hairConsultations";
 import HairConsultationDetailModal from "@/components/features/contents/contents-detail-modal/hair-consultation-detail-modal";
 import {
   IHairConsultationListItem,
-  HairConsultationSearchType
+  HairConsultationSearchType,
 } from "@/models/hairConsultations";
 import {
   SearchForm,
   SearchFormInput,
-  SearchFormSelectBox
+  SearchFormSelectBox,
 } from "@/components/shared/search-form";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
+import useContentsCursorPagination from "@/components/features/contents/hooks/useContentsCursorPagination";
 import { useGetHairConsultationsQuery } from "@/queries/hairConsultations";
 import { useModal } from "@/components/shared/modal/useModal";
 
@@ -27,7 +29,7 @@ type HairConsultationSearchParams = {
 
 const DEFAULT_SEARCH_PARAMS: HairConsultationSearchParams = {
   searchType: "NAME",
-  searchKeyword: ""
+  searchKeyword: "",
 };
 
 const SEARCH_TYPE_OPTIONS: {
@@ -35,7 +37,7 @@ const SEARCH_TYPE_OPTIONS: {
   label: string;
 }[] = [
   { value: "NAME", label: "닉네임" },
-  { value: "PHONE", label: "전화번호" }
+  { value: "PHONE", label: "전화번호" },
 ];
 
 const getHairConsultationUserId = (item: IHairConsultationListItem) =>
@@ -47,7 +49,7 @@ const COLUMNS: ColumnDef<IHairConsultationListItem>[] = [
     header: "No",
     cell: (info) => info.getValue(),
     size: 80,
-    enableSorting: false
+    enableSorting: false,
   },
   {
     id: "userId",
@@ -55,7 +57,7 @@ const COLUMNS: ColumnDef<IHairConsultationListItem>[] = [
     header: "작성자 ID",
     cell: (info) => info.getValue() || "-",
     size: 120,
-    enableSorting: false
+    enableSorting: false,
   },
   {
     id: "userDisplayName",
@@ -63,7 +65,7 @@ const COLUMNS: ColumnDef<IHairConsultationListItem>[] = [
     header: "닉네임",
     cell: (info) => info.getValue(),
     size: 120,
-    enableSorting: false
+    enableSorting: false,
   },
   {
     id: "userPhone",
@@ -71,7 +73,7 @@ const COLUMNS: ColumnDef<IHairConsultationListItem>[] = [
     header: "전화번호",
     cell: (info) => info.getValue(),
     size: 130,
-    enableSorting: false
+    enableSorting: false,
   },
   {
     accessorKey: "title",
@@ -79,13 +81,13 @@ const COLUMNS: ColumnDef<IHairConsultationListItem>[] = [
     cell: (info) => (
       <span
         className={cn(
-          "cursor-pointer text-secondary-foreground hover:underline"
+          "cursor-pointer text-secondary-foreground hover:underline",
         )}
       >
         {info.getValue() as string}
       </span>
     ),
-    enableSorting: false
+    enableSorting: false,
   },
   {
     accessorKey: "desiredCostPrice",
@@ -95,29 +97,29 @@ const COLUMNS: ColumnDef<IHairConsultationListItem>[] = [
       return price != null ? `${price.toLocaleString()}원` : "-";
     },
     size: 120,
-    enableSorting: false
+    enableSorting: false,
   },
   {
     accessorKey: "viewCount",
     header: "조회수",
     cell: (info) => info.getValue(),
     size: 80,
-    enableSorting: false
+    enableSorting: false,
   },
   {
     accessorKey: "commentCount",
     header: "댓글",
     cell: (info) => info.getValue(),
     size: 80,
-    enableSorting: false
+    enableSorting: false,
   },
   {
     accessorKey: "createdAt",
     header: "생성일",
     cell: (info) => formatDate(info.getValue() as string, "YYYY.MM.DD HH:mm"),
     size: 160,
-    enableSorting: true
-  }
+    enableSorting: true,
+  },
 ];
 
 interface HairConsultationContentProps {
@@ -125,101 +127,96 @@ interface HairConsultationContentProps {
 }
 
 export default function HairConsultationContent({
-  className
+  className,
 }: HairConsultationContentProps) {
   const modal = useModal();
   const [selected, setSelected] = useState<IHairConsultationListItem | null>(
-    null
+    null,
   );
   const [searchParams, setSearchParams] =
     useState<HairConsultationSearchParams>(DEFAULT_SEARCH_PARAMS);
   const [submittedSearchParams, setSubmittedSearchParams] =
     useState<HairConsultationSearchParams>(DEFAULT_SEARCH_PARAMS);
 
-  // cursor-based pagination
-  const [cursorStack, setCursorStack] = useState<(string | undefined)[]>([
-    undefined
-  ]);
-  const [cursorIndex, setCursorIndex] = useState(0);
+  const submittedSearchKeyword = submittedSearchParams.searchKeyword.trim();
 
-  const currentCursor = cursorStack[cursorIndex];
-  const submittedSearchKeyword =
-    submittedSearchParams.searchKeyword.trim();
+  const buildHairConsultationsRequest = useCallback(
+    (
+      cursor: string | undefined,
+      pageSize: number,
+    ): GetHairConsultationsRequest => ({
+      __limit: pageSize,
+      __nextCursor: cursor,
+      __orderColumn: "contentUpdatedAt",
+      __order: "desc",
+      ...(submittedSearchKeyword && {
+        searchType: submittedSearchParams.searchType,
+        searchKeyword: submittedSearchKeyword,
+      }),
+    }),
+    [submittedSearchKeyword, submittedSearchParams.searchType],
+  );
 
-  const getHairConsultationsQuery = useGetHairConsultationsQuery({
-    __limit: 20,
-    __nextCursor: currentCursor,
-    __orderColumn: "contentUpdatedAt",
-    __order: "desc",
-    ...(submittedSearchKeyword && {
-      searchType: submittedSearchParams.searchType,
-      searchKeyword: submittedSearchKeyword
-    })
-  });
+  const {
+    currentCursor,
+    currentPage,
+    pageSize,
+    resetPagination,
+    handlePageChange,
+    handleSizeChange,
+    getReachableTotalCount,
+  } = useContentsCursorPagination();
+
+  const getHairConsultationsQuery = useGetHairConsultationsQuery(
+    buildHairConsultationsRequest(currentCursor, pageSize),
+  );
 
   const dataList = getHairConsultationsQuery.data?.dataList ?? [];
   const nextCursor = getHairConsultationsQuery.data?.__nextCursor ?? null;
 
-  const resetCursor = useCallback(() => {
-    setCursorStack([undefined]);
-    setCursorIndex(0);
-  }, []);
-
   const handleSearch = useCallback(() => {
     const nextSearchParams = {
       ...searchParams,
-      searchKeyword: searchParams.searchKeyword.trim()
+      searchKeyword: searchParams.searchKeyword.trim(),
     };
 
     setSearchParams(nextSearchParams);
     setSubmittedSearchParams(nextSearchParams);
-    resetCursor();
-  }, [searchParams, resetCursor]);
+    resetPagination();
+  }, [searchParams, resetPagination]);
 
   const handleReset = useCallback(() => {
     setSearchParams(DEFAULT_SEARCH_PARAMS);
     setSubmittedSearchParams(DEFAULT_SEARCH_PARAMS);
-    resetCursor();
-  }, [resetCursor]);
+    resetPagination();
+  }, [resetPagination]);
 
   const handleSearchTypeChange = useCallback(
     ({ value }: { key: keyof HairConsultationSearchParams; value: string }) => {
       setSearchParams((prev) => ({
         ...prev,
-        searchType: value as HairConsultationSearchType
+        searchType: value as HairConsultationSearchType,
       }));
     },
-    []
+    [],
   );
 
   const handleSearchKeywordChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setSearchParams((prev) => ({
         ...prev,
-        searchKeyword: event.target.value
+        searchKeyword: event.target.value,
       }));
     },
-    []
+    [],
   );
-
-  const handleNext = useCallback(() => {
-    if (!nextCursor) return;
-    const newStack = [...cursorStack.slice(0, cursorIndex + 1), nextCursor];
-    setCursorStack(newStack);
-    setCursorIndex(cursorIndex + 1);
-  }, [nextCursor, cursorStack, cursorIndex]);
-
-  const handlePrev = useCallback(() => {
-    if (cursorIndex === 0) return;
-    setCursorIndex(cursorIndex - 1);
-  }, [cursorIndex]);
 
   const handleClickRow = useCallback(
     (row: Row<IHairConsultationListItem>) => {
       setSelected(row.original);
       modal.open();
     },
-    [modal]
+    [modal],
   );
 
   const handleClose = useCallback(() => {
@@ -256,24 +253,15 @@ export default function HairConsultationContent({
         onClickRow={handleClickRow}
       />
 
-      <div className={cn("flex items-center justify-end gap-2 mt-2")}>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handlePrev}
-          disabled={cursorIndex === 0}
-        >
-          이전
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleNext}
-          disabled={!nextCursor}
-        >
-          다음
-        </Button>
-      </div>
+      <CommonPagination
+        currentPage={currentPage}
+        pageSize={pageSize}
+        totalCount={getReachableTotalCount(getHairConsultationsQuery.data)}
+        onPageChange={(page) => {
+          handlePageChange(page, nextCursor);
+        }}
+        onSizeChange={handleSizeChange}
+      />
 
       {selected && (
         <HairConsultationDetailModal

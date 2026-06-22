@@ -20,7 +20,7 @@ export type GetShampooRoomsRequest = {
 export type GetShampooRoomsResponse = {
   dataCount: number;
   dataList: IShampooRoom[];
-  __nextCursor: string;
+  __nextCursor: string | null;
 };
 
 export type GetShampooRoomByIdResponse = {

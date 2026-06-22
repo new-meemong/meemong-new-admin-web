@@ -68,6 +68,7 @@ export default function CommonPagination({
 
   const PAGE_SIZE_OPTIONS = [
     { value: "10", label: "10 / page" },
+    { value: "15", label: "15 / page" },
     { value: "20", label: "20 / page" },
     { value: "50", label: "50 / page" },
   ];
