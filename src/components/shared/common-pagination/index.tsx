@@ -19,6 +19,8 @@ export interface CommonPaginationProps {
   currentPage: number;
   totalCount: number;
   pageSize?: number;
+  minimumPageCount?: number;
+  canChangePage?: (page: number) => boolean;
   onPageChange: (page: number) => void;
   onSizeChange: (size: number) => void;
 }
@@ -35,10 +37,16 @@ export default function CommonPagination({
   currentPage,
   totalCount,
   pageSize = DEFAULT_PAGINATION.size,
+  minimumPageCount = 1,
+  canChangePage = () => true,
   onPageChange,
   onSizeChange,
 }: CommonPaginationProps) {
-  const totalPageCount = Math.max(1, Math.ceil(totalCount / pageSize));
+  const totalPageCount = Math.max(
+    1,
+    minimumPageCount,
+    Math.ceil(totalCount / pageSize),
+  );
 
   const { blockStart, blockEnd } = React.useMemo(() => {
     const blockIndex = Math.floor((currentPage - 1) / PAGES_PER_BLOCK);
@@ -52,18 +60,23 @@ export default function CommonPagination({
     [blockStart, blockEnd],
   );
 
-  const canGoPrevPage = currentPage > 1;
-  const canGoNextPage = currentPage < totalPageCount;
-  const canGoPrevBlock = blockStart > 1;
-  const canGoNextBlock = blockEnd < totalPageCount;
+  const prevPage = currentPage - 1;
+  const nextPage = currentPage + 1;
+  const prevBlockPage = Math.max(1, blockStart - PAGES_PER_BLOCK);
+  const nextBlockPage = Math.min(totalPageCount, blockStart + PAGES_PER_BLOCK);
+  const canGoPrevPage = currentPage > 1 && canChangePage(prevPage);
+  const canGoNextPage = currentPage < totalPageCount && canChangePage(nextPage);
+  const canGoPrevBlock = blockStart > 1 && canChangePage(prevBlockPage);
+  const canGoNextBlock =
+    blockEnd < totalPageCount && canChangePage(nextBlockPage);
 
   const jumpToPrevBlock = () => {
     if (!canGoPrevBlock) return;
-    onPageChange(Math.max(1, blockStart - PAGES_PER_BLOCK));
+    onPageChange(prevBlockPage);
   };
   const jumpToNextBlock = () => {
     if (!canGoNextBlock) return;
-    onPageChange(Math.min(totalPageCount, blockStart + PAGES_PER_BLOCK));
+    onPageChange(nextBlockPage);
   };
 
   const PAGE_SIZE_OPTIONS = [
@@ -112,21 +125,30 @@ export default function CommonPagination({
           </PaginationItem>
 
           {/* 현재 블록(10페이지) */}
-          {pagesInBlock.map((page) => (
-            <PaginationItem key={page}>
-              <PaginationLink
-                href="#"
-                isActive={page === currentPage}
-                aria-label={`${page}페이지`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onPageChange(page);
-                }}
-              >
-                {page}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
+          {pagesInBlock.map((page) => {
+            const isPageActive = page === currentPage;
+            const isPageDisabled = !isPageActive && !canChangePage(page);
+
+            return (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  href="#"
+                  isActive={isPageActive}
+                  aria-label={`${page}페이지`}
+                  aria-disabled={isPageDisabled}
+                  className={cn(
+                    isPageDisabled && "pointer-events-none opacity-50",
+                  )}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (!isPageDisabled) onPageChange(page);
+                  }}
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            );
+          })}
 
           {/* > (다음 1페이지) */}
           <PaginationItem>
@@ -137,7 +159,7 @@ export default function CommonPagination({
               className={cn(!canGoNextPage && "pointer-events-none opacity-50")}
               onClick={(e) => {
                 e.preventDefault();
-                if (canGoNextPage) onPageChange(currentPage + 1);
+                if (canGoNextPage) onPageChange(nextPage);
               }}
             >
               <ChevronRight className={ICON_CLASS} />

@@ -2,10 +2,10 @@
 
 import { ColumnDef, Row } from "@tanstack/react-table";
 import CommonPagination, {
-  CommonPaginationProps
+  CommonPaginationProps,
 } from "@/components/shared/common-pagination";
 import CommonTable, {
-  CommonTableProps
+  CommonTableProps,
 } from "@/components/shared/common-table";
 import { ContentsCategoryType, IContents } from "@/models/contents";
 import React, { useCallback, useState } from "react";
@@ -44,11 +44,11 @@ function ContentsTable({
   const { tabId } = useContentsContext();
 
   const [selectedContents, setSelectedContents] = useState<IContents | null>(
-    null
+    null,
   );
 
   const getColumnsByCategory = (
-    category: ContentsCategoryType
+    category: ContentsCategoryType,
   ): ColumnDef<IContents>[] => {
     const baseColumns: ColumnDef<IContents>[] = [
       {
@@ -56,15 +56,15 @@ function ContentsTable({
         header: "No",
         cell: (info) => info.getValue(),
         size: 80,
-        enableSorting: false
+        enableSorting: false,
       },
       {
         accessorKey: "userInfo.displayName",
         header: "닉네임",
         cell: (info) => info.getValue() || "-",
         size: 180,
-        enableSorting: false
-      }
+        enableSorting: false,
+      },
     ];
 
     switch (category) {
@@ -79,7 +79,7 @@ function ContentsTable({
               return role === 1 ? "모델" : role === 2 ? "디자이너" : "-";
             },
             size: 120,
-            enableSorting: false
+            enableSorting: false,
           },
           {
             accessorKey: "title",
@@ -87,13 +87,13 @@ function ContentsTable({
             cell: (info) => (
               <span
                 className={cn(
-                  "cursor-pointer text-secondary-foreground hover:underline"
+                  "cursor-pointer text-secondary-foreground hover:underline",
                 )}
               >
                 {info.getValue() as string}
               </span>
             ),
-            enableSorting: false
+            enableSorting: false,
           },
           {
             accessorKey: "createdAt",
@@ -101,15 +101,15 @@ function ContentsTable({
             cell: (info) =>
               formatDate(info.getValue() as string, "YYYY.MM.DD / HH:mm"),
             size: 150,
-            enableSorting: true
+            enableSorting: true,
           },
           {
             accessorKey: "deletedAt",
             header: "삭제여부",
             cell: (info) => (info.getValue() ? <span>삭제</span> : "-"),
             size: 80,
-            enableSorting: false
-          }
+            enableSorting: false,
+          },
         ];
       case "1":
         return [
@@ -131,8 +131,8 @@ function ContentsTable({
               }
             },
             size: 80,
-            enableSorting: false
-          }
+            enableSorting: false,
+          },
         ];
       case "2":
         return [
@@ -142,7 +142,7 @@ function ContentsTable({
             header: "업체명",
             cell: (info) => info.getValue() || "-",
             size: 180,
-            enableSorting: false
+            enableSorting: false,
           },
           {
             accessorKey: "postingTitle",
@@ -150,13 +150,13 @@ function ContentsTable({
             cell: (info) => (
               <span
                 className={cn(
-                  "cursor-pointer text-secondary-foreground hover:underline"
+                  "cursor-pointer text-secondary-foreground hover:underline",
                 )}
               >
                 {(info.getValue() as string) || "-"}
               </span>
             ),
-            enableSorting: false
+            enableSorting: false,
           },
           {
             accessorKey: "createdAt",
@@ -165,15 +165,15 @@ function ContentsTable({
               formatDate(info.getValue() as string, "YYYY.MM.DD / HH:mm") ||
               "-",
             size: 150,
-            enableSorting: true
+            enableSorting: true,
           },
           {
             accessorKey: "deletedAt",
             header: "삭제여부",
             cell: (info) => (info.getValue() ? <span>삭제</span> : "-"),
             size: 80,
-            enableSorting: false
-          }
+            enableSorting: false,
+          },
         ];
       case "3":
         return [
@@ -185,7 +185,7 @@ function ContentsTable({
               return (info.getValue() as ResumeRoleType) || "-";
             },
             size: 120,
-            enableSorting: false
+            enableSorting: false,
           },
           {
             accessorKey: "shortDescription",
@@ -193,13 +193,13 @@ function ContentsTable({
             cell: (info) => (
               <span
                 className={cn(
-                  "cursor-pointer text-secondary-foreground hover:underline"
+                  "cursor-pointer text-secondary-foreground hover:underline",
                 )}
               >
                 {info.getValue() as string}
               </span>
             ),
-            enableSorting: false
+            enableSorting: false,
           },
           {
             accessorKey: "createdAt",
@@ -207,15 +207,15 @@ function ContentsTable({
             cell: (info) =>
               formatDate(info.getValue() as string, "YYYY.MM.DD / HH:mm"),
             size: 150,
-            enableSorting: true
+            enableSorting: true,
           },
           {
             accessorKey: "deletedAt",
             header: "삭제여부",
             cell: (info) => (info.getValue() ? <span>삭제</span> : "-"),
             size: 80,
-            enableSorting: false
-          }
+            enableSorting: false,
+          },
         ];
       case "4":
         return [
@@ -227,7 +227,7 @@ function ContentsTable({
               return info.getValue() || "-";
             },
             size: 120,
-            enableSorting: false
+            enableSorting: false,
           },
           {
             accessorKey: "priceType",
@@ -236,7 +236,7 @@ function ContentsTable({
               return info.getValue() || "-";
             },
             size: 120,
-            enableSorting: false
+            enableSorting: false,
           },
           {
             accessorKey: "announcementTitle",
@@ -244,13 +244,13 @@ function ContentsTable({
             cell: (info) => (
               <span
                 className={cn(
-                  "cursor-pointer text-secondary-foreground hover:underline"
+                  "cursor-pointer text-secondary-foreground hover:underline",
                 )}
               >
                 {(info.getValue() as string) || "-"}
               </span>
             ),
-            enableSorting: false
+            enableSorting: false,
           },
           {
             accessorKey: "createdAt",
@@ -258,8 +258,8 @@ function ContentsTable({
             cell: (info) =>
               formatDate(info.getValue() as string, "YYYY.MM.DD / HH:mm"),
             size: 150,
-            enableSorting: true
-          }
+            enableSorting: true,
+          },
         ];
       default:
         return baseColumns;
@@ -283,6 +283,7 @@ function ContentsTable({
       <CommonPagination
         currentPage={currentPage || 1}
         pageSize={pageSize}
+        minimumPageCount={10}
         totalCount={totalCount ?? 0}
         onPageChange={onPageChange}
         onSizeChange={onSizeChange}

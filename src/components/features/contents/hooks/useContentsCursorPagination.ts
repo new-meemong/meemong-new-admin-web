@@ -33,9 +33,29 @@ export default function useContentsCursorPagination({
     setCurrentPage(DEFAULT_PAGINATION.page);
   }, []);
 
+  const canChangePage = useCallback(
+    (targetPage: number, currentNextCursor?: string | null) => {
+      if (targetPage < DEFAULT_PAGINATION.page) {
+        return false;
+      }
+
+      if (targetPage <= cursorStack.length) {
+        return true;
+      }
+
+      return (
+        targetPage === cursorStack.length + 1 && Boolean(currentNextCursor)
+      );
+    },
+    [cursorStack.length],
+  );
+
   const handlePageChange = useCallback(
     (targetPage: number, currentNextCursor?: string | null) => {
-      if (targetPage < DEFAULT_PAGINATION.page || targetPage === currentPage) {
+      if (
+        !canChangePage(targetPage, currentNextCursor) ||
+        targetPage === currentPage
+      ) {
         return;
       }
 
@@ -44,18 +64,10 @@ export default function useContentsCursorPagination({
         return;
       }
 
-      const nextCursor = currentNextCursor || undefined;
-      const canMoveToNextCursorPage =
-        targetPage === cursorStack.length + 1 && Boolean(nextCursor);
-
-      if (!canMoveToNextCursorPage) {
-        return;
-      }
-
-      setCursorStack([...cursorStack, nextCursor]);
+      setCursorStack([...cursorStack, currentNextCursor || undefined]);
       setCurrentPage(targetPage);
     },
-    [currentPage, cursorStack],
+    [canChangePage, currentPage, cursorStack],
   );
 
   const getReachableTotalCount = useCallback(
@@ -85,6 +97,7 @@ export default function useContentsCursorPagination({
     resetPagination,
     handlePageChange,
     handleSizeChange,
+    canChangePage,
     getReachableTotalCount,
   };
 }

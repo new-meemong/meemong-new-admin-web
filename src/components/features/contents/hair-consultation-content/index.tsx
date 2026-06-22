@@ -164,6 +164,7 @@ export default function HairConsultationContent({
     resetPagination,
     handlePageChange,
     handleSizeChange,
+    canChangePage,
     getReachableTotalCount,
   } = useContentsCursorPagination();
 
@@ -256,6 +257,8 @@ export default function HairConsultationContent({
       <CommonPagination
         currentPage={currentPage}
         pageSize={pageSize}
+        minimumPageCount={10}
+        canChangePage={(page) => canChangePage(page, nextCursor)}
         totalCount={getReachableTotalCount(getHairConsultationsQuery.data)}
         onPageChange={(page) => {
           handlePageChange(page, nextCursor);
