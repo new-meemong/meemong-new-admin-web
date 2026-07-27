@@ -4,6 +4,7 @@ import {
   deriveCurrentBannerPlacementId,
   deriveLegacyPlacementId,
   filterBannerClicks,
+  filterBannerClicksByBannerIds,
   getClickChangeRate,
   normalizeBannerClickDocument,
   resolveBannerClickFilters,
@@ -146,5 +147,17 @@ describe("banner click normalization", () => {
     ).toEqual(["click-1"]);
     expect(getClickChangeRate(120, 100)).toBe(20);
     expect(getClickChangeRate(10, 0)).toBeUndefined();
+  });
+
+  it("filters clicks by the currently active banner IDs", () => {
+    expect(
+      filterBannerClicksByBannerIds(
+        [
+          createClick({ bannerId: "active" }),
+          createClick({ bannerId: "inactive" }),
+        ],
+        new Set(["active"]),
+      ).map((click) => click.bannerId),
+    ).toEqual(["active"]);
   });
 });

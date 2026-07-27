@@ -11,6 +11,7 @@ import React, { useCallback, useState } from "react";
 
 import BannerEditModal from "@/components/features/banner/banner-edit-modal";
 import BannerImageBox from "@/components/features/banner/banner-image-box";
+import BannerStatusBadge from "@/components/features/banner/banner-status-badge";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { IBanner } from "@/models/banner";
 import { cn } from "@/lib/utils";
@@ -98,21 +99,7 @@ function BannerTable({
       cell: (info) => {
         const status =
           bannerStatusesById.get(info.row.original.id) ?? "비활성화";
-        const statusStyles = {
-          활성화: "bg-green-500 text-white",
-          비활성화: "bg-gray-500 text-white",
-          종료됨: "bg-gray-300 text-white"
-        };
-        return (
-          <span
-            className={cn(
-              "inline-flex items-center justify-center px-2 py-1 rounded-md text-sm font-medium",
-              statusStyles[status]
-            )}
-          >
-            {status}
-          </span>
-        );
+        return <BannerStatusBadge status={status} />;
       },
       enableSorting: false
     }

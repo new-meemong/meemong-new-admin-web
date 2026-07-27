@@ -121,6 +121,13 @@ export function filterBannerClicks(
   });
 }
 
+export function filterBannerClicksByBannerIds(
+  clicks: NormalizedBannerClick[],
+  bannerIds: ReadonlySet<string>,
+) {
+  return clicks.filter((click) => bannerIds.has(click.bannerId));
+}
+
 export function resolveBannerClickFilters(
   filters: BannerClickFilters,
 ): BannerClickFilters {

@@ -4,11 +4,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import CommonTable from "@/components/shared/common-table";
 import CommonPagination from "@/components/shared/common-pagination";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import BannerImageBox from "@/components/features/banner/banner-image-box";
+import BannerStatusBadge from "@/components/features/banner/banner-status-badge";
 import BannerClickTrendChart from "@/components/features/banner/banner-click-trend-chart";
 import { useBannerContext } from "@/components/contexts/banner-context";
 import {
@@ -27,6 +29,7 @@ import {
   aggregateBannerClicks,
   deriveCurrentBannerPlacementId,
   filterBannerClicks,
+  filterBannerClicksByBannerIds,
   getClickChangeRate,
   resolveBannerClickFilters,
 } from "@/utils/bannerClickAnalytics";
@@ -110,6 +113,7 @@ export default function BannerClickDashboard() {
   const [placementId, setPlacementId] = useState<
     BannerClickPlacementId | "all"
   >("all");
+  const [showActiveOnly, setShowActiveOnly] = useState(false);
   const [firstCompareBannerId, setFirstCompareBannerId] = useState("");
   const [secondCompareBannerId, setSecondCompareBannerId] = useState("");
   const [tablePage, setTablePage] = useState(DEFAULT_PAGINATION.page);
@@ -145,7 +149,10 @@ export default function BannerClickDashboard() {
     [bannerTabValues.bannerType, bannerTabValues.userType, placementId],
   );
   const canUseServerPreviousCount =
-    !filters.userType && !filters.bannerType && !filters.placementId;
+    !showActiveOnly &&
+    !filters.userType &&
+    !filters.bannerType &&
+    !filters.placementId;
   const clicksQuery = useBannerClicksQuery(
     range ?? createBannerClickDateRange("30d"),
     { enabled: Boolean(range) },
@@ -181,24 +188,8 @@ export default function BannerClickDashboard() {
     customTo,
     periodPreset,
     placementId,
+    showActiveOnly,
   ]);
-
-  const currentClicks = useMemo(
-    () => filterBannerClicks(clicksQuery.data?.clicks ?? [], filters),
-    [clicksQuery.data?.clicks, filters],
-  );
-  const previousClicks = useMemo(
-    () => filterBannerClicks(previousClicksQuery.data?.clicks ?? [], filters),
-    [filters, previousClicksQuery.data?.clicks],
-  );
-  const aggregate = useMemo(
-    () => aggregateBannerClicks(currentClicks),
-    [currentClicks],
-  );
-  const previousAggregate = useMemo(
-    () => aggregateBannerClicks(previousClicks),
-    [previousClicks],
-  );
 
   const banners = useMemo(
     () => bannersQuery.data?.content ?? [],
@@ -207,6 +198,46 @@ export default function BannerClickDashboard() {
   const bannerStatuses = useMemo(
     () => getBannerStatusesById(banners),
     [banners],
+  );
+  const activeBannerIds = useMemo(
+    () =>
+      new Set(
+        banners
+          .filter((banner) => bannerStatuses.get(banner.id) === "활성화")
+          .map((banner) => String(banner.id)),
+      ),
+    [bannerStatuses, banners],
+  );
+  const currentClicks = useMemo(() => {
+    const filteredClicks = filterBannerClicks(
+      clicksQuery.data?.clicks ?? [],
+      filters,
+    );
+    return showActiveOnly
+      ? filterBannerClicksByBannerIds(filteredClicks, activeBannerIds)
+      : filteredClicks;
+  }, [activeBannerIds, clicksQuery.data?.clicks, filters, showActiveOnly]);
+  const previousClicks = useMemo(() => {
+    const filteredClicks = filterBannerClicks(
+      previousClicksQuery.data?.clicks ?? [],
+      filters,
+    );
+    return showActiveOnly
+      ? filterBannerClicksByBannerIds(filteredClicks, activeBannerIds)
+      : filteredClicks;
+  }, [
+    activeBannerIds,
+    filters,
+    previousClicksQuery.data?.clicks,
+    showActiveOnly,
+  ]);
+  const aggregate = useMemo(
+    () => aggregateBannerClicks(currentClicks),
+    [currentClicks],
+  );
+  const previousAggregate = useMemo(
+    () => aggregateBannerClicks(previousClicks),
+    [previousClicks],
   );
   const dateKeys = useMemo(() => {
     if (!range) return [];
@@ -227,6 +258,9 @@ export default function BannerClickDashboard() {
       banners.map((banner) => [String(banner.id), banner]),
     );
     const masterRows = banners.flatMap((banner) => {
+      const status = bannerStatuses.get(banner.id) ?? "비활성화";
+      if (showActiveOnly && status !== "활성화") return [];
+
       const click = clickByBanner.get(String(banner.id));
       const configuredPlacementIds = [
         deriveCurrentBannerPlacementId(banner.userType, banner.bannerType),
@@ -254,7 +288,7 @@ export default function BannerClickDashboard() {
           placementLabel: click
             ? getPlacementLabel(placementIds)
             : `현재 설정 · ${getPlacementLabel(configuredPlacementIds)}`,
-          status: bannerStatuses.get(banner.id) ?? "비활성화",
+          status,
           clicks: click?.clicks ?? 0,
           averageDailyClicks: bannerDayCount
             ? (click?.clicks ?? 0) / bannerDayCount
@@ -294,6 +328,7 @@ export default function BannerClickDashboard() {
     dayCount,
     periodPreset,
     placementId,
+    showActiveOnly,
   ]);
 
   const paginatedRows = useMemo(() => {
@@ -362,11 +397,16 @@ export default function BannerClickDashboard() {
       accessorKey: "status",
       header: "상태",
       size: 110,
-      cell: ({ getValue }) => (
-        <span className="rounded-md bg-background-label px-2 py-1">
-          {getValue() as string}
-        </span>
-      ),
+      cell: ({ getValue }) => {
+        const status = getValue() as DashboardBannerRow["status"];
+        return status === "삭제·미매칭" ? (
+          <span className="rounded-md bg-background-label px-2 py-1">
+            {status}
+          </span>
+        ) : (
+          <BannerStatusBadge status={status} />
+        );
+      },
       enableSorting: false,
     },
     {
@@ -464,6 +504,13 @@ export default function BannerClickDashboard() {
               ),
             )}
           </select>
+          <label className="flex cursor-pointer select-none items-center gap-1.5 px-1 text-sm">
+            <Checkbox
+              checked={showActiveOnly}
+              onCheckedChange={(checked) => setShowActiveOnly(checked === true)}
+            />
+            <span>활성화된 배너만 보기</span>
+          </label>
           <Button
             variant="outline"
             onClick={() => {
@@ -487,6 +534,11 @@ export default function BannerClickDashboard() {
         {(periodPreset === "7d" || periodPreset === "30d") && (
           <p className="mt-3 text-xs text-muted-foreground">
             오늘을 포함한 KST 기준이며, 오늘 데이터는 아직 진행 중입니다.
+          </p>
+        )}
+        {showActiveOnly && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            목록과 동일한 현재 상태 기준으로 활성화된 배너의 클릭만 집계합니다.
           </p>
         )}
       </section>
