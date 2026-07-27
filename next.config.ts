@@ -22,6 +22,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       new URL("https://images.unsplash.com/**"),
+      new URL("https://d2ix6zr2mwdd96.cloudfront.net/**"),
       new URL("https://meemong-uploads.s3.ap-northeast-2.amazonaws.com/**"),
       new URL("https://job-storage.meemong.com/**"),
     ],

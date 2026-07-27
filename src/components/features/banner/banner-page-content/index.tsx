@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import BannerSearchForm from "@/components/features/banner/banner-search-form";
 import BannerTable from "@/components/features/banner/banner-table";
@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { useBannerContext } from "@/components/contexts/banner-context";
 import { useGetBannersQuery } from "@/queries/banners";
 import useSearchMethods from "@/components/shared/search-form/useSearchMethods";
+import { getBannerStatusesById } from "@/utils/banner";
 
 interface BannerPageContentProps {
   className?: string;
@@ -17,6 +18,7 @@ interface BannerPageContentProps {
 
 function BannerPageContent({ className }: BannerPageContentProps) {
   const { bannerTabValues } = useBannerContext();
+  const [showActiveOnly, setShowActiveOnly] = useState(false);
 
   // 탭이 바뀔 때 초기 파라미터 생성
   // useSearchMethods의 BaseParams 타입 요구사항에 맞추기 위해 page, size 포함
@@ -55,12 +57,28 @@ function BannerPageContent({ className }: BannerPageContentProps) {
 
   const currentPage = Number(methods.params.page ?? DEFAULT_PAGINATION.page);
   const pageSize = Number(methods.params.size ?? DEFAULT_PAGINATION.size);
+  const banners = useMemo(
+    () => getBannersQuery.data?.content ?? [],
+    [getBannersQuery.data?.content]
+  );
+  const bannerStatusesById = useMemo(
+    () => getBannerStatusesById(banners),
+    [banners]
+  );
+  const filteredBanners = useMemo(
+    () =>
+      showActiveOnly
+        ? banners.filter(
+            (banner) => bannerStatusesById.get(banner.id) === "활성화"
+          )
+        : banners,
+    [bannerStatusesById, banners, showActiveOnly]
+  );
   const paginatedBanners = useMemo(() => {
-    const banners = getBannersQuery.data?.content ?? [];
     const startIndex = (currentPage - 1) * pageSize;
-    return banners.slice(startIndex, startIndex + pageSize);
-  }, [getBannersQuery.data, currentPage, pageSize]);
-  const totalCount = getBannersQuery.data?.content.length ?? 0;
+    return filteredBanners.slice(startIndex, startIndex + pageSize);
+  }, [currentPage, filteredBanners, pageSize]);
+  const totalCount = filteredBanners.length;
 
   useEffect(() => {
     methods.setParams((prev) => ({ ...prev, ...bannerTabValues }));
@@ -70,12 +88,18 @@ function BannerPageContent({ className }: BannerPageContentProps) {
   return (
     <div className={cn("banner-page-content", className)}>
       <BannerSearchForm
+        showActiveOnly={showActiveOnly}
+        onShowActiveOnlyChange={(checked) => {
+          setShowActiveOnly(checked);
+          methods.handleChangePage(1);
+        }}
         onRefresh={() => {
           getBannersQuery.refetch();
         }}
       />
       <BannerTable
         data={paginatedBanners}
+        bannerStatusesById={bannerStatusesById}
         totalCount={totalCount}
         currentPage={currentPage}
         pageSize={pageSize}

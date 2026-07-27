@@ -7,6 +7,8 @@ export interface IBanner {
   displayType: string;
   imageUrl: string;
   redirectUrl?: string;
+  isActive?: boolean;
+  startAt?: string;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;

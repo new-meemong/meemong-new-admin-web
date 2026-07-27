@@ -5,22 +5,39 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/components/shared/modal/useModal";
 import BannerFormModal from "@/components/features/banner/banner-form-modal";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface BannerSearchFormProps {
   className?: string;
+  showActiveOnly: boolean;
+  onShowActiveOnlyChange: (checked: boolean) => void;
   onRefresh: () => void;
 }
 
-function BannerSearchForm({ className, onRefresh }: BannerSearchFormProps) {
+function BannerSearchForm({
+  className,
+  showActiveOnly,
+  onShowActiveOnlyChange,
+  onRefresh,
+}: BannerSearchFormProps) {
   const modal = useModal();
 
   return (
     <div
       className={cn(
-        "w-full flex justify-end items-center pb-[12px]",
+        "w-full flex justify-between items-center pb-[12px]",
         className,
       )}
     >
+      <label className="flex items-center gap-1.5 cursor-pointer select-none">
+        <Checkbox
+          checked={showActiveOnly}
+          onCheckedChange={(checked) =>
+            onShowActiveOnlyChange(checked === true)
+          }
+        />
+        <span>활성화된 배너만 보기</span>
+      </label>
       <Button
         variant={"outline"}
         className={cn(

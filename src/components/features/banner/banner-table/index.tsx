@@ -7,7 +7,7 @@ import CommonPagination, {
 import CommonTable, {
   CommonTableProps
 } from "@/components/shared/common-table";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 
 import BannerEditModal from "@/components/features/banner/banner-edit-modal";
 import BannerImageBox from "@/components/features/banner/banner-image-box";
@@ -16,10 +16,12 @@ import { IBanner } from "@/models/banner";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
 import { useModal } from "@/components/shared/modal/useModal";
+import type { BannerStatus } from "@/utils/banner";
 
 interface BannerTableProps
   extends Omit<CommonTableProps<IBanner> & CommonPaginationProps, "columns"> {
   onRefresh: () => void;
+  bannerStatusesById: ReadonlyMap<number, BannerStatus>;
   className?: string;
 }
 
@@ -30,6 +32,7 @@ function BannerTable({
   currentPage = 1,
   pageSize = DEFAULT_PAGINATION.size,
   onRefresh,
+  bannerStatusesById,
   onPageChange,
   onSizeChange,
   ...props
@@ -40,68 +43,13 @@ function BannerTable({
     undefined
   );
 
-  // 카테고리별 종료되지 않은 최신 배너 찾기 (userType + bannerType 조합)
-  const latestActiveBannerByCategory = useMemo(() => {
-    const categoryMap = new Map<string, IBanner>();
-    const banners = data || [];
-    const now = new Date().getTime();
-
-    banners.forEach((banner) => {
-      // 종료일이 지난 배너는 제외
-      if (banner.endAt) {
-        const endDate = new Date(banner.endAt).getTime();
-        if (endDate < now) {
-          return; // 종료된 배너는 건너뜀
-        }
-      }
-
-      const category = `${banner.userType}_${banner.bannerType}`;
-      const existing = categoryMap.get(category);
-
-      if (!existing) {
-        categoryMap.set(category, banner);
-      } else {
-        // createdAt 기준으로 더 최신 배너 선택
-        const existingDate = new Date(existing.createdAt).getTime();
-        const currentDate = new Date(banner.createdAt).getTime();
-        if (currentDate > existingDate) {
-          categoryMap.set(category, banner);
-        }
-      }
-    });
-
-    return categoryMap;
-  }, [data]);
-
-  // 배너 상태 계산 함수
-  const getBannerStatus = useCallback(
-    (banner: IBanner): "종료됨" | "비활성화" | "활성화" => {
-      const now = new Date().getTime();
-
-      // 1. 종료일이 지났으면 "종료됨"
-      if (banner.endAt) {
-        const endDate = new Date(banner.endAt).getTime();
-        if (endDate < now) {
-          return "종료됨";
-        }
-      }
-
-      // 2. 같은 카테고리의 종료되지 않은 최신 배너 확인
-      const category = `${banner.userType}_${banner.bannerType}`;
-      const latestActiveBanner = latestActiveBannerByCategory.get(category);
-
-      // 종료되지 않은 최신 배너가 없거나, 자신이 종료되지 않은 최신 배너면 "활성화"
-      if (!latestActiveBanner || latestActiveBanner.id === banner.id) {
-        return "활성화";
-      }
-
-      // 같은 카테고리에 종료되지 않은 더 최신 배너가 있으면 "비활성화"
-      return "비활성화";
-    },
-    [latestActiveBannerByCategory]
-  );
-
   const columns: ColumnDef<IBanner>[] = [
+    {
+      accessorKey: "id",
+      header: "배너 ID",
+      cell: (info) => info.getValue(),
+      enableSorting: false
+    },
     {
       accessorKey: "imageUrl",
       header: "이미지",
@@ -148,7 +96,8 @@ function BannerTable({
       id: "status",
       header: "상태",
       cell: (info) => {
-        const status = getBannerStatus(info.row.original);
+        const status =
+          bannerStatusesById.get(info.row.original.id) ?? "비활성화";
         const statusStyles = {
           활성화: "bg-green-500 text-white",
           비활성화: "bg-gray-500 text-white",
