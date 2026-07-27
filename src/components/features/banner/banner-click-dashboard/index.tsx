@@ -355,6 +355,21 @@ export default function BannerClickDashboard() {
   const nonEmptyPlacementEntries = Object.entries(aggregate.byPlacement).filter(
     ([, clicks]) => clicks > 0,
   ) as [BannerClickPlacementId, number][];
+  const dailyTrendTooltipItems = useMemo(
+    () => [
+      {
+        label: "전체 클릭",
+        color: "#65558f",
+        values: aggregate.byDay,
+        isSummary: true,
+      },
+      ...rows.map((row) => ({
+        label: `배너 ${row.bannerId} · ${row.userType} ${row.bannerType}`,
+        values: row.dailyClicks,
+      })),
+    ],
+    [aggregate.byDay, rows],
+  );
 
   const firstCompareRow = rows.find(
     (row) => row.bannerId === firstCompareBannerId,
@@ -628,6 +643,7 @@ export default function BannerClickDashboard() {
               </h2>
               <BannerClickTrendChart
                 dateKeys={dateKeys}
+                tooltipItems={dailyTrendTooltipItems}
                 series={[
                   {
                     label: "전체 클릭",
@@ -770,6 +786,24 @@ export default function BannerClickDashboard() {
                 </div>
                 <BannerClickTrendChart
                   dateKeys={dateKeys}
+                  tooltipItems={[
+                    {
+                      label: "전체 클릭",
+                      color: "#898886",
+                      values: aggregate.byDay,
+                      isSummary: true,
+                    },
+                    {
+                      label: `배너 ${firstCompareRow.bannerId}`,
+                      color: "#65558f",
+                      values: firstCompareRow.dailyClicks,
+                    },
+                    {
+                      label: `배너 ${secondCompareRow.bannerId}`,
+                      color: "#375ce0",
+                      values: secondCompareRow.dailyClicks,
+                    },
+                  ]}
                   series={[
                     {
                       label: `배너 ${firstCompareRow.bannerId}`,
