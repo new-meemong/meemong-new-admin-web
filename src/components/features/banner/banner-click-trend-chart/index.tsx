@@ -25,7 +25,7 @@ const WIDTH = 960;
 const HEIGHT = 260;
 const PADDING_X = 42;
 const PADDING_Y = 24;
-const TOOLTIP_WIDTH = 280;
+const TOOLTIP_WIDTH = 340;
 const TOOLTIP_HEIGHT = 244;
 const countFormatter = new Intl.NumberFormat("ko-KR");
 
@@ -81,6 +81,7 @@ export default function BannerClickTrendChart({
           ...item,
           value: item.values[hoveredDateKey] ?? 0,
         }))
+        .filter((item) => item.isSummary || item.value > 0)
         .sort((a, b) => {
           if (a.isSummary !== b.isSummary) return a.isSummary ? -1 : 1;
           if (a.value !== b.value) return b.value - a.value;
@@ -161,6 +162,21 @@ export default function BannerClickTrendChart({
               vectorEffect="non-scaling-stroke"
             />
           ))}
+          {series.flatMap((item) =>
+            dateKeys.map((dateKey, index) => (
+              <circle
+                key={`${item.label}-${dateKey}`}
+                cx={getPointX(index, dateKeys.length)}
+                cy={getPointY(item.values[dateKey] ?? 0, max)}
+                r="3"
+                fill="white"
+                stroke={item.color}
+                strokeWidth="2"
+                vectorEffect="non-scaling-stroke"
+                pointerEvents="none"
+              />
+            )),
+          )}
           {hoveredDateKey && hoveredX !== undefined && (
             <g pointerEvents="none">
               <line
@@ -223,7 +239,7 @@ export default function BannerClickTrendChart({
                 width={Math.max(1, nextX - previousX)}
                 height={HEIGHT}
                 fill="transparent"
-                className="cursor-crosshair"
+                className="cursor-default"
                 onMouseEnter={() => setHoveredIndex(index)}
               />
             );
@@ -234,16 +250,17 @@ export default function BannerClickTrendChart({
               y={8}
               width={TOOLTIP_WIDTH}
               height={TOOLTIP_HEIGHT}
+              pointerEvents="none"
             >
               <div className="max-h-[244px] overflow-y-auto rounded-lg border bg-white shadow-lg">
-                <p className="sticky top-0 border-b bg-white px-3 py-2 text-sm font-semibold text-foreground-strong">
+                <p className="sticky top-0 border-b bg-white px-4 py-3 text-base font-semibold text-foreground-strong">
                   {hoveredDateKey} (KST)
                 </p>
-                <div className="space-y-1 p-2">
+                <div className="space-y-1.5 p-3">
                   {tooltipRows.map((item, index) => (
                     <div
                       key={`${item.label}-${index}`}
-                      className={`flex items-center justify-between gap-3 rounded px-1.5 py-1 text-xs ${
+                      className={`flex items-center justify-between gap-4 rounded px-2 py-1.5 text-sm ${
                         item.isSummary
                           ? "bg-background-label font-semibold"
                           : ""
@@ -251,7 +268,7 @@ export default function BannerClickTrendChart({
                     >
                       <span className="flex min-w-0 items-center gap-1.5">
                         <span
-                          className="h-2 w-2 shrink-0 rounded-full"
+                          className="h-2.5 w-2.5 shrink-0 rounded-full"
                           style={{ backgroundColor: item.color ?? "#898886" }}
                         />
                         <span className="truncate">{item.label}</span>
