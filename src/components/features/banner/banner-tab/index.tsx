@@ -11,13 +11,16 @@ import {
   DEFAULT_BANNER_TYPE_BY_USER_TYPE,
   USER_TYPE_OPTIONS,
 } from "@/constants/banner";
+import { useRouter } from "next/navigation";
 
 interface BannerTabProps {
   className?: string;
+  mode?: "list" | "dashboard";
 }
 
-function BannerTab({ className, ...props }: BannerTabProps) {
+function BannerTab({ className, mode = "list", ...props }: BannerTabProps) {
   const { bannerTabValues, setBannerTabValues } = useBannerContext();
+  const router = useRouter();
 
   const handleClick = useCallback(
     (value: string) => {
@@ -26,10 +29,11 @@ function BannerTab({ className, ...props }: BannerTabProps) {
         bannerType: value,
       });
     },
-    [bannerTabValues],
+    [bannerTabValues, setBannerTabValues],
   );
 
-  const isAllSelected = !bannerTabValues.userType && !bannerTabValues.bannerType;
+  const isAllSelected =
+    !bannerTabValues.userType && !bannerTabValues.bannerType;
 
   const handleAllClick = useCallback(() => {
     setBannerTabValues({
@@ -37,6 +41,19 @@ function BannerTab({ className, ...props }: BannerTabProps) {
       bannerType: undefined,
     });
   }, [setBannerTabValues]);
+
+  const handleChangeView = useCallback(() => {
+    const params = new URLSearchParams();
+    if (bannerTabValues.userType) {
+      params.set("userType", bannerTabValues.userType);
+    }
+    if (bannerTabValues.bannerType) {
+      params.set("bannerType", bannerTabValues.bannerType);
+    }
+    const path = mode === "list" ? "/banner/dashboard" : "/banner";
+    const query = params.toString();
+    router.push(query ? `${path}?${query}` : path);
+  }, [bannerTabValues.bannerType, bannerTabValues.userType, mode, router]);
 
   return (
     <div className={cn("banners-tab flex gap-[5px]", className)} {...props}>
@@ -63,6 +80,13 @@ function BannerTab({ className, ...props }: BannerTabProps) {
           });
         }}
       />
+      <Button
+        className="mr-[20px] w-[126px]"
+        variant="default"
+        onClick={handleChangeView}
+      >
+        {mode === "list" ? "대시보드 보기" : "목록 보기"}
+      </Button>
       {bannerTabValues.userType &&
         BANNER_TYPE_OPTIONS[bannerTabValues.userType as BannerUserType] &&
         BANNER_TYPE_OPTIONS[bannerTabValues.userType as BannerUserType]?.map(
