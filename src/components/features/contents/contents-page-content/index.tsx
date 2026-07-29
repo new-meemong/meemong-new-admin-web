@@ -12,6 +12,7 @@ import { IContents } from "@/models/contents";
 import { JobPostingRoleType } from "@/models/jobPostings";
 import { ResumeRoleType } from "@/models/resumes";
 import ShampooRoomContent from "@/components/features/contents/shampoo-room-content";
+import TimeSaleMenuContent from "@/components/features/contents/time-sale-menu-content";
 import { ThunderAnnouncementType } from "@/models/thunderAnnouncements";
 import { UserRoleType } from "@/models/users";
 import { cn } from "@/lib/utils";
@@ -250,6 +251,10 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
 
   if (tabId === "6") {
     return <HairConsultationContent className={className} />;
+  }
+
+  if (tabId === "7") {
+    return <TimeSaleMenuContent className={className} />;
   }
 
   return (

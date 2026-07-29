@@ -18,6 +18,7 @@ import {
 } from "@/components/shared/search-form";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
+import { formatPrice } from "@/utils/price";
 import useContentsCursorPagination from "@/components/features/contents/hooks/useContentsCursorPagination";
 import { useGetHairConsultationsQuery } from "@/queries/hairConsultations";
 import { useModal } from "@/components/shared/modal/useModal";
@@ -92,10 +93,7 @@ const COLUMNS: ColumnDef<IHairConsultationListItem>[] = [
   {
     accessorKey: "desiredCostPrice",
     header: "희망비용",
-    cell: (info) => {
-      const price = info.getValue() as number | null;
-      return price != null ? `${price.toLocaleString()}원` : "-";
-    },
+    cell: (info) => formatPrice(info.getValue() as number | null),
     size: 120,
     enableSorting: false,
   },
