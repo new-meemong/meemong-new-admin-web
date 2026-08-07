@@ -9,7 +9,7 @@ import type { IBanner } from "@/models/banner";
 
 export type BannerStatus = "종료됨" | "비활성화" | "활성화";
 
-const MULTI_ACTIVE_BANNER_TYPES = new Set(["일반"]);
+const MULTI_ACTIVE_BANNER_TYPES = new Set(["일반", "채팅배너"]);
 
 export const isValidUserType = (v: unknown): v is BannerUserType =>
   typeof v === "string" &&

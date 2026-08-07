@@ -32,7 +32,7 @@ describe("getBannerStatusesById", () => {
     expect(statuses.get(2)).toBe("활성화");
   });
 
-  it("marks only the newest available non-carousel banner active", () => {
+  it("marks every available chat carousel banner active", () => {
     const statuses = getBannerStatusesById(
       [
         createBanner({
@@ -43,6 +43,27 @@ describe("getBannerStatusesById", () => {
         createBanner({
           id: 2,
           bannerType: "채팅배너",
+          createdAt: "2026-07-20T00:00:00.000Z",
+        }),
+      ],
+      NOW,
+    );
+
+    expect(statuses.get(1)).toBe("활성화");
+    expect(statuses.get(2)).toBe("활성화");
+  });
+
+  it("marks only the newest available single-slot banner active", () => {
+    const statuses = getBannerStatusesById(
+      [
+        createBanner({
+          id: 1,
+          bannerType: "검색지도",
+          createdAt: "2026-07-01T00:00:00.000Z",
+        }),
+        createBanner({
+          id: 2,
+          bannerType: "검색지도",
           createdAt: "2026-07-20T00:00:00.000Z",
         }),
       ],
