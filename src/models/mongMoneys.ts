@@ -1,6 +1,7 @@
 import { UserRoleType } from "@/models/users";
 
 export type MongMoneyTransactionType = "deposit" | "withdraw";
+export type MongMoneyType = "default" | "event";
 
 export interface IMongMoneyUser {
   id: number;
@@ -29,4 +30,29 @@ export interface IMongMoney {
   updatedAt?: string;
   deletedAt?: string | null;
   User?: IMongMoneyUser;
+}
+
+export interface IMongMoneyGroupItem {
+  id: number;
+  mongType: MongMoneyType;
+  depositSum: number;
+  withdrawSum: number;
+  currentAmount: number;
+  amount: number;
+}
+
+export interface IMongMoneyGroup {
+  id: number;
+  cursorId: number;
+  userId: number;
+  createdAt: string;
+  amount: number;
+  depositTotalSum: number;
+  withdrawTotalSum: number;
+  currentTotalAmount: number;
+  type: MongMoneyTransactionType;
+  title: string;
+  referTargetType: string;
+  referTargetId: number | null;
+  mongMoneyItems: IMongMoneyGroupItem[];
 }

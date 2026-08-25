@@ -1,4 +1,6 @@
 import {
+  GetAllMongMoneyGroupsRequest,
+  GetMongMoneyGroupsResponse,
   GetMongMoneysRequest,
   GetMongMoneysResponse,
   PostMongMoneyDepositRequest,
@@ -16,6 +18,9 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 
+export const MONG_MONEY_GROUPS_QUERY_KEY = "GET_MONG_MONEY_GROUPS";
+export const MONG_MONEYS_QUERY_KEY = "GET_MONG_MONEYS";
+
 export const useGetMongMoneysQuery = (
   params: GetMongMoneysRequest,
   config?: Omit<
@@ -24,8 +29,21 @@ export const useGetMongMoneysQuery = (
   >,
 ): UseQueryResult<GetMongMoneysResponse, Error> =>
   useQuery({
-    queryKey: ["GET_MONG_MONEYS", params],
+    queryKey: [MONG_MONEYS_QUERY_KEY, params],
     queryFn: () => mongMoneyAPI.getAll(params),
+    ...config,
+  });
+
+export const useGetAllMongMoneyGroupsQuery = (
+  params: GetAllMongMoneyGroupsRequest,
+  config?: Omit<
+    UseQueryOptions<GetMongMoneyGroupsResponse, Error>,
+    "queryKey" | "queryFn"
+  >,
+): UseQueryResult<GetMongMoneyGroupsResponse, Error> =>
+  useQuery({
+    queryKey: [MONG_MONEY_GROUPS_QUERY_KEY, params],
+    queryFn: () => mongMoneyAPI.getAllGroups(params),
     ...config,
   });
 

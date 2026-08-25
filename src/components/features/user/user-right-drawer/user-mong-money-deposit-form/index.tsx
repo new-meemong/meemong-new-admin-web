@@ -8,7 +8,8 @@ import React, {
   useState,
 } from "react";
 import {
-  useGetMongMoneysQuery,
+  MONG_MONEY_GROUPS_QUERY_KEY,
+  MONG_MONEYS_QUERY_KEY,
   usePostMongMoneyDepositMutation,
 } from "@/queries/mongMoneys";
 
@@ -20,9 +21,9 @@ import { formatDate } from "@/utils/date";
 import { toast } from "react-toastify";
 import { useDialog } from "@/components/shared/dialog/context";
 import { useGetAdminAuth } from "@/queries/auth";
+import { useQueryClient } from "@tanstack/react-query";
 
 const MANUAL_DEPOSIT_TITLE = "관리자 몽 지급";
-const MONG_MONEY_HISTORY_LIMIT = 100;
 
 interface UserMongMoneyDepositFormProps {
   user: IUserForm;
@@ -107,10 +108,6 @@ function getValidDepositAmount(value: string) {
   return amount;
 }
 
-function getMongMoneyDepositReason(adminDescription?: string) {
-  return adminDescription?.replace(/^\[처리자:\s*[^\]]+\]\s*/, "") || "-";
-}
-
 export default function UserMongMoneyDepositForm({
   user,
   onUpdate,
@@ -119,28 +116,12 @@ export default function UserMongMoneyDepositForm({
   const [amountValue, setAmountValue] = useState("");
   const [sessionAdminName, setSessionAdminName] = useState("");
   const dialog = useDialog();
+  const queryClient = useQueryClient();
   const getAdminAuthQuery = useGetAdminAuth(undefined, {
     staleTime: 5 * 60 * 1000,
   });
-  const {
-    data: mongMoneysData,
-    isLoading: isMongMoneysLoading,
-    refetch: refetchMongMoneys,
-  } = useGetMongMoneysQuery({
-    __limit: MONG_MONEY_HISTORY_LIMIT,
-    __cursorOrder: "idDesc",
-  });
   const postMongMoneyDepositMutation = usePostMongMoneyDepositMutation();
 
-  const mongMoneyHistories = mongMoneysData?.dataList;
-  const userDepositHistories = useMemo(
-    () =>
-      (mongMoneyHistories ?? []).filter(
-        (mongMoney) =>
-          mongMoney.userId === user.id && mongMoney.type === "deposit",
-      ),
-    [mongMoneyHistories, user.id],
-  );
   const trimmedDepositMemo = depositMemo.trim();
   const depositAmount = useMemo(
     () => getValidDepositAmount(amountValue),
@@ -210,7 +191,14 @@ export default function UserMongMoneyDepositForm({
           toast.success("해당 회원에게 몽을 지급했습니다.");
           setDepositMemo("");
           setAmountValue("");
-          await refetchMongMoneys();
+          await Promise.all([
+            queryClient.invalidateQueries({
+              queryKey: [MONG_MONEY_GROUPS_QUERY_KEY],
+            }),
+            queryClient.invalidateQueries({
+              queryKey: [MONG_MONEYS_QUERY_KEY],
+            }),
+          ]);
           onUpdate();
         } else {
           throw new Error();
@@ -226,7 +214,7 @@ export default function UserMongMoneyDepositForm({
       dialog,
       onUpdate,
       postMongMoneyDepositMutation,
-      refetchMongMoneys,
+      queryClient,
       trimmedDepositMemo,
       user,
     ],
@@ -275,57 +263,6 @@ export default function UserMongMoneyDepositForm({
           </div>
         }
       />
-      {isMongMoneysLoading && (
-        <MongMoneyDepositFormItem
-          leftArea={<div />}
-          rightArea={
-            <div className={cn("typo-body-2-regular text-foreground-sub")}>
-              지급 히스토리를 불러오는 중입니다.
-            </div>
-          }
-        />
-      )}
-      {userDepositHistories.map((mongMoney) => (
-        <MongMoneyDepositFormItem
-          key={`mong-money-deposit-history-${mongMoney.id}`}
-          leftArea={<div />}
-          rightArea={
-            <div className={cn("flex items-start gap-[8px]")}>
-              <div
-                className={cn(
-                  "my-[5px] min-h-[72px] min-w-0 flex-1 rounded-[7px]",
-                  "border border-border-alternative bg-white px-[13px] py-[10px]",
-                  "text-[12px] leading-[22px] text-black",
-                )}
-              >
-                <div
-                  className={cn(
-                    "grid grid-cols-[62px_minmax(0,1fr)_66px_48px] gap-x-0",
-                  )}
-                >
-                  <div>지급사유</div>
-                  <div className={cn("truncate pr-[12px]")}>
-                    {getMongMoneyDepositReason(mongMoney.adminDescription)}
-                  </div>
-                  <div>지급몽</div>
-                  <div>{mongMoney.amount.toLocaleString()}</div>
-                </div>
-                <div
-                  className={cn(
-                    "grid grid-cols-[62px_minmax(0,1fr)] gap-x-0 mt-[11px]",
-                  )}
-                >
-                  <div>처리날짜</div>
-                  <div>
-                    {formatDate(mongMoney.createdAt, "YYYY.MM.DD HH:mm") || "-"}
-                  </div>
-                </div>
-              </div>
-              <div className={cn("w-[76px] shrink-0")} />
-            </div>
-          }
-        />
-      ))}
     </ul>
   );
 }

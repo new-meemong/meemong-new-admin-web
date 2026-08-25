@@ -22,6 +22,7 @@ import { ImageSwiperItem } from "@/components/shared/image-swiper";
 import { LOGIN_TYPE_MAP } from "@/constants/users";
 import UserBlockInfoList from "@/components/features/user/user-right-drawer/user-block-info-list";
 import UserMongMoneyDepositForm from "@/components/features/user/user-right-drawer/user-mong-money-deposit-form";
+import UserMongMoneyHistory from "@/components/features/user/user-right-drawer/user-mong-money-history";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
 import { getUserRole } from "@/utils/user";
@@ -406,6 +407,7 @@ export default function UserDetailForm({
         <FormGroup title={"몽 지급"}>
           <UserMongMoneyDepositForm user={formData} onUpdate={onRefresh} />
         </FormGroup>
+        <UserMongMoneyHistory userId={formData.id} />
       </form>
     </Form>
   );
