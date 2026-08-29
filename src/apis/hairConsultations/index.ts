@@ -62,6 +62,35 @@ export type GetHairConsultationAnswerByIdResponse = {
   data: IHairConsultationAnswer;
 };
 
+type HairConsultationAnswerApiResponse = Omit<
+  IHairConsultationAnswer,
+  "bangsTypes" | "hairLengths" | "hairLayers" | "hairCurls" | "styleImages"
+> & {
+  bangsTypes: string[] | null;
+  hairLengths: string[] | null;
+  hairLayers: string[] | null;
+  hairCurls: string[] | null;
+  styleImages: string[] | null;
+};
+
+type GetHairConsultationAnswersApiResponse =
+  CursorListResponse<HairConsultationAnswerApiResponse>;
+
+type GetHairConsultationAnswerByIdApiResponse = {
+  data: HairConsultationAnswerApiResponse;
+};
+
+const normalizeHairConsultationAnswer = (
+  answer: HairConsultationAnswerApiResponse
+): IHairConsultationAnswer => ({
+  ...answer,
+  bangsTypes: answer.bangsTypes ?? [],
+  hairLengths: answer.hairLengths ?? [],
+  hairLayers: answer.hairLayers ?? [],
+  hairCurls: answer.hairCurls ?? [],
+  styleImages: answer.styleImages ?? []
+});
+
 export type PutHairConsultationRequest = {
   hairConsultationId: number;
   title?: string;
@@ -132,25 +161,31 @@ export const hairConsultationAPI = {
       }
     ),
 
-  getAnswers: ({
+  getAnswers: async ({
     hairConsultationId,
     __limit = 20
-  }: GetHairConsultationAnswersRequest): Promise<GetHairConsultationAnswersResponse> =>
-    fetcher<GetHairConsultationAnswersResponse>(
+  }: GetHairConsultationAnswersRequest): Promise<GetHairConsultationAnswersResponse> => {
+    const response = await fetcher<GetHairConsultationAnswersApiResponse>(
       `${BASE_URL}/${hairConsultationId}/answers`,
       {
         query: { __limit }
       }
-    ),
+    );
+
+    return {
+      ...response,
+      dataList: response.dataList.map(normalizeHairConsultationAnswer)
+    };
+  },
 
   getAnswerById: async (
     hairConsultationId: number,
     answerId: number
   ): Promise<IHairConsultationAnswer> => {
-    const response = await fetcher<GetHairConsultationAnswerByIdResponse>(
+    const response = await fetcher<GetHairConsultationAnswerByIdApiResponse>(
       `${BASE_URL}/${hairConsultationId}/answers/${answerId}`
     );
-    return response.data;
+    return normalizeHairConsultationAnswer(response.data);
   },
 
   update: async ({
