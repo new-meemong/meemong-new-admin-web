@@ -10,7 +10,10 @@ vi.mock("@/apis/core", () => ({
 
 const mockedFetcher = vi.mocked(fetcher);
 
-function createMongMoneyGroup(id: number): IMongMoneyGroup {
+function createMongMoneyGroup(
+  id: number,
+  overrides: Partial<IMongMoneyGroup> = {},
+): IMongMoneyGroup {
   return {
     id,
     cursorId: id,
@@ -25,6 +28,7 @@ function createMongMoneyGroup(id: number): IMongMoneyGroup {
     referTargetType: "RewardHistories",
     referTargetId: 20,
     mongMoneyItems: [],
+    ...overrides,
   };
 }
 
@@ -36,7 +40,11 @@ describe("mongMoneyAPI.getAllGroups", () => {
   it("loads every cursor page without a transaction type filter", async () => {
     mockedFetcher
       .mockResolvedValueOnce({
-        dataList: [createMongMoneyGroup(3)],
+        dataList: [
+          createMongMoneyGroup(3, {
+            adminDescription: "[처리자: 김관리] 지급 누락",
+          }),
+        ],
         dataCount: 1,
         __nextCursor: "cursor-2",
       })
@@ -54,6 +62,9 @@ describe("mongMoneyAPI.getAllGroups", () => {
     const result = await mongMoneyAPI.getAllGroups({ userId: 711500001 });
 
     expect(result.dataList.map(({ id }) => id)).toEqual([3, 2, 1]);
+    expect(result.dataList[0].adminDescription).toBe(
+      "[처리자: 김관리] 지급 누락",
+    );
     expect(result.dataCount).toBe(3);
     expect(result.__nextCursor).toBeNull();
     expect(mockedFetcher).toHaveBeenCalledTimes(3);

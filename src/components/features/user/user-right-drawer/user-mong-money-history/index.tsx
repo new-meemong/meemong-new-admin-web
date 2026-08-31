@@ -11,6 +11,7 @@ import { IMongMoneyGroup } from "@/models/mongMoneys";
 import { formatDate } from "@/utils/date";
 import {
   formatMongAmount,
+  formatMongMoneyAdminDescription,
   getCurrentMongMoneyAmount,
   getKnownMongMoneyPaymentAmount,
   getMongMoneyDepositTypeLabel,
@@ -116,6 +117,13 @@ export default function UserMongMoneyHistory({
         id: "depositType",
         header: "타입",
         cell: (info) => getMongMoneyDepositTypeLabel(info.row.original),
+        enableSorting: false,
+      },
+      {
+        accessorKey: "adminDescription",
+        header: "지급메모(처리자)",
+        cell: (info) =>
+          formatMongMoneyAdminDescription(info.getValue() as string | null),
         enableSorting: false,
       },
     ],

@@ -6,6 +6,12 @@ export function formatMongAmount(amount: number): string {
   return `${amount.toLocaleString("ko-KR")}몽`;
 }
 
+export function formatMongMoneyAdminDescription(
+  adminDescription?: string | null,
+): string {
+  return adminDescription?.trim() || "-";
+}
+
 export function getCurrentMongMoneyAmount(groups: IMongMoneyGroup[]): number {
   const latestGroup = groups.reduce<IMongMoneyGroup | undefined>(
     (latest, group) =>

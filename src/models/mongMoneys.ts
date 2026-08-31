@@ -25,7 +25,7 @@ export interface IMongMoney {
   withdrawSum?: number;
   depositTotalSum?: number;
   withdrawTotalSum?: number;
-  adminDescription?: string;
+  adminDescription?: string | null;
   createdAt: string;
   updatedAt?: string;
   deletedAt?: string | null;
@@ -46,6 +46,7 @@ export interface IMongMoneyGroup {
   cursorId: number;
   userId: number;
   createdAt: string;
+  adminDescription?: string | null;
   amount: number;
   depositTotalSum: number;
   withdrawTotalSum: number;

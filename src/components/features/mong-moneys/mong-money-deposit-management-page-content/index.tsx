@@ -9,6 +9,7 @@ import UserRightDrawer from "@/components/features/user/user-right-drawer";
 import { IMongMoney } from "@/models/mongMoneys";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
+import { formatMongMoneyAdminDescription } from "@/utils/mongMoneys";
 import { getUserRole } from "@/utils/user";
 import { useGetMongMoneysQuery } from "@/queries/mongMoneys";
 import { useDrawer } from "@/stores/drawer";
@@ -17,10 +18,6 @@ const MONG_MONEY_DEPOSIT_PAGE_SIZE = 50;
 
 interface MongMoneyDepositManagementPageContentProps {
   className?: string;
-}
-
-function formatMongMoneyAdminDescription(adminDescription?: string | null) {
-  return adminDescription?.trim() || "-";
 }
 
 function getMongMoneyDepositUserLabel(mongMoney: IMongMoney) {

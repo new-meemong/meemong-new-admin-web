@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { IMongMoneyGroup } from "@/models/mongMoneys";
 import {
   formatMongAmount,
+  formatMongMoneyAdminDescription,
   getCurrentMongMoneyAmount,
   getKnownMongMoneyPaymentAmount,
   getMongMoneyDepositTypeLabel,
@@ -42,6 +43,15 @@ describe("mong money history formatting", () => {
   it("formats mong amounts with a unit", () => {
     expect(formatMongAmount(3200)).toBe("3,200몽");
     expect(formatMongAmount(0)).toBe("0몽");
+  });
+
+  it("formats an admin deposit memo and falls back for empty values", () => {
+    expect(
+      formatMongMoneyAdminDescription("  [처리자: 김관리] 지급 누락  "),
+    ).toBe("[처리자: 김관리] 지급 누락");
+    expect(formatMongMoneyAdminDescription("   ")).toBe("-");
+    expect(formatMongMoneyAdminDescription(null)).toBe("-");
+    expect(formatMongMoneyAdminDescription()).toBe("-");
   });
 
   it("gets the current amount from the group with the latest cursor", () => {
