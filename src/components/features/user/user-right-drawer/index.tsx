@@ -9,6 +9,7 @@ import RightDrawer, {
 import { ChevronRight } from "lucide-react";
 import { useGetUserDetailQuery } from "@/queries/users";
 import UserDetailForm from "@/components/features/user/user-right-drawer/user-detail-form";
+import { Button } from "@/components/ui/button";
 
 interface UserRightDrawerProps extends RightDrawerProps {
   userId: number;
@@ -34,6 +35,17 @@ function UserRightDrawer({
         <>
           회원 관리 <ChevronRight /> 상세
         </>
+      }
+      headerActions={
+        <Button asChild variant="outline" size="sm">
+          <a
+            href={`https://meemong-chat-admin.vercel.app/user-chat-list/${userId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            전체 채팅방 보기
+          </a>
+        </Button>
       }
       {...props}
     >

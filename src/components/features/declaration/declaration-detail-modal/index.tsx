@@ -25,6 +25,8 @@ import { useDialog } from "@/components/shared/dialog/context";
 import { toast } from "react-toastify";
 import { useGetUserDetailQuery } from "@/queries/users";
 
+import { useReportedUser } from "@/queries/reportedUser";
+
 type DeclarationReport = IUserReport | IChattingRoomReport;
 
 interface DeclarationDetailModalProps {
@@ -67,12 +69,7 @@ export default function DeclarationDetailModal({
       enabled: Boolean(isOpen && detail?.userInfo.userId),
     },
   );
-  const getReportedUserDetailQuery = useGetUserDetailQuery(
-    isUserReport(detail) ? detail.reportedUserId : undefined,
-    {
-      enabled: Boolean(isOpen && isUserReport(detail) && detail.reportedUserId),
-    },
-  );
+  const reportedUser = useReportedUser(detail, isOpen);
 
   const patchUserReportStatusMutation = usePatchUserReportStatusMutation();
   const patchChattingRoomReportStatusMutation =
@@ -161,7 +158,10 @@ export default function DeclarationDetailModal({
           formData={detail}
           reportType={reportType}
           reporterUser={getReporterDetailQuery.data}
-          reportedUser={getReportedUserDetailQuery.data}
+          reportedUser={reportedUser.user}
+          reportedUserId={reportedUser.userId}
+          reportedUserName={reportedUser.fallbackName}
+          reportedUserError={reportedUser.isError}
           isSubmitting={
             patchUserReportStatusMutation.isPending ||
             patchChattingRoomReportStatusMutation.isPending
@@ -171,8 +171,4 @@ export default function DeclarationDetailModal({
       </ModalBody>
     </Modal>
   );
-}
-
-function isUserReport(report?: DeclarationReport): report is IUserReport {
-  return Boolean(report && "reportedUserId" in report);
 }

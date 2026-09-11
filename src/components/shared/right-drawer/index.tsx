@@ -19,6 +19,7 @@ export interface RightDrawerProps {
   className?: string;
   overlayClassName?: string;
   title?: string | React.ReactNode;
+  headerActions?: ReactNode;
   children?: ReactNode;
   footer?: ReactNode;
   onClose?: () => void;
@@ -29,6 +30,7 @@ export default function RightDrawer({
   className,
   overlayClassName,
   title,
+  headerActions,
   children,
   footer,
   onClose,
@@ -94,6 +96,9 @@ export default function RightDrawer({
             <DrawerTitle className={cn("typo-title-1-bold flex flex-row")}>
               {title}
             </DrawerTitle>
+            {headerActions && (
+              <div className="ml-auto shrink-0">{headerActions}</div>
+            )}
           </DrawerHeader>
           <div className="p-[24px] flex-1 overflow-y-auto">{children}</div>
           {footer && <DrawerFooter>{footer}</DrawerFooter>}

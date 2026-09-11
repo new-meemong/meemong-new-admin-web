@@ -22,7 +22,7 @@ import { usePatchUserReportStatusMutation } from "@/queries/userReports";
 import { toast } from "react-toastify";
 import UserRightDrawer from "@/components/features/user/user-right-drawer";
 import { useDrawer } from "@/stores/drawer";
-import { useGetUserDetailQuery } from "@/queries/users";
+import { useReportedUser } from "@/queries/reportedUser";
 import { ReportManagementType, ReportStatus } from "@/models/reports";
 import { IChattingRoomReport } from "@/models/chattingRoomReports";
 import { usePatchChattingRoomReportStatusMutation } from "@/queries/chattingRoomReports";
@@ -138,25 +138,19 @@ function DeclarationTable({
       },
     ];
 
-    if (reportType === "MYPAGE") {
-      baseColumns.push({
-        accessorKey: "reportedUserId",
-        header: "피신고자",
-        cell: (info) => {
-          const report = info.row.original;
-          if (!isUserReport(report)) return "-";
+    baseColumns.push({
+      id: "reportedUser",
+      header: "피신고자",
+      cell: (info) => {
+        const report = info.row.original;
 
-          return (
-            <ReportedUserButton
-              report={report}
-              onClick={() => handleOpenUserDrawer(report.reportedUserId)}
-            />
-          );
-        },
-        size: 140,
-        enableSorting: false,
-      });
-    }
+        return (
+          <ReportedUserButton report={report} onClick={handleOpenUserDrawer} />
+        );
+      },
+      size: 140,
+      enableSorting: false,
+    });
 
     baseColumns.push({
       accessorKey: "reason",
@@ -300,22 +294,15 @@ function ReportedUserButton({
   report,
   onClick,
 }: {
-  report: IUserReport;
-  onClick: () => void;
+  report: DeclarationReport;
+  onClick: (userId: number) => void;
 }) {
-  const getUserDetailQuery = useGetUserDetailQuery(report.reportedUserId, {
-    enabled: Boolean(report.reportedUserId),
-  });
-  const displayName =
-    report.reportedUserInfo?.displayName ||
-    getUserDetailQuery.data?.displayName ||
-    `#${report.reportedUserId}`;
-
-  return <ReportUserButton label={displayName} onClick={onClick} />;
-}
-
-function isUserReport(report: DeclarationReport): report is IUserReport {
-  return "reportedUserId" in report;
+  const { userId, user, fallbackName, isError } = useReportedUser(report);
+  if (!userId) return isError ? "조회 실패" : "-";
+  const displayName = fallbackName || user?.displayName || `#${userId}`;
+  return (
+    <ReportUserButton label={displayName} onClick={() => onClick(userId)} />
+  );
 }
 
 function isChattingRoomReport(

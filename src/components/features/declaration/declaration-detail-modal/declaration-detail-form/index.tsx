@@ -44,6 +44,9 @@ interface DeclarationDetailFormProps {
   reportType: ReportManagementType;
   reporterUser?: IUserForm;
   reportedUser?: IUserForm;
+  reportedUserId?: number;
+  reportedUserName?: string;
+  reportedUserError?: boolean;
   isSubmitting?: boolean;
   onSubmit: (form: {
     status: ReportStatus;
@@ -62,6 +65,9 @@ export default function DeclarationDetailForm({
   reportType,
   reporterUser,
   reportedUser,
+  reportedUserId,
+  reportedUserName,
+  reportedUserError,
   isSubmitting,
   onSubmit,
 }: DeclarationDetailFormProps) {
@@ -260,14 +266,16 @@ export default function DeclarationDetailForm({
             />
             <CommonForm.ReadonlyRow
               label={"피신고자"}
-              value={isUserReport(formData) ? formData.reportedUserId : "-"}
+              value={reportedUserId ?? "-"}
               formatter={() =>
-                isUserReport(formData) ? (
+                reportedUserId ? (
                   <ReportUserSummary
-                    fallbackId={formData.reportedUserId}
-                    fallbackName={formData.reportedUserInfo?.displayName}
+                    fallbackId={reportedUserId}
+                    fallbackName={reportedUserName}
                     user={reportedUser}
                   />
+                ) : reportedUserError ? (
+                  "조회 실패"
                 ) : (
                   "-"
                 )
