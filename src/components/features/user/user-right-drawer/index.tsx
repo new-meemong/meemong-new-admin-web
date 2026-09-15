@@ -51,6 +51,7 @@ function UserRightDrawer({
     >
       {getUserDetailQuery.data ? (
         <UserDetailForm
+          key={userId}
           formData={getUserDetailQuery.data!}
           onSubmit={() => {
             closeDrawer();

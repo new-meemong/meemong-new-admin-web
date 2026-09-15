@@ -5,8 +5,6 @@ import {
   formatMongAmount,
   formatMongMoneyAdminDescription,
   getCurrentMongMoneyAmount,
-  getKnownMongMoneyPaymentAmount,
-  getMongMoneyDepositTypeLabel,
 } from "@/utils/mongMoneys";
 
 function createMongMoneyGroup(
@@ -18,6 +16,7 @@ function createMongMoneyGroup(
     userId: 10,
     createdAt: "2026-08-25T00:00:00.000Z",
     amount: 50,
+    paymentAmountKRW: null,
     depositTotalSum: 50,
     withdrawTotalSum: 0,
     currentTotalAmount: 50,
@@ -63,39 +62,5 @@ describe("mong money history formatting", () => {
 
     expect(getCurrentMongMoneyAmount(groups)).toBe(300);
     expect(getCurrentMongMoneyAmount([])).toBe(0);
-  });
-
-  it("labels default mong deposits as payments", () => {
-    const group = createMongMoneyGroup({
-      mongMoneyItems: [
-        {
-          id: 1,
-          mongType: "default",
-          depositSum: 3200,
-          withdrawSum: 0,
-          currentAmount: 3200,
-          amount: 3200,
-        },
-      ],
-    });
-
-    expect(getMongMoneyDepositTypeLabel(group)).toBe("결제");
-    expect(getKnownMongMoneyPaymentAmount(group)).toBeNull();
-  });
-
-  it("labels event deposits and exposes their zero payment amount", () => {
-    const group = createMongMoneyGroup();
-
-    expect(getMongMoneyDepositTypeLabel(group)).toBe("이벤트");
-    expect(getKnownMongMoneyPaymentAmount(group)).toBe(0);
-  });
-
-  it("prefers payment when a group contains default and event mong", () => {
-    const eventItem = createMongMoneyGroup().mongMoneyItems[0];
-    const group = createMongMoneyGroup({
-      mongMoneyItems: [eventItem, { ...eventItem, id: 2, mongType: "default" }],
-    });
-
-    expect(getMongMoneyDepositTypeLabel(group)).toBe("결제");
   });
 });

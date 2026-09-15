@@ -8,8 +8,7 @@ import React, {
   useState,
 } from "react";
 import {
-  MONG_MONEY_GROUPS_QUERY_KEY,
-  MONG_MONEYS_QUERY_KEY,
+  refreshUserMongMoneyAfterDeposit,
   usePostMongMoneyDepositMutation,
 } from "@/queries/mongMoneys";
 
@@ -28,6 +27,7 @@ const MANUAL_DEPOSIT_TITLE = "관리자 몽 지급";
 interface UserMongMoneyDepositFormProps {
   user: IUserForm;
   onUpdate: () => void;
+  onDeposited: () => void;
 }
 
 function MongMoneyDepositFormItem({
@@ -111,6 +111,7 @@ function getValidDepositAmount(value: string) {
 export default function UserMongMoneyDepositForm({
   user,
   onUpdate,
+  onDeposited,
 }: UserMongMoneyDepositFormProps) {
   const [depositMemo, setDepositMemo] = useState("");
   const [amountValue, setAmountValue] = useState("");
@@ -191,14 +192,8 @@ export default function UserMongMoneyDepositForm({
           toast.success("해당 회원에게 몽을 지급했습니다.");
           setDepositMemo("");
           setAmountValue("");
-          await Promise.all([
-            queryClient.invalidateQueries({
-              queryKey: [MONG_MONEY_GROUPS_QUERY_KEY],
-            }),
-            queryClient.invalidateQueries({
-              queryKey: [MONG_MONEYS_QUERY_KEY],
-            }),
-          ]);
+          onDeposited();
+          await refreshUserMongMoneyAfterDeposit(queryClient, user.id);
           onUpdate();
         } else {
           throw new Error();
@@ -213,6 +208,7 @@ export default function UserMongMoneyDepositForm({
       depositAmount,
       dialog,
       onUpdate,
+      onDeposited,
       postMongMoneyDepositMutation,
       queryClient,
       trimmedDepositMemo,

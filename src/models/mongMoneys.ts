@@ -48,6 +48,7 @@ export interface IMongMoneyGroup {
   createdAt: string;
   adminDescription?: string | null;
   amount: number;
+  paymentAmountKRW: number | null;
   depositTotalSum: number;
   withdrawTotalSum: number;
   currentTotalAmount: number;

@@ -1,12 +1,19 @@
 "use client";
 
+import { MongMoneyHistoryType } from "@/apis/mongMoneys";
 import {
   IUserForm,
   LoginType,
   UserPhotoType,
   UserRoleType,
 } from "@/models/users";
-import React, { FormEvent, useCallback, useEffect, useMemo } from "react";
+import React, {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   useUpdateUserDescriptionMutation,
   useUpdateUserDisplayNameMutation,
@@ -32,6 +39,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+const USER_PHOTO_PREVIEW_LIMIT = 10;
+
 interface UserDetailFormProps {
   formData: IUserForm;
   onSubmit: (event: FormEvent) => void;
@@ -43,6 +52,10 @@ export default function UserDetailForm({
   onSubmit,
   onRefresh,
 }: UserDetailFormProps) {
+  const [mongHistoryType, setMongHistoryType] =
+    useState<MongMoneyHistoryType>("purchase");
+  const [photosExpanded, setPhotosExpanded] = useState(false);
+
   const formSchema = z.object({
     id: z.number(),
     role: z.number(),
@@ -383,19 +396,44 @@ export default function UserDetailForm({
                   {userPhotos &&
                   Array.isArray(userPhotos) &&
                   userPhotos.length > 0
-                    ? userPhotos.map((userPhoto, index) => (
-                        <ImageBox
-                          key={`picture-url-${userPhoto.id}`}
-                          src={userPhoto.s3Path as string}
-                          title={userPhoto.fileType}
-                          images={userImages}
-                          onDeleteImage={handleDeleteUserImage}
-                          index={
-                            index + (form.watch("profilePictureURL") ? 1 : 0)
-                          }
-                        />
-                      ))
+                    ? userPhotos
+                        .slice(
+                          0,
+                          photosExpanded
+                            ? userPhotos.length
+                            : USER_PHOTO_PREVIEW_LIMIT,
+                        )
+                        .map((userPhoto, index) => (
+                          <ImageBox
+                            key={`picture-url-${userPhoto.id}`}
+                            src={userPhoto.s3Path as string}
+                            title={userPhoto.fileType}
+                            images={userImages}
+                            onDeleteImage={handleDeleteUserImage}
+                            index={
+                              index + (form.watch("profilePictureURL") ? 1 : 0)
+                            }
+                          />
+                        ))
                     : "-"}
+                  {userPhotos &&
+                    userPhotos.length > USER_PHOTO_PREVIEW_LIMIT && (
+                      <div className="w-full">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          aria-expanded={photosExpanded}
+                          onClick={() =>
+                            setPhotosExpanded((expanded) => !expanded)
+                          }
+                        >
+                          {photosExpanded
+                            ? "접기"
+                            : `전체 ${userPhotos.length}개 펼치기`}
+                        </Button>
+                      </div>
+                    )}
                 </div>
               );
             }}
@@ -405,9 +443,17 @@ export default function UserDetailForm({
           <UserBlockInfoList user={formData} onUpdate={onRefresh} />
         </FormGroup>
         <FormGroup title={"몽 지급"}>
-          <UserMongMoneyDepositForm user={formData} onUpdate={onRefresh} />
+          <UserMongMoneyDepositForm
+            user={formData}
+            onUpdate={onRefresh}
+            onDeposited={() => setMongHistoryType("reward")}
+          />
         </FormGroup>
-        <UserMongMoneyHistory userId={formData.id} />
+        <UserMongMoneyHistory
+          userId={formData.id}
+          type={mongHistoryType}
+          onTypeChange={setMongHistoryType}
+        />
       </form>
     </Form>
   );

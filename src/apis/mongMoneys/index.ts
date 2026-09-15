@@ -2,7 +2,7 @@ import { IMongMoney, IMongMoneyGroup } from "@/models/mongMoneys";
 import { fetcher } from "@/apis/core";
 
 const BASE_URL = "/api/v1/admins/mong-moneys";
-const MONG_MONEY_GROUP_PAGE_LIMIT = 20;
+export const MONG_MONEY_GROUP_PAGE_LIMIT = 10;
 
 export type MongMoneyManualRequest = {
   userId: number;
@@ -34,14 +34,13 @@ export type GetMongMoneysResponse = {
   __nextCursor: string | null;
 };
 
-type GetMongMoneyGroupsPageRequest = {
+export type MongMoneyHistoryType = "purchase" | "reward" | "withdraw";
+
+export type GetMongMoneyGroupsPageRequest = {
+  type?: MongMoneyHistoryType;
   userId: number;
   __nextCursor?: string;
   __limit?: number;
-};
-
-export type GetAllMongMoneyGroupsRequest = {
-  userId: number;
 };
 
 export type GetMongMoneyGroupsResponse = {
@@ -52,48 +51,18 @@ export type GetMongMoneyGroupsResponse = {
 
 const getMongMoneyGroupsPage = ({
   userId,
+  type,
   __nextCursor,
   __limit = MONG_MONEY_GROUP_PAGE_LIMIT,
 }: GetMongMoneyGroupsPageRequest) =>
   fetcher<GetMongMoneyGroupsResponse>(`${BASE_URL}/groups`, {
     query: {
       userId,
+      ...(type && { type }),
       __limit,
       ...(__nextCursor && { __nextCursor }),
     },
   });
-
-async function getAllMongMoneyGroups({
-  userId,
-}: GetAllMongMoneyGroupsRequest): Promise<GetMongMoneyGroupsResponse> {
-  const dataList: IMongMoneyGroup[] = [];
-  const seenCursors = new Set<string>();
-  let nextCursor: string | undefined;
-
-  do {
-    const response = await getMongMoneyGroupsPage({
-      userId,
-      __nextCursor: nextCursor,
-    });
-
-    dataList.push(...response.dataList);
-
-    if (!response.__nextCursor) break;
-
-    if (seenCursors.has(response.__nextCursor)) {
-      throw new Error("몽 이용 내역 조회 중 동일한 커서가 반복되었습니다.");
-    }
-
-    seenCursors.add(response.__nextCursor);
-    nextCursor = response.__nextCursor;
-  } while (nextCursor);
-
-  return {
-    dataList,
-    dataCount: dataList.length,
-    __nextCursor: null,
-  };
-}
 
 export const mongMoneyAPI = {
   deposit: (
@@ -122,5 +91,5 @@ export const mongMoneyAPI = {
         ...(__nextCursor && { __nextCursor }),
       },
     }),
-  getAllGroups: getAllMongMoneyGroups,
+  getGroupsPage: getMongMoneyGroupsPage,
 };
