@@ -32,6 +32,7 @@ describe("phone preview image viewer", () => {
       <TimeSaleMenuPreviewImageViewer
         images={[images[0]]}
         initialIndex={0}
+        returnFocusTo={null}
         onClose={() => {}}
       />,
     );
