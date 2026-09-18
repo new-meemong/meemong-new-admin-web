@@ -8,6 +8,7 @@ interface CommonFormReadonlyRowProps<T> {
   value?: T;
   formatter?: (value: T) => React.ReactNode;
   className?: string;
+  stacked?: boolean;
 }
 
 // react-hook-form 안씀
@@ -16,11 +17,27 @@ export function CommonFormReadonlyRow<T>({
   value,
   formatter,
   className,
+  stacked = false,
 }: CommonFormReadonlyRowProps<T>) {
   return (
-    <div className={cn("flex flex-row border-b py-[10px]", className)}>
-      <div className="min-w-[80px] w-[15%] shrink-0 font-medium">{label}</div>
-      <div className="typo-body-1-regular">
+    <div
+      className={cn(
+        "flex border-b py-[10px]",
+        stacked ? "flex-col gap-1" : "flex-row",
+        className,
+      )}
+    >
+      <div
+        className={cn(
+          "shrink-0 font-medium",
+          stacked ? "w-full min-w-0" : "min-w-[80px] w-[15%]",
+        )}
+      >
+        {label}
+      </div>
+      <div
+        className={cn("typo-body-1-regular", stacked && "min-w-0 break-words")}
+      >
         {formatter ? formatter(value as T) : String(value ?? "-")}
       </div>
     </div>

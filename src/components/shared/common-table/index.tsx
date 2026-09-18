@@ -14,6 +14,7 @@ export interface CommonTableProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
   onClickRow?: (row: Row<T>) => void;
+  emptyMessage?: string;
 }
 
 function getGridTemplate<T>(columns: ColumnDef<T>[]) {
@@ -29,6 +30,7 @@ export default function CommonTable<T>({
   data,
   columns,
   onClickRow,
+  emptyMessage = "데이터가 없습니다.",
 }: CommonTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -84,15 +86,15 @@ export default function CommonTable<T>({
               key={cell.id}
               className="flex items-center justify-center px-3 py-2 truncate text-center min-w-0"
             >
-              <span className="truncate block max-w-full">
+              <div className="truncate block max-w-full">
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </span>
+              </div>
             </div>
           ))}
         </div>
       ))}
       {!table.getRowModel().rows.length && (
-        <div className="text-center p-4 text-gray-500">데이터가 없습니다.</div>
+        <div className="text-center p-4 text-gray-500">{emptyMessage}</div>
       )}
     </div>
   );

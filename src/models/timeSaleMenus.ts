@@ -1,3 +1,34 @@
+export type TimeSaleMenuOrderBy =
+  | "latest"
+  | "viewCountDesc"
+  | "reservationRequestCountDesc"
+  | "reservationAcceptedCountDesc"
+  | "reservationRateDesc";
+
+export const TIME_SALE_MENU_TREATMENT_TYPES = [
+  "컷트",
+  "펌",
+  "매직",
+  "염색",
+  "탈색",
+  "블랙빼기",
+  "클리닉",
+  "컨설팅",
+  "드라이",
+  "두피케어",
+  "헤드스파",
+  "붙임머리",
+  "업스타일",
+  "반영구",
+  "속눈썹",
+  "메이크업",
+  "두피문신",
+  "네일",
+  "에스테틱",
+] as const;
+export type TimeSaleMenuTreatmentType =
+  (typeof TIME_SALE_MENU_TREATMENT_TYPES)[number];
+
 export type TimeSaleMenuSearchType =
   | "NICKNAME"
   | "NAME"
@@ -72,6 +103,10 @@ export interface ITimeSaleMenu {
   description: string | null;
   isActive: boolean;
   viewCount: number;
+  // Older server deployments omit analytics fields; missing is not zero.
+  reservationRequestCount?: number;
+  reservationAcceptedCount?: number;
+  reservationRate?: number;
   reservationLinkClickCount: number;
   createdAt: string;
   updatedAt: string;

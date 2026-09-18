@@ -14,12 +14,14 @@ interface ModalProps extends ModalContextProps {
   isOpen: boolean;
   onClickOutside?: () => void;
   children: React.ReactNode;
+  className?: string;
 }
 
 export function Modal({
   isOpen,
   onClickOutside,
   children,
+  className,
   ...rest
 }: ModalProps) {
   const [show, setShow] = React.useState(false);
@@ -77,7 +79,8 @@ export function Modal({
             "relative w-full rounded-2xl flex flex-col bg-white shadow-xl transition-all",
             "duration-300 ease-out",
             closing ? "animate-modal-out" : "animate-modal-in",
-            sizeClass[rest.size || "sm"]
+            sizeClass[rest.size || "sm"],
+            className
           )}
           onClick={(e) => e.stopPropagation()}
         >

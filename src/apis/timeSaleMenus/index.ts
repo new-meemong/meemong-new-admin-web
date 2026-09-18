@@ -3,7 +3,12 @@ import {
   ServerPaginatedResponse,
   normalizePaginatedResponse,
 } from "@/apis/types";
-import { ITimeSaleMenu, TimeSaleMenuSearchType } from "@/models/timeSaleMenus";
+import {
+  ITimeSaleMenu,
+  TimeSaleMenuSearchType,
+  TimeSaleMenuOrderBy,
+  TimeSaleMenuTreatmentType,
+} from "@/models/timeSaleMenus";
 
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { fetcher } from "@/apis/core";
@@ -11,6 +16,10 @@ import { fetcher } from "@/apis/core";
 const BASE_URL = "/api/v1/admins/time-sale-menus";
 
 export type GetTimeSaleMenusRequest = {
+  orderBy?: TimeSaleMenuOrderBy;
+  createdAtStartKST?: string;
+  createdAtEndKST?: string;
+  treatmentTypes?: TimeSaleMenuTreatmentType[];
   searchType?: TimeSaleMenuSearchType;
   searchKeyword?: string;
   page?: number;
@@ -37,6 +46,10 @@ export type PutTimeSaleMenuResponse = {
 
 export const timeSaleMenuAPI = {
   getAll: async ({
+    orderBy,
+    createdAtStartKST,
+    createdAtEndKST,
+    treatmentTypes,
     searchType,
     searchKeyword,
     page = DEFAULT_PAGINATION.page,
@@ -47,6 +60,10 @@ export const timeSaleMenuAPI = {
       BASE_URL,
       {
         query: {
+          orderBy,
+          createdAtStartKST: createdAtStartKST || undefined,
+          createdAtEndKST: createdAtEndKST || undefined,
+          "treatmentTypes[]": treatmentTypes,
           ...(trimmedSearchKeyword &&
             searchType && {
               searchType,

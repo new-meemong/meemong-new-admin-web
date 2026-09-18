@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  formatTimeSaleMenuReservationRate,
+  formatTimeSaleMenuAnalysisTreatmentType,
+} from "@/utils/timeSaleMenus";
+
 import { ITimeSaleMenu, ITimeSaleMenuUserInfo } from "@/models/timeSaleMenus";
 import React, { useCallback, useEffect } from "react";
 import {
@@ -17,13 +22,12 @@ import { CommonForm } from "@/components/shared/common-form";
 import { CommonFormButtonBox } from "@/components/shared/common-form/common-form-button-box";
 import { CONTENTS_CATEGORY_MAP } from "@/constants/contents";
 import { FormGroup } from "@/components/ui/form-group";
-import ImageBox from "@/components/shared/image-box";
-import { ImageSwiperItem } from "@/components/shared/image-swiper";
+import { useGetUserDetailQuery } from "@/queries/users";
+import TimeSaleMenuAppPreview from "@/components/features/contents/time-sale-menu-app-preview";
 import { Modal } from "@/components/shared/modal";
 import { ModalBody } from "@/components/shared/modal/modal-body";
 import { ModalHeader } from "@/components/shared/modal/modal-header";
 import { formatDate } from "@/utils/date";
-import { parseImageUrl } from "@/utils/image";
 import { formatPrice } from "@/utils/price";
 import { formatReservationTime } from "@/utils/timeSaleMenus";
 import { toast } from "react-toastify";
@@ -94,6 +98,12 @@ export default function TimeSaleMenuDetailModal({
   const deleteMutation = useDeleteTimeSaleMenuMutation();
   const detail = detailQuery.data;
   const currentTimeSaleMenu = detail ?? timeSaleMenu;
+  const designerPhotosQuery = useGetUserDetailQuery(
+    currentTimeSaleMenu.designerUserId,
+    {
+      enabled: isOpen && currentTimeSaleMenu.designerUserId > 0,
+    },
+  );
 
   const form = useForm<TimeSaleMenuForm>({
     resolver: zodResolver(schema),
@@ -165,6 +175,7 @@ export default function TimeSaleMenuDetailModal({
     <Modal
       isOpen={isOpen}
       size="lg"
+      className="h-[calc(100dvh-32px)] max-h-[1040px]"
       closable
       onClose={onClose}
       onClickOutside={onClose}
@@ -175,26 +186,48 @@ export default function TimeSaleMenuDetailModal({
         상세페이지
       </ModalHeader>
 
-      <ModalBody className="flex flex-col overflow-hidden">
+      <ModalBody className="flex min-h-0 flex-col overflow-hidden">
         <FormProvider {...form}>
           <form
             className="flex min-h-0 w-full flex-1 flex-col gap-6"
             onSubmit={handleUpdate}
             noValidate
           >
-            <div className="flex min-h-0 w-full flex-1 flex-row gap-6">
-              <section className="flex w-[28%] flex-shrink-0 flex-col gap-4 overflow-y-auto">
+            <div className="flex min-h-0 w-full flex-1 flex-row gap-6 overflow-hidden">
+              <section className="flex min-h-0 w-[24%] flex-shrink-0 flex-col gap-4 overflow-y-auto">
                 <h3 className="typo-title-2-semibold text-foreground">
                   유저 정보
                 </h3>
                 <TimeSaleMenuUserInfoPanel
                   userInfo={currentTimeSaleMenu.userInfo}
                 />
+                <details open className="border-t pt-4">
+                  <summary className="cursor-pointer typo-title-2-semibold">
+                    운영 정보
+                  </summary>
+                  <TimeSaleMenuAdminInfoPanel
+                    timeSaleMenu={currentTimeSaleMenu}
+                  />
+                </details>
               </section>
 
-              <section className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
+              <section className="flex min-h-0 w-[375px] shrink-0 flex-col gap-3">
                 <h3 className="flex-shrink-0 typo-title-2-semibold text-foreground">
-                  리뷰특가 상세
+                  앱 미리보기
+                </h3>
+                <TimeSaleMenuAppPreview
+                  key={currentTimeSaleMenu.id}
+                  menu={currentTimeSaleMenu}
+                  photos={designerPhotosQuery.data?.userPhotos ?? []}
+                  photosLoading={designerPhotosQuery.isLoading}
+                  photosError={designerPhotosQuery.isError}
+                  onRetryPhotos={() => void designerPhotosQuery.refetch()}
+                />
+              </section>
+
+              <section className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pr-6">
+                <h3 className="flex-shrink-0 typo-title-2-semibold text-foreground">
+                  콘텐츠 수정
                 </h3>
                 <FormGroup>
                   <CommonForm.Input<TimeSaleMenuForm>
@@ -202,17 +235,6 @@ export default function TimeSaleMenuDetailModal({
                     label="제목"
                     placeholder="제목을 입력해주세요."
                   />
-                  <TimeSaleMenuReadOnlyPanel
-                    timeSaleMenu={currentTimeSaleMenu}
-                  />
-                </FormGroup>
-              </section>
-
-              <section className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pr-6">
-                <h3 className="flex-shrink-0 typo-title-2-semibold text-foreground">
-                  본문내용
-                </h3>
-                <FormGroup>
                   <CommonForm.Textarea<TimeSaleMenuForm>
                     name="description"
                     label="본문내용"
@@ -320,23 +342,11 @@ function TimeSaleMenuUserInfoPanel({
   );
 }
 
-function TimeSaleMenuReadOnlyPanel({
+function TimeSaleMenuAdminInfoPanel({
   timeSaleMenu,
 }: {
   timeSaleMenu: ITimeSaleMenu;
 }) {
-  const images: ImageSwiperItem[] = [...(timeSaleMenu.images ?? [])]
-    .sort((a, b) => a.displayOrder - b.displayOrder)
-    .map((image) => ({
-      id: image.id,
-      src: parseImageUrl(image.imageUrl),
-    }));
-  const displayImages: ImageSwiperItem[] =
-    images.length > 0
-      ? images
-      : timeSaleMenu.thumbnailImageUrl
-        ? [{ src: parseImageUrl(timeSaleMenu.thumbnailImageUrl) }]
-        : [];
   const reservationSlots = timeSaleMenu.reservationSlots
     ?.map(
       (slot) =>
@@ -347,79 +357,92 @@ function TimeSaleMenuReadOnlyPanel({
   return (
     <div>
       <CommonForm.ReadonlyRow
+        stacked
         label="원가"
         value={formatPrice(timeSaleMenu.originalPrice)}
       />
       <CommonForm.ReadonlyRow
+        stacked
         label="할인가"
         value={formatPrice(timeSaleMenu.discountPrice)}
       />
-      <CommonForm.ReadonlyRow label="조회수" value={timeSaleMenu.viewCount} />
       <CommonForm.ReadonlyRow
+        stacked
+        label="조회수"
+        value={timeSaleMenu.viewCount}
+      />
+      <CommonForm.ReadonlyRow
+        stacked
+        label="누적 예약 요청수"
+        value={timeSaleMenu.reservationRequestCount ?? "-"}
+      />
+      <CommonForm.ReadonlyRow
+        stacked
+        label="현재 예약 수락수"
+        value={timeSaleMenu.reservationAcceptedCount ?? "-"}
+      />
+      <CommonForm.ReadonlyRow
+        stacked
+        label="예약률 (수락수/조회수)"
+        value={formatTimeSaleMenuReservationRate(timeSaleMenu.reservationRate)}
+      />
+      <CommonForm.ReadonlyRow
+        stacked
         label="링크 클릭수"
         value={timeSaleMenu.reservationLinkClickCount}
       />
       <CommonForm.ReadonlyRow
+        stacked
         label="관심 수"
         value={timeSaleMenu.favoriteCount}
       />
       <CommonForm.ReadonlyRow
+        stacked
         label="노출 여부"
         value={timeSaleMenu.isActive ? "노출" : "미노출"}
       />
       <CommonForm.ReadonlyRow
+        stacked
         label="시술 종류"
-        value={timeSaleMenu.treatmentType ?? "-"}
+        value={formatTimeSaleMenuAnalysisTreatmentType(
+          timeSaleMenu.treatmentType,
+        )}
       />
       <CommonForm.ReadonlyRow
+        stacked
         label="대상 성별"
         value={timeSaleMenu.targetGender ?? "-"}
       />
       <CommonForm.ReadonlyRow
+        stacked
         label="커트 옵션"
         value={timeSaleMenu.cutOption ?? "-"}
       />
       <CommonForm.ReadonlyRow
+        stacked
         label="예약 메뉴명"
         value={timeSaleMenu.reservationName ?? "-"}
       />
       <CommonForm.ReadonlyRow
+        stacked
         label="예약 디자이너"
         value={timeSaleMenu.naverDesignerName ?? "-"}
       />
       <CommonForm.ReadonlyRow
+        stacked
         label="예약 시간"
         value={reservationSlots || "-"}
       />
       <CommonForm.ReadonlyRow
+        stacked
         label="작성일"
         value={formatDate(timeSaleMenu.createdAt, "YYYY.MM.DD / HH:mm") ?? "-"}
       />
       <CommonForm.ReadonlyRow
+        stacked
         label="최종수정일"
         value={formatDate(timeSaleMenu.updatedAt, "YYYY.MM.DD / HH:mm") ?? "-"}
       />
-      <div className="mt-[20px] flex flex-col gap-0">
-        <label className="mb-2 w-full shrink-0 text-foreground-strong">
-          사진
-        </label>
-        <div className="typo-body-2-regular">
-          {displayImages.length > 0 ? (
-            <div className="grid grid-cols-4 gap-4">
-              {displayImages.map((image, index) => (
-                <ImageBox
-                  key={`time-sale-menu-image-${image.id ?? image.src}`}
-                  src={image.src}
-                  images={displayImages}
-                  index={index}
-                />
-              ))}
-            </div>
-          ) : (
-            "-"
-          )}
-        </div>
-      </div>
     </div>
   );
 }
