@@ -309,7 +309,7 @@ export default function TimeSaleMenuContent({
               },
               {
                 value: "reservationAcceptedCountDesc",
-                label: "예약 수락수 높은 순 (추천)",
+                label: "예약 수락수 높은 순",
               },
               { value: "reservationRateDesc", label: "예약률 높은 순" },
             ]}
