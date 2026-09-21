@@ -16,11 +16,14 @@ describe("mong history requests", () => {
     "requests only one %s page",
     async (type) => {
       mockedFetcher.mockResolvedValue(page("next"));
-      const result = await mongMoneyAPI.getGroupsPage({ userId: 10, type });
+      const result = await mongMoneyAPI.getGroupsPage({
+        userId: 10,
+        __category: type,
+      });
       expect(mockedFetcher).toHaveBeenCalledExactlyOnceWith(
         "/api/v1/admins/mong-moneys/groups",
         {
-          query: { userId: 10, type, __limit: 10 },
+          query: { userId: 10, __category: type, __limit: 10 },
         },
       );
       expect(result.__nextCursor).toBe("next");
@@ -34,6 +37,15 @@ describe("mong history requests", () => {
     expect(mockedFetcher).toHaveBeenCalledWith(
       "/api/v1/admins/mong-moneys/groups",
       { query: { userId: 10, __limit: 1 } },
+    );
+  });
+
+  it("requests all users without a category when filters are omitted", async () => {
+    mockedFetcher.mockResolvedValue(page(null));
+    await mongMoneyAPI.getGroupsPage({});
+    expect(mockedFetcher).toHaveBeenCalledExactlyOnceWith(
+      "/api/v1/admins/mong-moneys/groups",
+      { query: { __limit: 10 } },
     );
   });
 });

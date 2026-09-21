@@ -6,32 +6,18 @@ import { ColumnDef } from "@tanstack/react-table";
 import CommonTable from "@/components/shared/common-table";
 import { Button } from "@/components/ui/button";
 import UserRightDrawer from "@/components/features/user/user-right-drawer";
-import { IMongMoney } from "@/models/mongMoneys";
+import { IMongMoneyGroup } from "@/models/mongMoneys";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
 import { formatMongMoneyAdminDescription } from "@/utils/mongMoneys";
-import { getUserRole } from "@/utils/user";
-import { useGetMongMoneysQuery } from "@/queries/mongMoneys";
+import { useMongMoneyManualDepositsQuery } from "@/queries/mongMoneys";
 import { useDrawer } from "@/stores/drawer";
+import { MONG_MONEY_GROUP_MAX_LIMIT } from "@/apis/mongMoneys";
 
-const MONG_MONEY_DEPOSIT_PAGE_SIZE = 50;
+const EMPTY_DEPOSITS: IMongMoneyGroup[] = [];
 
 interface MongMoneyDepositManagementPageContentProps {
   className?: string;
-}
-
-function getMongMoneyDepositUserLabel(mongMoney: IMongMoney) {
-  return mongMoney.User?.displayName || `#${mongMoney.userId}`;
-}
-
-function getMongMoneyDepositUserRoleLabel(mongMoney: IMongMoney) {
-  if (!mongMoney.User?.role) return null;
-
-  const userRole = getUserRole(mongMoney.User.role);
-  if (userRole === "MODEL") return "모델";
-  if (userRole === "DESIGNER") return "디자이너";
-
-  return null;
 }
 
 export default function MongMoneyDepositManagementPageContent({
@@ -45,19 +31,12 @@ export default function MongMoneyDepositManagementPageContent({
   const [currentCursorIndex, setCurrentCursorIndex] = useState(0);
   const currentCursor = cursorStack[currentCursorIndex];
 
-  const getMongMoneysQuery = useGetMongMoneysQuery({
-    __cursorOrder: "idDesc",
-    __limit: MONG_MONEY_DEPOSIT_PAGE_SIZE,
+  const manualDepositsQuery = useMongMoneyManualDepositsQuery({
+    __limit: MONG_MONEY_GROUP_MAX_LIMIT,
     __nextCursor: currentCursor,
   });
-  const depositHistories = useMemo(
-    () =>
-      (getMongMoneysQuery.data?.dataList ?? []).filter(
-        (mongMoney) => mongMoney.type === "deposit",
-      ),
-    [getMongMoneysQuery.data?.dataList],
-  );
-  const nextCursor = getMongMoneysQuery.data?.__nextCursor ?? null;
+  const depositHistories = manualDepositsQuery.data?.dataList ?? EMPTY_DEPOSITS;
+  const nextCursor = manualDepositsQuery.data?.__nextCursor ?? null;
 
   const handleOpenUserDrawer = useCallback(
     (userId?: number) => {
@@ -70,18 +49,18 @@ export default function MongMoneyDepositManagementPageContent({
   );
 
   const handleRefresh = useCallback(() => {
-    getMongMoneysQuery.refetch();
-  }, [getMongMoneysQuery]);
+    manualDepositsQuery.refetch();
+  }, [manualDepositsQuery]);
 
   const handleNext = useCallback(() => {
-    if (!nextCursor) return;
+    if (!nextCursor || manualDepositsQuery.isPlaceholderData) return;
 
     setCursorStack((prev) => [
       ...prev.slice(0, currentCursorIndex + 1),
       nextCursor,
     ]);
     setCurrentCursorIndex((prev) => prev + 1);
-  }, [currentCursorIndex, nextCursor]);
+  }, [currentCursorIndex, nextCursor, manualDepositsQuery.isPlaceholderData]);
 
   const handlePrev = useCallback(() => {
     if (currentCursorIndex === 0) return;
@@ -89,7 +68,7 @@ export default function MongMoneyDepositManagementPageContent({
     setCurrentCursorIndex((prev) => prev - 1);
   }, [currentCursorIndex]);
 
-  const columns = useMemo<ColumnDef<IMongMoney>[]>(
+  const columns = useMemo<ColumnDef<IMongMoneyGroup>[]>(
     () => [
       {
         accessorKey: "id",
@@ -99,8 +78,8 @@ export default function MongMoneyDepositManagementPageContent({
         enableSorting: false,
       },
       {
-        accessorKey: "User.displayName",
-        header: "지급한유저",
+        accessorKey: "userId",
+        header: "유저 아이디",
         size: 150,
         cell: (info) => {
           const mongMoney = info.row.original;
@@ -116,18 +95,10 @@ export default function MongMoneyDepositManagementPageContent({
                 handleOpenUserDrawer(mongMoney.userId);
               }}
             >
-              {getMongMoneyDepositUserLabel(mongMoney)}
+              {mongMoney.userId}
             </button>
           );
         },
-        enableSorting: false,
-      },
-      {
-        id: "userRole",
-        header: "가입유형",
-        size: 90,
-        cell: (info) =>
-          getMongMoneyDepositUserRoleLabel(info.row.original) ?? "-",
         enableSorting: false,
       },
       {
@@ -166,19 +137,22 @@ export default function MongMoneyDepositManagementPageContent({
           variant="outline"
           size="sm"
           className="h-[32px] rounded-4 px-[10px]"
-          disabled={getMongMoneysQuery.isFetching}
+          disabled={manualDepositsQuery.isFetching}
           onClick={handleRefresh}
         >
           <RefreshCw className="h-[14px] w-[14px]" />
           새로고침
         </Button>
       </div>
-      {getMongMoneysQuery.isLoading ? (
+      {manualDepositsQuery.isLoading ? (
         <div className="rounded-10 border bg-white p-6 text-center text-gray-500">
           불러오는 중...
         </div>
       ) : (
-        <CommonTable<IMongMoney> data={depositHistories} columns={columns} />
+        <CommonTable<IMongMoneyGroup>
+          data={depositHistories}
+          columns={columns}
+        />
       )}
       <div className="mt-[12px] flex items-center justify-end gap-[8px]">
         <Button
@@ -186,7 +160,7 @@ export default function MongMoneyDepositManagementPageContent({
           variant="outline"
           size="sm"
           className="h-[32px] rounded-4 px-[10px]"
-          disabled={currentCursorIndex === 0 || getMongMoneysQuery.isFetching}
+          disabled={currentCursorIndex === 0 || manualDepositsQuery.isFetching}
           onClick={handlePrev}
         >
           <ChevronLeft className="h-[14px] w-[14px]" />
@@ -197,7 +171,11 @@ export default function MongMoneyDepositManagementPageContent({
           variant="outline"
           size="sm"
           className="h-[32px] rounded-4 px-[10px]"
-          disabled={!nextCursor || getMongMoneysQuery.isFetching}
+          disabled={
+            !nextCursor ||
+            manualDepositsQuery.isFetching ||
+            manualDepositsQuery.isPlaceholderData
+          }
           onClick={handleNext}
         >
           다음
@@ -207,7 +185,7 @@ export default function MongMoneyDepositManagementPageContent({
       {selectedUserId !== null && (
         <UserRightDrawer
           userId={selectedUserId}
-          onRefresh={getMongMoneysQuery.refetch}
+          onRefresh={manualDepositsQuery.refetch}
         />
       )}
     </section>

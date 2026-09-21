@@ -1,8 +1,7 @@
 import {
   MongMoneyHistoryType,
   MONG_MONEY_GROUP_PAGE_LIMIT,
-  GetMongMoneysRequest,
-  GetMongMoneysResponse,
+  GetMongMoneyGroupsPageRequest,
   PostMongMoneyDepositRequest,
   PostMongMoneyDepositResponse,
   PostMongMoneyWithdrawRequest,
@@ -13,29 +12,34 @@ import {
   QueryClient,
   UseMutationOptions,
   UseMutationResult,
-  UseQueryOptions,
-  UseQueryResult,
   useMutation,
   useQuery,
   useInfiniteQuery,
   infiniteQueryOptions,
+  queryOptions,
+  keepPreviousData,
 } from "@tanstack/react-query";
 
 export const MONG_MONEY_GROUPS_QUERY_KEY = "GET_MONG_MONEY_GROUPS";
-export const MONG_MONEYS_QUERY_KEY = "GET_MONG_MONEYS";
+export const MONG_MONEY_MANUAL_DEPOSITS_QUERY_KEY =
+  "GET_MONG_MONEY_MANUAL_DEPOSITS";
 
-export const useGetMongMoneysQuery = (
-  params: GetMongMoneysRequest,
-  config?: Omit<
-    UseQueryOptions<GetMongMoneysResponse, Error>,
-    "queryKey" | "queryFn"
-  >,
-): UseQueryResult<GetMongMoneysResponse, Error> =>
-  useQuery({
-    queryKey: [MONG_MONEYS_QUERY_KEY, params],
-    queryFn: () => mongMoneyAPI.getAll(params),
-    ...config,
+export const mongMoneyManualDepositsQueryOptions = (
+  params: Pick<GetMongMoneyGroupsPageRequest, "__limit" | "__nextCursor">,
+) =>
+  queryOptions({
+    queryKey: [MONG_MONEY_MANUAL_DEPOSITS_QUERY_KEY, params],
+    placeholderData: keepPreviousData,
+    queryFn: () =>
+      mongMoneyAPI.getGroupsPage({
+        ...params,
+        referTargetType: "manualDeposit",
+      }),
   });
+
+export const useMongMoneyManualDepositsQuery = (
+  params: Pick<GetMongMoneyGroupsPageRequest, "__limit" | "__nextCursor">,
+) => useQuery(mongMoneyManualDepositsQueryOptions(params));
 
 export const mongMoneyHistoryQueryOptions = (params: {
   userId: number;
@@ -51,7 +55,8 @@ export const mongMoneyHistoryQueryOptions = (params: {
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam }) =>
       mongMoneyAPI.getGroupsPage({
-        ...params,
+        userId: params.userId,
+        __category: params.type,
         __limit: MONG_MONEY_GROUP_PAGE_LIMIT,
         __nextCursor: pageParam,
       }),
@@ -99,7 +104,9 @@ export const refreshUserMongMoneyAfterDeposit = async (
       queryKey: [MONG_MONEY_GROUPS_QUERY_KEY, userId, "balance"],
       type: "active",
     }),
-    queryClient.invalidateQueries({ queryKey: [MONG_MONEYS_QUERY_KEY] }),
+    queryClient.invalidateQueries({
+      queryKey: [MONG_MONEY_MANUAL_DEPOSITS_QUERY_KEY],
+    }),
   ]);
 };
 
