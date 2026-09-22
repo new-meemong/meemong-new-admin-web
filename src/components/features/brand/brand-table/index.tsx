@@ -2,10 +2,10 @@
 
 import { ColumnDef, Row } from "@tanstack/react-table";
 import CommonPagination, {
-  CommonPaginationProps
+  CommonPaginationProps,
 } from "@/components/shared/common-pagination";
 import CommonTable, {
-  CommonTableProps
+  CommonTableProps,
 } from "@/components/shared/common-table";
 import React, { useCallback, useState } from "react";
 
@@ -36,7 +36,7 @@ function BrandTable({
   const modal = useModal();
 
   const [selectedBrand, setSelectedBrand] = useState<IBrand | undefined>(
-    undefined
+    undefined,
   );
 
   const columns: ColumnDef<IBrand>[] = [
@@ -58,6 +58,12 @@ function BrandTable({
       enableSorting: false,
     },
     {
+      accessorKey: "isRecommended",
+      header: "추천 여부",
+      cell: (info) => (info.getValue() ? "추천" : "미추천"),
+      enableSorting: false,
+    },
+    {
       accessorKey: "createdAt",
       header: "등록일",
       cell: (info) => formatDate(info.getValue() as string),
@@ -69,7 +75,7 @@ function BrandTable({
       setSelectedBrand(row.original);
       modal.open();
     },
-    [modal]
+    [modal],
   );
 
   return (
@@ -90,7 +96,10 @@ function BrandTable({
         <BrandEditModal
           isOpen={modal.isOpen}
           onClose={modal.close}
-          brand={selectedBrand}
+          brand={
+            data?.find((brand) => brand.id === selectedBrand.id) ??
+            selectedBrand
+          }
           onSubmit={() => {
             onRefresh();
           }}
@@ -101,5 +110,3 @@ function BrandTable({
 }
 
 export default BrandTable;
-
-

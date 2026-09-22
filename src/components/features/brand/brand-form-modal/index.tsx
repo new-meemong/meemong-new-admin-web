@@ -3,15 +3,16 @@
 import React, { useCallback, useState } from "react";
 import { usePostBrandMutation } from "@/queries/brands";
 
-import { Modal } from "@/components/shared/modal";
-import { ModalBody } from "@/components/shared/modal/modal-body";
-import { ModalHeader } from "@/components/shared/modal/modal-header";
-import { ModalFooter } from "@/components/shared/modal/modal-footer";
+import BrandRecommendationField from "@/components/features/brand/brand-recommendation-field";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Modal } from "@/components/shared/modal";
+import { ModalBody } from "@/components/shared/modal/modal-body";
+import { ModalFooter } from "@/components/shared/modal/modal-footer";
+import { ModalHeader } from "@/components/shared/modal/modal-header";
 import { toast } from "react-toastify";
 import { useDialog } from "@/components/shared/dialog/context";
-import { Button } from "@/components/ui/button";
 
 interface BrandFormModalProps {
   isOpen: boolean;
@@ -23,11 +24,12 @@ interface BrandFormModalProps {
 export default function BrandFormModal({
   isOpen,
   onClose,
-  onSubmit
+  onSubmit,
 }: BrandFormModalProps) {
   const dialog = useDialog();
   const postBrandMutation = usePostBrandMutation();
   const [name, setName] = useState("");
+  const [isRecommended, setIsRecommended] = useState(false);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -44,10 +46,12 @@ export default function BrandFormModal({
         if (confirmed) {
           await postBrandMutation.mutateAsync({
             name: name.trim(),
+            isRecommended,
           });
 
           toast.success("브랜드를 추가했습니다.");
           setName("");
+          setIsRecommended(false);
           onSubmit();
           onClose();
         }
@@ -58,11 +62,12 @@ export default function BrandFormModal({
         toast.error(errorMessage);
       }
     },
-    [dialog, postBrandMutation, name, onSubmit, onClose]
+    [dialog, postBrandMutation, name, isRecommended, onSubmit, onClose],
   );
 
   const handleClose = useCallback(() => {
     setName("");
+    setIsRecommended(false);
     onClose();
   }, [onClose]);
 
@@ -83,18 +88,21 @@ export default function BrandFormModal({
               id="brand-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              disabled={postBrandMutation.isPending}
               placeholder="브랜드명을 입력하세요"
               required
             />
           </div>
+          <BrandRecommendationField
+            id="brand-recommended"
+            checked={isRecommended}
+            onChange={setIsRecommended}
+            disabled={postBrandMutation.isPending}
+          />
         </form>
       </ModalBody>
       <ModalFooter>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleClose}
-        >
+        <Button type="button" variant="outline" onClick={handleClose}>
           취소
         </Button>
         <Button
@@ -108,4 +116,3 @@ export default function BrandFormModal({
     </Modal>
   );
 }
-

@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   useDeleteBrandMutation,
-  usePatchBrandMutation
+  usePatchBrandMutation,
 } from "@/queries/brands";
 
+import BrandRecommendationField from "@/components/features/brand/brand-recommendation-field";
 import { Button } from "@/components/ui/button";
 import { CommonForm } from "@/components/shared/common-form";
 import { IBrand } from "@/models/brand";
@@ -31,24 +32,38 @@ export default function BrandEditModal({
   brand,
   isOpen,
   onClose,
-  onSubmit
+  onSubmit,
 }: BrandEditModalProps) {
   const dialog = useDialog();
   const patchBrandMutation = usePatchBrandMutation();
   const deleteBrandMutation = useDeleteBrandMutation();
   const [name, setName] = useState(brand.name);
+  const [isRecommended, setIsRecommended] = useState(brand.isRecommended);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState("");
 
+  const initializedBrandId = useRef<number | null>(null);
+
+  const seedDraftFromBrand = useCallback(() => {
+    setName(brand.name);
+    setIsRecommended(brand.isRecommended);
+  }, [brand.name, brand.isRecommended]);
+
   useEffect(() => {
-    if (isOpen) {
-      setName(brand.name);
+    if (!isOpen) {
+      initializedBrandId.current = null;
+      return;
+    }
+    // Refreshes update read-only values without replacing an open editing draft.
+    if (initializedBrandId.current !== brand.id) {
+      initializedBrandId.current = brand.id;
+      seedDraftFromBrand();
       setIsEditMode(false);
       setShowPasswordModal(false);
       setPassword("");
     }
-  }, [isOpen, brand.name]);
+  }, [isOpen, brand.id, seedDraftFromBrand]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -65,7 +80,8 @@ export default function BrandEditModal({
         if (confirmed) {
           await patchBrandMutation.mutateAsync({
             id: brand.id,
-            name: name.trim()
+            name: name.trim(),
+            isRecommended,
           });
 
           toast.success("브랜드를 수정했습니다.");
@@ -79,13 +95,13 @@ export default function BrandEditModal({
         toast.error(errorMessage);
       }
     },
-    [dialog, patchBrandMutation, brand.id, name, onSubmit]
+    [dialog, patchBrandMutation, brand.id, name, isRecommended, onSubmit],
   );
 
   const handleDelete = useCallback(async () => {
     try {
       const confirmed = await dialog.confirm(
-        "브랜드를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+        "브랜드를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
       );
 
       if (confirmed) {
@@ -127,7 +143,7 @@ export default function BrandEditModal({
       // 비밀번호 검증 성공 시 삭제 진행
       try {
         await deleteBrandMutation.mutateAsync({
-          id: brand.id
+          id: brand.id,
         });
 
         toast.success("브랜드를 삭제했습니다.");
@@ -144,16 +160,16 @@ export default function BrandEditModal({
         toast.error(errorMessage);
       }
     },
-    [password, deleteBrandMutation, brand.id, onSubmit, onClose]
+    [password, deleteBrandMutation, brand.id, onSubmit, onClose],
   );
 
   const handleClose = useCallback(() => {
     setIsEditMode(false);
-    setName(brand.name);
+    seedDraftFromBrand();
     setShowPasswordModal(false);
     setPassword("");
     onClose();
-  }, [onClose, brand.name]);
+  }, [onClose, seedDraftFromBrand]);
 
   const handlePasswordModalClose = useCallback(() => {
     setShowPasswordModal(false);
@@ -182,13 +198,26 @@ export default function BrandEditModal({
                     id="brand-edit-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    disabled={patchBrandMutation.isPending}
                     placeholder="브랜드명을 입력하세요"
                     required
                   />
                 </div>
+                <BrandRecommendationField
+                  id="brand-edit-recommended"
+                  checked={isRecommended}
+                  onChange={setIsRecommended}
+                  disabled={patchBrandMutation.isPending}
+                />
               </form>
             ) : (
-              <CommonForm.ReadonlyRow label="브랜드명" value={brand.name} />
+              <>
+                <CommonForm.ReadonlyRow label="브랜드명" value={brand.name} />
+                <CommonForm.ReadonlyRow
+                  label="추천 여부"
+                  value={brand.isRecommended ? "추천" : "미추천"}
+                />
+              </>
             )}
             <CommonForm.ReadonlyRow
               label="등록일"
@@ -217,7 +246,13 @@ export default function BrandEditModal({
                 {isEditMode ? "취소" : "닫기"}
               </Button>
               {!isEditMode && (
-                <Button type="button" onClick={() => setIsEditMode(true)}>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    seedDraftFromBrand();
+                    setIsEditMode(true);
+                  }}
+                >
                   수정하기
                 </Button>
               )}
