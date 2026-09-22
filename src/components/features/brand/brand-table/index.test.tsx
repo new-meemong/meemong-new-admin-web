@@ -17,6 +17,10 @@ describe("brand list recommendation status", () => {
         const html = renderToStaticMarkup(
           <QueryClientProvider client={client}>
             <BrandTable
+              totalCount={1}
+              currentPage={1}
+              onPageChange={() => {}}
+              onSizeChange={() => {}}
               data={[
                 {
                   id: 1,

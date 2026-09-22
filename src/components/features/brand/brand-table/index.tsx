@@ -10,6 +10,7 @@ import CommonTable, {
 import React, { useCallback, useState } from "react";
 
 import BrandEditModal from "@/components/features/brand/brand-edit-modal";
+import BrandDesignerCount from "@/components/features/brand/brand-designer-count";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { IBrand } from "@/models/brand";
 import { cn } from "@/lib/utils";
@@ -61,6 +62,12 @@ function BrandTable({
       accessorKey: "isRecommended",
       header: "추천 여부",
       cell: (info) => (info.getValue() ? "추천" : "미추천"),
+      enableSorting: false,
+    },
+    {
+      id: "designerCount",
+      header: "가입 디자이너 수",
+      cell: ({ row }) => <BrandDesignerCount brandId={row.original.id} />,
       enableSorting: false,
     },
     {

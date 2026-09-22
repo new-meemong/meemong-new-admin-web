@@ -7,6 +7,10 @@ import {
 } from "@/queries/brands";
 
 import BrandRecommendationField from "@/components/features/brand/brand-recommendation-field";
+import BrandDesignerList from "@/components/features/brand/brand-designer-list";
+import UserRightDrawer from "@/components/features/user/user-right-drawer";
+import { useDrawer } from "@/stores/drawer";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { CommonForm } from "@/components/shared/common-form";
 import { IBrand } from "@/models/brand";
@@ -35,6 +39,15 @@ export default function BrandEditModal({
   onSubmit,
 }: BrandEditModalProps) {
   const dialog = useDialog();
+  const queryClient = useQueryClient();
+  const { isOpen: isUserDrawerOpen, openDrawer, closeDrawer } = useDrawer();
+  const [selectedDesignerId, setSelectedDesignerId] = useState<number | null>(
+    null,
+  );
+
+  useEffect(() => {
+    return () => closeDrawer();
+  }, [closeDrawer]);
   const patchBrandMutation = usePatchBrandMutation();
   const deleteBrandMutation = useDeleteBrandMutation();
   const [name, setName] = useState(brand.name);
@@ -53,17 +66,20 @@ export default function BrandEditModal({
   useEffect(() => {
     if (!isOpen) {
       initializedBrandId.current = null;
+      setSelectedDesignerId(null);
+      closeDrawer();
       return;
     }
     // Refreshes update read-only values without replacing an open editing draft.
     if (initializedBrandId.current !== brand.id) {
       initializedBrandId.current = brand.id;
+      setSelectedDesignerId(null);
       seedDraftFromBrand();
       setIsEditMode(false);
       setShowPasswordModal(false);
       setPassword("");
     }
-  }, [isOpen, brand.id, seedDraftFromBrand]);
+  }, [isOpen, brand.id, seedDraftFromBrand, closeDrawer]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -164,12 +180,13 @@ export default function BrandEditModal({
   );
 
   const handleClose = useCallback(() => {
+    if (isUserDrawerOpen) return;
     setIsEditMode(false);
     seedDraftFromBrand();
     setShowPasswordModal(false);
     setPassword("");
     onClose();
-  }, [onClose, seedDraftFromBrand]);
+  }, [onClose, seedDraftFromBrand, isUserDrawerOpen]);
 
   const handlePasswordModalClose = useCallback(() => {
     setShowPasswordModal(false);
@@ -182,6 +199,7 @@ export default function BrandEditModal({
         isOpen={isOpen && !showPasswordModal}
         closable={false}
         size="md"
+        className="h-[900px] max-h-[calc(100dvh-48px)]"
         onClose={handleClose}
         onClickOutside={handleClose}
       >
@@ -230,6 +248,16 @@ export default function BrandEditModal({
               />
             )}
           </div>
+          {isOpen && !showPasswordModal && (
+            <BrandDesignerList
+              key={brand.id}
+              brandId={brand.id}
+              onSelectDesigner={(userId) => {
+                setSelectedDesignerId(userId);
+                openDrawer();
+              }}
+            />
+          )}
         </ModalBody>
         <ModalFooter>
           <div className="flex justify-between w-full">
@@ -269,6 +297,19 @@ export default function BrandEditModal({
           </div>
         </ModalFooter>
       </Modal>
+      {isOpen && selectedDesignerId !== null && (
+        <UserRightDrawer
+          className="z-[60]"
+          overlayClassName="z-[60]"
+          userId={selectedDesignerId}
+          onRefresh={() => {
+            void queryClient.invalidateQueries({ queryKey: ["GET_USERS"] });
+            void queryClient.invalidateQueries({
+              queryKey: ["GET_USER_DETAIL", selectedDesignerId],
+            });
+          }}
+        />
+      )}
       <Modal
         isOpen={showPasswordModal}
         closable={false}
