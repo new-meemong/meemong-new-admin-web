@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "startDateKST": "2026-09-10",
+    "endDateKST": "2026-09-10",
+    "timezone": "Asia/Seoul",
+    "activityTrackingStartedAt": "2026-09-01T03:00:00.000Z",
+    "mauDefinition": "calendarMonthToDate",
+    "todayIsProvisional": false
+  },
+  "dataCount": 1,
+  "dataList": [
+    {
+      "dateKST": "2026-09-10",
+      "joinedCounts": {
+        "model": 10,
+        "designer": 2,
+        "unknown": 0
+      },
+      "withdrawnCounts": {
+        "model": 1,
+        "designer": 0,
+        "unknown": 0
+      },
+      "dauCounts": {
+        "model": 100,
+        "designer": 20,
+        "unknown": 0
+      },
+      "mauCounts": {
+        "model": 500,
+        "designer": 80,
+        "unknown": 0
+      },
+      "activityCoverage": "complete",
+      "mauCoverage": "partial"
+    }
+  ],
+  "currentMemberCounts": {
+    "model": 10000,
+    "designer": 2000,
+    "unknown": 0
+  }
+}

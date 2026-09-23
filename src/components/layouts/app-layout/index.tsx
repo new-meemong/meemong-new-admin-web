@@ -8,7 +8,7 @@ import IcContentsMenu from "@/assets/icons/ic_contents_menu.svg";
 import IcPopupMenu from "@/assets/icons/ic_popup_menu.svg";
 import IcReportMenu from "@/assets/icons/ic_report_menu.svg";
 import IcUserMenu from "@/assets/icons/ic_user_menu.svg";
-import { Coins, Package } from "lucide-react";
+import { Coins, LayoutDashboard, Package } from "lucide-react";
 import SideNav from "@/components/layouts/app-layout/side-nav";
 import SideNavItem from "@/components/layouts/app-layout/side-nav/side-nav-item";
 import { cn } from "@/lib/utils";
@@ -37,6 +37,11 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
   return (
     <div className={cn("app-layout flex min-h-screen", className)}>
       <SideNav>
+        <SideNavItem
+          href={"/dashboard"}
+          icon={<LayoutDashboard className="h-4 w-4" />}
+          label={"대시보드"}
+        />
         <SideNavItem href={"/user"} icon={<IcUserMenu />} label={"회원 관리"} />
         <SideNavItem
           href={"/user-files"}

@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "startDateKST": "2026-09-10",
+    "endDateKST": "2026-09-10",
+    "timezone": "Asia/Seoul",
+    "source": "MongMoneys",
+    "dateBasis": "MongMoneys.createdAt",
+    "refundBasis": "ledgerDateCohortAsOfEndDate",
+    "charges": {
+      "unit": "KRW",
+      "priceBasis": "purchasePaymentAmountKRW",
+      "amountBasis": "recordedDepositAmount"
+    },
+    "usage": {
+      "unit": "MONG",
+      "priceBasis": "recordedWithdrawAmount"
+    },
+    "rewards": {
+      "unit": "MONG",
+      "amountBasis": "recordedDepositAmount"
+    }
+  },
+  "dataCount": 1,
+  "dataList": [
+    {
+      "dateKST": "2026-09-10",
+      "chargedTotals": {
+        "unit": "KRW",
+        "purchaseCount": 2,
+        "refundedCount": 1,
+        "totalPaymentAmountKRW": 19800,
+        "refundedPaymentAmountKRW": 9900,
+        "totalChargedMongAmount": 200,
+        "totalChargedMongBaseAmount": 200,
+        "totalChargedMongBonusAmount": 0,
+        "knownTotalPaymentAmountKRW": 19800,
+        "unknownTotalPaymentCount": 0
+      },
+      "usedTotals": {
+        "unit": "MONG",
+        "purchaseCount": 2,
+        "refundedCount": 1,
+        "totalUsedMongAmount": 200,
+        "refundedUsedMongAmount": 100
+      },
+      "rewardedTotals": {
+        "unit": "MONG",
+        "rewardCount": 2,
+        "totalRewardedMongAmount": 100
+      }
+    }
+  ]
+}

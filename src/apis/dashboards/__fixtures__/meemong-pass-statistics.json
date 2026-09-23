@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "startDateKST": "2026-09-10",
+    "endDateKST": "2026-09-10",
+    "timezone": "Asia/Seoul",
+    "unit": "KRW",
+    "refundBasis": "purchaseDateCohortAsOfEndDate",
+    "priceBasis": "purchaseTimePresetPrice",
+    "latestValueBasis": "latestRecordWithinDayByCreatedAtThenId"
+  },
+  "dataCount": 1,
+  "dataList": [
+    {
+      "dateKST": "2026-09-10",
+      "items": {
+        "model_example.meemongpass.30days_ios": {
+          "role": "model",
+          "platform": "ios",
+          "productId": "example.meemongpass.30days",
+          "duration": 30,
+          "paymentAmountKRW": 9900,
+          "purchaseCount": 2,
+          "refundedCount": 1,
+          "unit": "KRW",
+          "totalPaymentAmountKRW": 19800,
+          "refundedPaymentAmountKRW": 9900,
+          "knownTotalPaymentAmountKRW": 19800,
+          "unknownTotalPaymentCount": 0
+        }
+      },
+      "totals": {
+        "unit": "KRW",
+        "purchaseCount": 2,
+        "refundedCount": 1,
+        "totalPaymentAmountKRW": 19800,
+        "refundedPaymentAmountKRW": 9900,
+        "knownTotalPaymentAmountKRW": 19800,
+        "unknownTotalPaymentCount": 0
+      }
+    }
+  ]
+}

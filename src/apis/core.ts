@@ -247,7 +247,8 @@ export async function fetcher<T>(
     } else if (respCt.includes("application/json")) {
       try {
         responseData = await res.json();
-      } catch {
+      } catch (error) {
+        if (options.signal?.aborted) throw error;
         responseData = await res.text();
       }
     } else {
@@ -269,6 +270,15 @@ export async function fetcher<T>(
     if (res.status === 204) return null as unknown as T;
     return responseData as T;
   } catch (error) {
+    // 화면 전환·쿼리 구독 해제로 취소된 요청은 통신 장애가 아닙니다.
+    // 취소 예외는 호출자에게 그대로 전달해 쿼리의 취소 처리를 유지합니다.
+    if (
+      options.signal?.aborted &&
+      error instanceof Error &&
+      error.name === "AbortError"
+    ) {
+      throw error;
+    }
     const duration = Math.round(performance.now() - startTime);
     // 네트워크 에러 등 예외 상황 로그 출력
     if (error instanceof Error && error.message.includes("API 요청 실패")) {

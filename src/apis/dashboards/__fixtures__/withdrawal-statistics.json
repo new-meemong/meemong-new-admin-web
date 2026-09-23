@@ -1,0 +1,132 @@
+{
+  "meta": {
+    "startDateKST": "2026-09-10",
+    "endDateKST": "2026-09-10",
+    "timezone": "Asia/Seoul",
+    "structuredReasons": [
+      "헤어모델 활동을 하고 싶지 않음",
+      "어떻게 쓰는지 모르겠음",
+      "원하는 조건의 디자이너가 없음",
+      "광고가 너무 많음",
+      "디자이너의 답변이 오지 않음",
+      "앱 오류, 서비스 불안정",
+      "모델 작업이 필요하지 않음",
+      "원하는 조건의 고객이 없음",
+      "가격이 너무 비쌈",
+      "고객의 답변이 오지 않음"
+    ]
+  },
+  "dataCount": 1,
+  "dataList": [
+    {
+      "dateKST": "2026-09-10",
+      "count": 1,
+      "countsByRole": {
+        "model": 1,
+        "designer": 0,
+        "unknown": 0
+      },
+      "retentionBuckets": {
+        "0_60": {
+          "lowerSeconds": 0,
+          "upperSeconds": 60,
+          "count": 1
+        },
+        "60_120": {
+          "lowerSeconds": 60,
+          "upperSeconds": 120,
+          "count": 0
+        },
+        "120_180": {
+          "lowerSeconds": 120,
+          "upperSeconds": 180,
+          "count": 0
+        },
+        "180_240": {
+          "lowerSeconds": 180,
+          "upperSeconds": 240,
+          "count": 0
+        },
+        "240_300": {
+          "lowerSeconds": 240,
+          "upperSeconds": 300,
+          "count": 0
+        },
+        "300_420": {
+          "lowerSeconds": 300,
+          "upperSeconds": 420,
+          "count": 0
+        },
+        "420_600": {
+          "lowerSeconds": 420,
+          "upperSeconds": 600,
+          "count": 0
+        },
+        "600_3600": {
+          "lowerSeconds": 600,
+          "upperSeconds": 3600,
+          "count": 0
+        },
+        "3600_21600": {
+          "lowerSeconds": 3600,
+          "upperSeconds": 21600,
+          "count": 0
+        },
+        "21600_43200": {
+          "lowerSeconds": 21600,
+          "upperSeconds": 43200,
+          "count": 0
+        },
+        "43200_90000": {
+          "lowerSeconds": 43200,
+          "upperSeconds": 90000,
+          "count": 0
+        },
+        "90000_259200": {
+          "lowerSeconds": 90000,
+          "upperSeconds": 259200,
+          "count": 0
+        },
+        "259200_604800": {
+          "lowerSeconds": 259200,
+          "upperSeconds": 604800,
+          "count": 0
+        },
+        "604800_1209600": {
+          "lowerSeconds": 604800,
+          "upperSeconds": 1209600,
+          "count": 0
+        },
+        "1209600_2592000": {
+          "lowerSeconds": 1209600,
+          "upperSeconds": 2592000,
+          "count": 0
+        },
+        "2592000_7776000": {
+          "lowerSeconds": 2592000,
+          "upperSeconds": 7776000,
+          "count": 0
+        },
+        "7776000_plus": {
+          "lowerSeconds": 7776000,
+          "upperSeconds": null,
+          "count": 0
+        }
+      },
+      "unknownRetentionCount": 0,
+      "reasonCounts": {
+        "헤어모델 활동을 하고 싶지 않음": 1,
+        "어떻게 쓰는지 모르겠음": 0,
+        "원하는 조건의 디자이너가 없음": 0,
+        "광고가 너무 많음": 0,
+        "디자이너의 답변이 오지 않음": 0,
+        "앱 오류, 서비스 불안정": 0,
+        "모델 작업이 필요하지 않음": 0,
+        "원하는 조건의 고객이 없음": 0,
+        "가격이 너무 비쌈": 0,
+        "고객의 답변이 오지 않음": 0
+      },
+      "freeTextList": []
+    }
+  ]
+}

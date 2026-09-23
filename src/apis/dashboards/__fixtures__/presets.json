@@ -1,0 +1,49 @@
+{
+  "data": {
+    "mongPresets": [
+      {
+        "id": 1,
+        "title": "100몽",
+        "price": 1100,
+        "mongAmount": 120,
+        "mongBonusAmount": 20,
+        "platform": "ios",
+        "productId": "example.mong.100",
+        "isFirstPurchase": true,
+        "mongBaseAmount": 100,
+        "unit": "KRW"
+      }
+    ],
+    "adBlockPresets": [
+      {
+        "id": 1,
+        "title": "미몽패스 1개월",
+        "duration": 30,
+        "price": 9900,
+        "platform": "ios",
+        "productId": "example.pass.30days",
+        "unit": "KRW"
+      }
+    ],
+    "mongConsumePresets": [
+      {
+        "id": 1,
+        "title": "추천 모델 채팅",
+        "type": "CHAT",
+        "subType": "RECOMMEND_MODEL_CHAT",
+        "price": 35,
+        "unit": "MONG"
+      }
+    ],
+    "growthPassPresets": [
+      {
+        "id": 1,
+        "title": "성장패스 7일",
+        "amountDays": 7,
+        "price": 100,
+        "platform": "mong-money",
+        "unit": "MONG"
+      }
+    ]
+  }
+}

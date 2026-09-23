@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "startDateKST": "2026-07-20",
+    "endDateKST": "2026-07-20",
+    "timezone": "Asia/Seoul"
+  },
+  "dataCount": 1,
+  "dataList": [
+    {
+      "dateKST": "2026-07-20",
+      "totals": {
+        "activeDesignerCount": 128,
+        "totalActiveMenuCount": 542,
+        "totalViewCount": 15234,
+        "totalLinkClickCount": 3021,
+        "reservationCancelCount": 18
+      },
+      "model": {
+        "totalResponseCount": 700,
+        "reservedCount": 412,
+        "reservedOtherTimeCount": 87,
+        "rejectCount": 201,
+        "rejectCounts": {
+          "어떤 디자이너를 선택할 지 모르겠어요": 34,
+          "어떤 메뉴를 선택할 지 모르겠어요": 21,
+          "원하는 시간에 이미 예약이 있어요": 58,
+          "조금 더 고민해보고 예약하고 싶어요": 76,
+          "기타 직접 입력": 12
+        },
+        "rejectEtcTextList": [
+          "가격이 부담돼요",
+          "후기를 더 보고 결정하고 싶어요",
+          "친구랑 같이 예약하려구요"
+        ]
+      },
+      "designer": {
+        "totalReservationCount": 488,
+        "acceptCount": 389,
+        "rejectCount": 99,
+        "rejectCounts": {
+          "해당 시간에 이미 예약이 있어요": 45,
+          "선택한 시술을 하기에 시간이 충분하지 않아요": 22,
+          "해당 시간에 교육/세미나가 있어요": 9,
+          "매장 사유로 운영을 하지 않는 시간이에요": 6,
+          "네이버 예약정보와 연락처가 일치하지 않아요": 3,
+          "해당 시간에 들어온 예약이 없어요": 14
+        }
+      }
+    }
+  ]
+}

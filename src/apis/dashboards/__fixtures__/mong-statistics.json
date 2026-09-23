@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "startDateKST": "2026-09-10",
+    "endDateKST": "2026-09-10",
+    "timezone": "Asia/Seoul",
+    "source": "MongMoneys",
+    "dateBasis": "MongMoneys.createdAt",
+    "refundBasis": "ledgerDateCohortAsOfEndDate",
+    "charges": {
+      "unit": "KRW",
+      "priceBasis": "purchasePaymentAmountKRW",
+      "amountBasis": "recordedDepositAmount"
+    },
+    "usage": {
+      "unit": "MONG",
+      "priceBasis": "recordedWithdrawAmount"
+    },
+    "latestValueBasis": "latestRecordWithinDayByCreatedAtThenId",
+    "rewards": {
+      "unit": "MONG",
+      "amountBasis": "recordedDepositAmount"
+    }
+  },
+  "dataCount": 1,
+  "dataList": [
+    {
+      "dateKST": "2026-09-10",
+      "chargedTotals": {
+        "unit": "KRW",
+        "purchaseCount": 2,
+        "refundedCount": 1,
+        "totalPaymentAmountKRW": 19800,
+        "refundedPaymentAmountKRW": 9900,
+        "totalChargedMongAmount": 200,
+        "totalChargedMongBaseAmount": 200,
+        "totalChargedMongBonusAmount": 0,
+        "knownTotalPaymentAmountKRW": 19800,
+        "unknownTotalPaymentCount": 0
+      },
+      "usedTotals": {
+        "unit": "MONG",
+        "purchaseCount": 2,
+        "refundedCount": 1,
+        "totalUsedMongAmount": 200,
+        "refundedUsedMongAmount": 100
+      },
+      "rewardedTotals": {
+        "unit": "MONG",
+        "rewardCount": 2,
+        "totalRewardedMongAmount": 100
+      },
+      "chargedItems": {
+        "model_example.mong.100_ios": {
+          "role": "model",
+          "platform": "ios",
+          "productId": "example.mong.100",
+          "chargedMongBaseAmount": 100,
+          "paymentAmountKRW": 9900,
+          "purchaseCount": 2,
+          "refundedCount": 1,
+          "unit": "KRW",
+          "totalPaymentAmountKRW": 19800,
+          "refundedPaymentAmountKRW": 9900,
+          "totalChargedMongAmount": 200,
+          "totalChargedMongBaseAmount": 200,
+          "totalChargedMongBonusAmount": 0,
+          "chargedMongAmount": 100.0,
+          "chargedMongBonusAmount": 0.0,
+          "knownTotalPaymentAmountKRW": 19800,
+          "unknownTotalPaymentCount": 0,
+          "mongPresetId": 1
+        }
+      },
+      "usedItems": {
+        "model_UNDEFINED": {
+          "role": "model",
+          "subType": "UNDEFINED",
+          "title": "몽 사용 주문",
+          "usedMongAmount": 100,
+          "purchaseCount": 2,
+          "refundedCount": 1,
+          "unit": "MONG",
+          "totalUsedMongAmount": 200,
+          "refundedUsedMongAmount": 100
+        }
+      },
+      "rewardedItems": {
+        "model_JOIN_MODEL": {
+          "role": "model",
+          "subType": "JOIN_MODEL",
+          "title": "가입 보상",
+          "unit": "MONG",
+          "rewardedMongAmount": 50,
+          "rewardCount": 2,
+          "totalRewardedMongAmount": 100
+        }
+      }
+    }
+  ]
+}
