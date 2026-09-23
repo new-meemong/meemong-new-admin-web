@@ -35,7 +35,12 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
   }, [router]);
 
   return (
-    <div className={cn("app-layout flex min-h-screen", className)}>
+    <div
+      className={cn(
+        "app-layout flex min-h-screen flex-col md:flex-row",
+        className,
+      )}
+    >
       <SideNav>
         <SideNavItem
           href={"/dashboard"}
@@ -97,7 +102,9 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
           </Button>
         </div>
       </SideNav>
-      <main className="flex-1 overflow-auto bg-background">{children}</main>
+      <main className="min-w-0 flex-1 overflow-auto bg-background">
+        {children}
+      </main>
     </div>
   );
 }
