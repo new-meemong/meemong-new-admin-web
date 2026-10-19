@@ -406,10 +406,16 @@ function PreviewGallery({
     trigger: HTMLButtonElement,
   ) => void;
 }) {
-  const images = photos.map((photo) => ({
-    id: photo.id,
-    src: parseImageUrl(photo.s3Path),
-  }));
+  const images = photos.flatMap((photo) =>
+    photo.s3Path
+      ? [
+          {
+            id: photo.id,
+            src: photo.s3Path,
+          },
+        ]
+      : [],
+  );
   return (
     <>
       <div

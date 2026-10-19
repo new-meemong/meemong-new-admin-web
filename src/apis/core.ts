@@ -1,3 +1,14 @@
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly code?: string,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 export interface FetcherOptions extends RequestInit {
   baseUrl?: string;
   query?: Record<
@@ -16,7 +27,7 @@ export interface FetcherOptions extends RequestInit {
 function buildUrl(
   base: string,
   endpoint: string,
-  query?: FetcherOptions["query"]
+  query?: FetcherOptions["query"],
 ) {
   const baseFixed = base.endsWith("/") ? base : base + "/";
   const path = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
@@ -24,7 +35,7 @@ function buildUrl(
   if (query) {
     const appendQuery = (
       key: string,
-      value: string | number | boolean | null | undefined
+      value: string | number | boolean | null | undefined,
     ) => {
       if (value !== undefined && value !== null) {
         url.searchParams.append(key, String(value));
@@ -57,7 +68,7 @@ function logApiRequest(
   method: string,
   url: string,
   headers: Headers,
-  body: BodyInit | undefined
+  body: BodyInit | undefined,
 ) {
   if (process.env.NODE_ENV !== "development") return;
 
@@ -67,7 +78,7 @@ function logApiRequest(
     const auth = maskedHeaders.get("Authorization") || "";
     maskedHeaders.set(
       "Authorization",
-      auth.length > 20 ? `${auth.substring(0, 10)}...${auth.slice(-5)}` : "***"
+      auth.length > 20 ? `${auth.substring(0, 10)}...${auth.slice(-5)}` : "***",
     );
   }
 
@@ -75,7 +86,7 @@ function logApiRequest(
     `%c[API Request] %c${method} %c${url}`,
     "color: #3498db; font-weight: bold;",
     "color: #9b59b6; font-weight: bold;",
-    "color: #34495e;"
+    "color: #34495e;",
   );
   console.log("📤 Headers:", Object.fromEntries(maskedHeaders.entries()));
   if (body) {
@@ -106,7 +117,7 @@ function logApiResponse(
   url: string,
   status: number,
   duration: number,
-  data: unknown
+  data: unknown,
 ) {
   if (process.env.NODE_ENV !== "development") return;
 
@@ -119,7 +130,7 @@ function logApiResponse(
     "color: #9b59b6; font-weight: bold;",
     "color: #34495e;",
     `color: ${statusColor}; font-weight: bold;`,
-    "color: #95a5a6;"
+    "color: #95a5a6;",
   );
   console.log("📥 Response:", data);
   console.groupEnd();
@@ -133,7 +144,7 @@ function logApiError(
   url: string,
   status: number,
   duration: number,
-  error: unknown
+  error: unknown,
 ) {
   if (process.env.NODE_ENV !== "development") return;
 
@@ -143,7 +154,7 @@ function logApiError(
     "color: #9b59b6; font-weight: bold;",
     "color: #34495e;",
     "color: #e74c3c; font-weight: bold;",
-    "color: #95a5a6;"
+    "color: #95a5a6;",
   );
   console.error("❌ Error:", error);
   console.groupEnd();
@@ -157,11 +168,11 @@ export async function fetcher<T>(
     headers,
     json,
     ...options
-  }: FetcherOptions = {}
+  }: FetcherOptions = {},
 ): Promise<T> {
   if (!baseUrl) {
     throw new Error(
-      "API URL이 설정되지 않았습니다. NEXT_PUBLIC_API_URL 환경변수를 확인해주세요."
+      "API URL이 설정되지 않았습니다. NEXT_PUBLIC_API_URL 환경변수를 확인해주세요.",
     );
   }
 
@@ -200,7 +211,7 @@ export async function fetcher<T>(
       if (!hdrs.has("Content-Type")) {
         hdrs.set(
           "Content-Type",
-          "application/x-www-form-urlencoded;charset=UTF-8"
+          "application/x-www-form-urlencoded;charset=UTF-8",
         );
       }
     } else if (
@@ -259,8 +270,10 @@ export async function fetcher<T>(
       // 에러 응답 로그 출력
       logApiError(method, url, res.status, duration, responseData);
       const errJson = responseData as Record<string, string>;
-      throw new Error(
-        errJson?.message || `API 요청 실패: ${res.status} ${res.statusText}`
+      throw new ApiError(
+        errJson?.message || `API 요청 실패: ${res.status} ${res.statusText}`,
+        res.status,
+        errJson?.code,
       );
     }
 

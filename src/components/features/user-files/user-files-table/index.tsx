@@ -105,8 +105,8 @@ function UserFilesTable({
   );
 
   const handleDeletePreviewImage = useCallback(
-    async (image: { id?: number }) => {
-      if (!image.id) {
+    async (image: { id?: number | string }) => {
+      if (typeof image.id !== "number") {
         window.alert("삭제할 수 없는 이미지입니다.");
         return false;
       }

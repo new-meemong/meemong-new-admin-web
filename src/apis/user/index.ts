@@ -74,6 +74,8 @@ export type UpdateUserDisplayNameResponse = {
 };
 
 export const userAPI = {
+  deletePhoto: (deleteUrl: string) =>
+    fetcher<{ data: null }>(deleteUrl, { method: "DELETE" }),
   getAll: async ({
     role,
     blockType,

@@ -7,7 +7,8 @@ import { createPortal } from "react-dom";
 export interface ImageSwiperItem {
   src: string;
   title?: string;
-  id?: number;
+  id?: number | string;
+  deleteUrl?: string;
   deletable?: boolean;
 }
 
@@ -138,7 +139,7 @@ export default function ImageSwiper({
           <div className="embla__container flex h-full">
             {images.map((image, i) => (
               <div
-                key={i}
+                key={image.id ?? i}
                 className="embla__slide min-w-0 flex-[0_0_100%] flex-col items-center justify-center"
               >
                 <div className="flex h-full w-full items-center justify-center">

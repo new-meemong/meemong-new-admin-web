@@ -1,12 +1,7 @@
 "use client";
 
 import { MongMoneyHistoryType } from "@/apis/mongMoneys";
-import {
-  IUserForm,
-  LoginType,
-  UserPhotoType,
-  UserRoleType,
-} from "@/models/users";
+import { IUserForm, LoginType, UserRoleType } from "@/models/users";
 import React, {
   FormEvent,
   useCallback,
@@ -15,6 +10,7 @@ import React, {
   useState,
 } from "react";
 import {
+  useDeleteUserPhotoMutation,
   useUpdateUserDescriptionMutation,
   useUpdateUserDisplayNameMutation,
   useUpdateUserPayModelMutation,
@@ -34,7 +30,6 @@ import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
 import { getUserRole } from "@/utils/user";
 import { toast } from "react-toastify";
-import { useDeleteUserFileMutation } from "@/queries/userFiles";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -70,9 +65,13 @@ export default function UserDetailForm({
     isWithdraw: z.boolean(),
     userPhotos: z.array(
       z.object({
-        id: z.number(),
-        s3Path: z.string(),
+        id: z.union([z.number(), z.string()]),
+        s3Path: z.string().nullable(),
         fileType: z.string(),
+        source: z.enum(["UserFiles", "BeautyApplicationImages", "Users"]),
+        sourceId: z.number().optional(),
+        beautyApplicationId: z.number().optional(),
+        deleteUrl: z.string(),
       }),
     ),
     phone: z.string(),
@@ -104,7 +103,7 @@ export default function UserDetailForm({
   const updateUserDescriptionMutation = useUpdateUserDescriptionMutation();
   const updateUserPayModelMutation = useUpdateUserPayModelMutation();
   const updateUserDisplayNameMutation = useUpdateUserDisplayNameMutation();
-  const deleteUserFileMutation = useDeleteUserFileMutation();
+  const deleteUserPhotoMutation = useDeleteUserPhotoMutation(formData.id);
 
   const userId: string = useMemo(() => {
     let _userId: string = String(form.watch("id"));
@@ -149,58 +148,47 @@ export default function UserDetailForm({
     [form.watch("id")],
   );
 
-  const userImages: ImageSwiperItem[] = useMemo(() => {
-    const _userImages: ImageSwiperItem[] = [];
-    const profilePictureURL = form.watch("profilePictureURL");
-    const userPhotos = form.watch("userPhotos");
-
-    const profilePhoto = Array.isArray(userPhotos)
-      ? userPhotos.find((userPhoto) => userPhoto.s3Path === profilePictureURL)
-      : undefined;
-
-    if (profilePictureURL) {
-      _userImages.push({
-        id: profilePhoto?.id,
-        src: profilePictureURL,
-        title: "프로필 이미지",
-        deletable: Boolean(profilePhoto?.id),
-      });
-    }
-
-    if (Array.isArray(userPhotos)) {
-      userPhotos.forEach((userPhoto) => {
-        _userImages.push({
-          id: userPhoto.id,
-          src: userPhoto.s3Path as string,
-          title: userPhoto.fileType,
-          deletable: true,
-        });
-      });
-    }
-    return _userImages;
-  }, [form.watch("profilePictureURL"), form.watch("userPhotos")]);
+  const userImages: ImageSwiperItem[] = useMemo(
+    () =>
+      (formData.userPhotos ?? []).flatMap((photo) =>
+        photo.s3Path
+          ? [
+              {
+                id: photo.id,
+                src: photo.s3Path,
+                title: photo.fileType,
+                deleteUrl: photo.deleteUrl,
+                deletable: Boolean(photo.deleteUrl),
+              },
+            ]
+          : [],
+      ),
+    [formData.userPhotos],
+  );
+  const profileImageIndex = userImages.findIndex(
+    (image) => image.src === formData.profilePictureURL,
+  );
 
   const handleDeleteUserImage = useCallback(
     async (image: ImageSwiperItem) => {
-      if (!image.id) {
+      if (!image.deleteUrl) {
         window.alert("삭제할 수 없는 이미지입니다.");
         return false;
       }
+      if (!window.confirm("해당 사진을 삭제하시겠습니까?")) return false;
 
       try {
-        const confirmed = window.confirm("해당 사진을 삭제하시겠습니까?");
-        if (!confirmed) return false;
-
-        await deleteUserFileMutation.mutateAsync(image.id);
-        toast.success("사진을 삭제했습니다.");
-
-        const nextUserPhotos = (form.getValues("userPhotos") || []).filter(
-          (userPhoto) => userPhoto.id !== image.id,
+        const result = await deleteUserPhotoMutation.mutateAsync(
+          image.deleteUrl,
         );
-        form.setValue("userPhotos", nextUserPhotos, { shouldDirty: true });
-
-        if (form.getValues("profilePictureURL") === image.src) {
-          form.setValue("profilePictureURL", "", { shouldDirty: true });
+        if (result.refreshFailed) {
+          toast.warning(
+            "사진 삭제는 처리됐지만 화면을 갱신하지 못했습니다. 다시 조회해주세요.",
+          );
+        } else if (result.alreadyDeleted) {
+          toast.info("이미 삭제된 사진입니다. 목록을 갱신했습니다.");
+        } else {
+          toast.success("사진을 삭제했습니다.");
         }
         return true;
       } catch (error) {
@@ -209,7 +197,7 @@ export default function UserDetailForm({
         return false;
       }
     },
-    [deleteUserFileMutation, form],
+    [deleteUserPhotoMutation],
   );
 
   const handleUpdateDescription = useCallback(async () => {
@@ -250,11 +238,14 @@ export default function UserDetailForm({
 
   useEffect(() => {
     if (formData) {
-      form.reset({
-        ...formData,
-        recentLoginTime: formData.recentLoginTime ?? undefined,
-        recentRealLoginTime: formData.recentRealLoginTime ?? undefined,
-      });
+      form.reset(
+        {
+          ...formData,
+          recentLoginTime: formData.recentLoginTime ?? undefined,
+          recentRealLoginTime: formData.recentRealLoginTime ?? undefined,
+        },
+        { keepDirtyValues: true },
+      );
     }
   }, [formData, form]);
 
@@ -336,13 +327,17 @@ export default function UserDetailForm({
         <FormGroup title={"프로필 정보"}>
           <CommonForm.ReadonlyRow
             label={"프로필 이미지"}
-            value={form.watch("profilePictureURL")}
+            value={formData.profilePictureURL}
             formatter={(v) => {
               return v ? (
                 <ImageBox
                   src={v as string}
-                  images={userImages}
-                  index={0}
+                  images={
+                    profileImageIndex >= 0
+                      ? userImages
+                      : [{ src: v as string, deletable: false }]
+                  }
+                  index={Math.max(profileImageIndex, 0)}
                   onDeleteImage={handleDeleteUserImage}
                 />
               ) : (
@@ -387,56 +382,47 @@ export default function UserDetailForm({
           )}
         </FormGroup>
         <FormGroup title={"사진 정보"}>
-          <CommonForm.ReadonlyRow<UserPhotoType[]>
+          <CommonForm.ReadonlyRow<ImageSwiperItem[]>
             label={"사진"}
-            value={form.watch("userPhotos")}
-            formatter={(userPhotos) => {
-              return (
-                <div className={cn("flex flex-wrap gap-4")}>
-                  {userPhotos &&
-                  Array.isArray(userPhotos) &&
-                  userPhotos.length > 0
-                    ? userPhotos
-                        .slice(
-                          0,
-                          photosExpanded
-                            ? userPhotos.length
-                            : USER_PHOTO_PREVIEW_LIMIT,
-                        )
-                        .map((userPhoto, index) => (
-                          <ImageBox
-                            key={`picture-url-${userPhoto.id}`}
-                            src={userPhoto.s3Path as string}
-                            title={userPhoto.fileType}
-                            images={userImages}
-                            onDeleteImage={handleDeleteUserImage}
-                            index={
-                              index + (form.watch("profilePictureURL") ? 1 : 0)
-                            }
-                          />
-                        ))
-                    : "-"}
-                  {userPhotos &&
-                    userPhotos.length > USER_PHOTO_PREVIEW_LIMIT && (
-                      <div className="w-full">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          aria-expanded={photosExpanded}
-                          onClick={() =>
-                            setPhotosExpanded((expanded) => !expanded)
-                          }
-                        >
-                          {photosExpanded
-                            ? "접기"
-                            : `전체 ${userPhotos.length}개 펼치기`}
-                        </Button>
-                      </div>
-                    )}
-                </div>
-              );
-            }}
+            value={userImages}
+            formatter={(images) => (
+              <div className={cn("flex flex-wrap gap-4")}>
+                {images?.length
+                  ? images
+                      .slice(
+                        0,
+                        photosExpanded
+                          ? images.length
+                          : USER_PHOTO_PREVIEW_LIMIT,
+                      )
+                      .map((image, index) => (
+                        <ImageBox
+                          key={image.id}
+                          src={image.src}
+                          title={image.title}
+                          images={userImages}
+                          index={index}
+                          onDeleteImage={handleDeleteUserImage}
+                        />
+                      ))
+                  : "-"}
+                {images && images.length > USER_PHOTO_PREVIEW_LIMIT && (
+                  <div className="w-full">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      aria-expanded={photosExpanded}
+                      onClick={() => setPhotosExpanded((expanded) => !expanded)}
+                    >
+                      {photosExpanded
+                        ? "접기"
+                        : `전체 ${images.length}개 펼치기`}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
           />
         </FormGroup>
         <FormGroup title={"이용 정지 정보"}>

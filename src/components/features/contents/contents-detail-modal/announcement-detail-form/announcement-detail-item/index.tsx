@@ -109,8 +109,8 @@ export default function AnnouncementDetailItem({
   }, [announcement.id, dialog, putBeautyApplicationMutation, form, onRefresh]);
 
   const handleDeleteAnnouncementImage = useCallback(
-    async (image: { id?: number }) => {
-      if (!image.id) {
+    async (image: { id?: number | string }) => {
+      if (typeof image.id !== "number") {
         window.alert("삭제할 수 없는 이미지입니다.");
         return false;
       }
@@ -121,7 +121,8 @@ export default function AnnouncementDetailItem({
 
         await deleteBeautyApplicationImageMutation.mutateAsync(image.id);
         toast.success("모집공고 이미지를 삭제했습니다.");
-        setDeletedImageIds((prev) => [...prev, image.id!]);
+        const deletedId = image.id;
+        setDeletedImageIds((prev) => [...prev, deletedId]);
         await onRefresh();
         return true;
       } catch (error) {

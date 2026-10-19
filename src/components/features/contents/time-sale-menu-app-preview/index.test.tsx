@@ -76,12 +76,22 @@ it("renders portfolio and shop photos from the admin user photo contract", () =>
       photos={[
         {
           id: 1,
+          source: "UserFiles",
+          deleteUrl: "/api/v1/admins/user-files/1",
           fileType: "portfolio",
           s3Path: "https://example.test/portfolio.jpg",
         },
-        { id: 2, fileType: "shop", s3Path: "https://example.test/shop.jpg" },
+        {
+          id: 2,
+          source: "UserFiles",
+          deleteUrl: "/api/v1/admins/user-files/2",
+          fileType: "shop",
+          s3Path: "https://example.test/shop.jpg",
+        },
         {
           id: 3,
+          source: "UserFiles",
+          deleteUrl: "/api/v1/admins/user-files/3",
           fileType: "profilePhoto",
           s3Path: "https://example.test/profile.jpg",
         },

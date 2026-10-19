@@ -12,9 +12,13 @@ export type BlockInfoType = {
 };
 
 export type UserPhotoType = {
-  id: number;
-  s3Path: string;
+  id: number | string;
+  s3Path: string | null;
   fileType: string;
+  source: "UserFiles" | "BeautyApplicationImages" | "Users";
+  sourceId?: number;
+  beautyApplicationId?: number;
+  deleteUrl: string;
 };
 
 export type UserBrandInfoType = {
