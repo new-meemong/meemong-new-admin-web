@@ -2,8 +2,17 @@
 import { useState } from "react";
 import { CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { parseISO } from "date-fns";
+import { ko } from "date-fns/locale";
 import type { DashboardRoleFilter } from "@/apis/dashboards/types";
 import { dateRange, kstToday, validateRange } from "./statistics";
+import { calendarRangeDraft } from "./calendar-range";
 import { Segments } from "./dashboard-widgets";
 import HomeDashboard from "./home-dashboard";
 import PaymentDashboard from "./payment-dashboard";
@@ -27,7 +36,7 @@ export default function DashboardPageContent() {
   const error = validateRange(draft);
   function choosePeriod(value: string) {
     setPreset(value);
-    const next = dateRange(value === "all" ? 90 : Number(value));
+    const next = dateRange(Number(value));
     setDraft(next);
     setRange(next);
   }
@@ -75,7 +84,6 @@ export default function DashboardPageContent() {
                 { value: "7", label: "7일" },
                 { value: "30", label: "30일" },
                 { value: "90", label: "90일" },
-                { value: "all", label: "전체" },
               ]}
             />
             <form
@@ -88,7 +96,42 @@ export default function DashboardPageContent() {
                 }
               }}
             >
-              <CalendarDays size={16} aria-hidden />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    aria-label="기간 달력 열기"
+                  >
+                    <CalendarDays size={16} aria-hidden />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="range"
+                    max={89}
+                    locale={ko}
+                    defaultMonth={parseISO(draft.startDateKST || kstToday())}
+                    selected={{
+                      from: draft.startDateKST
+                        ? parseISO(draft.startDateKST)
+                        : undefined,
+                      to: draft.endDateKST
+                        ? parseISO(draft.endDateKST)
+                        : undefined,
+                    }}
+                    disabled={{ after: parseISO(kstToday()) }}
+                    onSelect={(selection, triggerDate) =>
+                      setDraft((current) =>
+                        calendarRangeDraft(current, selection, triggerDate),
+                      )
+                    }
+                  />
+                  <p className="px-3 pb-3 text-xs text-muted-foreground">
+                    최대 90일 · 날짜 선택 후 조회를 눌러주세요.
+                  </p>
+                </PopoverContent>
+              </Popover>
               <input
                 aria-label={section === "activity" ? "탈퇴 시작일" : "시작일"}
                 type="date"
@@ -116,11 +159,6 @@ export default function DashboardPageContent() {
           {error && (
             <p className="dashboard-filter-error" role="alert">
               {error} 기존 조회 결과를 표시합니다.
-            </p>
-          )}
-          {preset === "all" && (
-            <p className="dashboard-note">
-              전체는 API 최대 조회 범위인 최근 90일을 표시합니다.
             </p>
           )}
         </div>

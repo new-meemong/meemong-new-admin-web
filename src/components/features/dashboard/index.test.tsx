@@ -233,6 +233,13 @@ describe("dashboard page and query wiring", () => {
   it("renders the routed home dashboard using server contract data", () => {
     const html = render(<DashboardPage />);
     expect(html).toContain("미몽 통합 대시보드");
+    expect(html).toMatch(/<button[^>]*aria-label="기간 달력 열기"/);
+    const periodOptions = html.match(
+      /aria-label="조회 기간"[^>]*>(.*?)<\/div>/,
+    )?.[1];
+    expect(periodOptions).toBeDefined();
+    expect(periodOptions).not.toContain("전체");
+    expect(html).toMatch(/aria-label="회원 역할"[^>]*>.*?전체/);
     expect(html).toContain("19,800원");
     expect(html).toContain("12,000명");
     expect(html).toContain("499건");
