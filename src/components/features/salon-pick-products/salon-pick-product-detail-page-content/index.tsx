@@ -14,10 +14,7 @@ import SalonPickProductAdSettingsFields from "@/components/features/salon-pick-p
 import SalonPickProductImageField from "@/components/features/salon-pick-products/salon-pick-product-image-field";
 import {
   SALON_PICK_PRODUCT_HAIR_CONCERNS,
-  MIN_ACTIVE_SALON_PICK_PRODUCT_COUNT,
-  SALON_PICK_PRODUCT_CURSOR_ORDER,
   SALON_PICK_PRODUCT_LINK_URL_PREFIX,
-  SALON_PICK_PRODUCT_PAGE_SIZE,
   SALON_PICK_PRODUCT_SEX,
   SALON_PICK_PRODUCT_TREATMENT_TYPES,
 } from "@/constants/salonPickProducts";
@@ -25,7 +22,6 @@ import {
   salonPickProductsQueryKeys,
   useDeleteSalonPickProductMutation,
   useGetSalonPickProductDetailQuery,
-  useGetSalonPickProductsQuery,
   usePostSalonPickProductImageUploadMutation,
   usePutSalonPickProductMutation,
 } from "@/queries/salonPickProducts";
@@ -118,15 +114,6 @@ export default function SalonPickProductDetailPageContent() {
       enabled: Number.isFinite(productId) && productId > 0,
     },
   );
-  const getSalonPickProductsQuery = useGetSalonPickProductsQuery(
-    {
-      __cursorOrder: SALON_PICK_PRODUCT_CURSOR_ORDER.ID_DESC,
-      __limit: SALON_PICK_PRODUCT_PAGE_SIZE,
-    },
-    {
-      enabled: false,
-    },
-  );
   const putSalonPickProductMutation = usePutSalonPickProductMutation();
   const deleteSalonPickProductMutation = useDeleteSalonPickProductMutation();
   const postSalonPickProductImageUploadMutation =
@@ -187,8 +174,7 @@ export default function SalonPickProductDetailPageContent() {
   const isPending =
     putSalonPickProductMutation.isPending ||
     deleteSalonPickProductMutation.isPending ||
-    postSalonPickProductImageUploadMutation.isPending ||
-    getSalonPickProductsQuery.isFetching;
+    postSalonPickProductImageUploadMutation.isPending;
 
   const clickCounts = sortSalonPickProductCountsByDateDesc(
     product?.salonPickProductCounts ?? [],
@@ -221,28 +207,6 @@ export default function SalonPickProductDetailPageContent() {
     }
 
     return uploadedUrl;
-  };
-
-  const showMinimumActiveAlert = async () => {
-    await dialog.alert("활성화된 슬롯이 최소 2개 이상 유지되어야 합니다.", {
-      title: "활성화 해제 불가",
-      confirmText: "확인",
-      size: "md",
-    });
-  };
-
-  const getActiveSalonPickProductCount = async () => {
-    const result = await getSalonPickProductsQuery.refetch();
-
-    if (result.error) {
-      throw result.error;
-    }
-
-    return (
-      result.data?.content.filter(
-        (salonPickProduct) => salonPickProduct.isActive,
-      ).length ?? 0
-    );
   };
 
   const handleSubmit = async (formData: SalonPickProductDetailFormValues) => {
@@ -289,15 +253,6 @@ export default function SalonPickProductDetailPageContent() {
     if (!product) return;
 
     try {
-      if (product.isActive) {
-        const nextActiveCount = await getActiveSalonPickProductCount();
-
-        if (nextActiveCount <= MIN_ACTIVE_SALON_PICK_PRODUCT_COUNT) {
-          await showMinimumActiveAlert();
-          return;
-        }
-      }
-
       const confirmed = await dialog.confirm("해당 슬롯을 삭제하시겠습니까?", {
         confirmText: "삭제",
         cancelText: "취소",
