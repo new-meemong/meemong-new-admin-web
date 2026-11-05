@@ -148,3 +148,37 @@ describe("business mong production transport and query boundary", () => {
     client.clear();
   });
 });
+
+it("creates and partially updates presets through authenticated JSON transport", async () => {
+  const values = {
+    title: "상품",
+    mongBaseAmount: 100,
+    mongBonusAmount: 0,
+    supplyAmountKRW: 1000,
+    isHidden: false,
+    sortOrder: 0,
+  };
+  fetchMock.mockImplementation(async () =>
+    json({ data: { id: 1, ...values } }),
+  );
+  await businessMongAPI.createPreset(values);
+  await businessMongAPI.updatePreset(1, { isHidden: true, sortOrder: 5 });
+  const [createUrl, createOptions] = fetchMock.mock.calls[0];
+  expect(createUrl).toBe(
+    "https://api.example.test/api/v1/admins/business-mong-presets",
+  );
+  expect(createOptions?.method).toBe("POST");
+  expect(JSON.parse(createOptions?.body as string)).toEqual(values);
+  const [updateUrl, updateOptions] = fetchMock.mock.calls[1];
+  expect(updateUrl).toBe(
+    "https://api.example.test/api/v1/admins/business-mong-presets/1",
+  );
+  expect(updateOptions?.method).toBe("PUT");
+  expect(new Headers(updateOptions?.headers).get("Authorization")).toBe(
+    "JWT%20test",
+  );
+  expect(JSON.parse(updateOptions?.body as string)).toEqual({
+    isHidden: true,
+    sortOrder: 5,
+  });
+});

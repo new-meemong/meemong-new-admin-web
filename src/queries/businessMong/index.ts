@@ -10,6 +10,8 @@ import {
   BusinessMongGrantRequest,
   BusinessMongDistributionRequest,
   BusinessMongPage,
+  BusinessMongPreset,
+  BusinessMongPresetValues,
 } from "@/apis/businessMong";
 import { MONG_MONEY_GROUPS_QUERY_KEY } from "@/queries/mongMoneys";
 
@@ -104,4 +106,37 @@ export function useDistributeBusinessMong(id: number) {
 }
 export function useFindBusinessMongGrant() {
   return useMutation({ mutationFn: findBusinessMongGrant, retry: false });
+}
+
+type SaveBusinessMongPreset =
+  | { kind: "create"; values: BusinessMongPresetValues }
+  | { kind: "update"; id: number; values: Partial<BusinessMongPresetValues> };
+export function useSaveBusinessMongPreset() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (request: SaveBusinessMongPreset) =>
+      request.kind === "create"
+        ? businessMongAPI.createPreset(request.values)
+        : businessMongAPI.updatePreset(request.id, request.values),
+    retry: false,
+    onSuccess: ({ data }) => {
+      // 저장 응답을 먼저 반영해 재조회 실패 시에도 기존 상품 선택이 낡지 않도록 한다.
+      client.setQueryData<{ dataList: BusinessMongPreset[] }>(
+        businessMongQueries.presets().queryKey,
+        (previous) =>
+          previous
+            ? {
+                ...previous,
+                dataList: [
+                  ...previous.dataList.filter((item) => item.id !== data.id),
+                  data,
+                ].sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id),
+              }
+            : undefined,
+      );
+      void client.invalidateQueries({
+        queryKey: businessMongQueries.presets().queryKey,
+      });
+    },
+  });
 }

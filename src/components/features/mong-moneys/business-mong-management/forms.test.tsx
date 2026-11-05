@@ -71,6 +71,15 @@ async function input(name: string, value: string, scope: ParentNode = host) {
 }
 beforeEach(() => {
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
+  // jsdom에는 Radix Checkbox가 크기 측정에 쓰는 ResizeObserver가 없다.
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
   sessionStorage.clear();
   vi.mocked(fetcher).mockReset();
   host = document.createElement("div");
@@ -229,4 +238,106 @@ it("opens details in a modal and keeps it open when the nested confirmation is d
   ).toBe("원장");
   await flush(() => button("Close").click());
   expect(document.querySelector('[role="dialog"]')).toBeNull();
+});
+
+it("manages presets in a modal and refreshes the grant selector after update/create", async () => {
+  let products = [
+    {
+      id: 1,
+      title: "기존 상품",
+      mongBaseAmount: 100,
+      mongBonusAmount: 10,
+      mongAmount: 110,
+      supplyAmountKRW: 1001,
+      vatAmountKRW: 100,
+      paymentAmountKRW: 1101,
+      isHidden: false,
+      sortOrder: 0,
+    },
+  ];
+  vi.mocked(fetcher).mockImplementation(async (url, options) => {
+    if (url.includes("business-mong-presets")) {
+      if (options?.method === "PUT") {
+        products = products.map((product) => ({
+          ...product,
+          ...(options.json as object),
+          mongAmount: 210,
+        }));
+        return { data: products[0] };
+      }
+      if (options?.method === "POST") {
+        const created = {
+          ...products[0],
+          ...(options.json as object),
+          id: 2,
+          mongAmount: 300,
+          paymentAmountKRW: 2200,
+          vatAmountKRW: 200,
+        };
+        products = [...products, created];
+        return { data: created };
+      }
+      return { dataList: products };
+    }
+    return { dataList: [], dataCount: 0, __nextCursor: null };
+  });
+  await mount(<BusinessMongManagement />);
+  await flush(() => {});
+  const select = host.querySelector("select")!;
+  await flush(() => {
+    select.value = "1";
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  expect(select.value).toBe("1");
+  await flush(() => button("상품 관리").click());
+  const modal = document.querySelector<HTMLElement>('[role="dialog"]')!;
+  expect(modal.textContent).toContain("원장님 몽 상품 관리");
+  await flush(() =>
+    modal
+      .querySelector<HTMLButtonElement>('[aria-label="기존 상품 수정"]')!
+      .click(),
+  );
+  await flush(() => button("상품 수정 저장").click());
+  expect(modal.textContent).toContain("변경된 내용이 없습니다.");
+  expect(
+    vi
+      .mocked(fetcher)
+      .mock.calls.some(([, options]) => options?.method === "PUT"),
+  ).toBe(false);
+  await input("mongBaseAmount", "200", modal);
+  await flush(() =>
+    modal.querySelector<HTMLButtonElement>('[role="checkbox"]')!.click(),
+  );
+  await flush(() => button("상품 수정 저장").click());
+  await flush(() => {});
+  expect(fetcher).toHaveBeenCalledWith(
+    "/api/v1/admins/business-mong-presets/1",
+    { method: "PUT", json: { mongBaseAmount: 200, isHidden: true } },
+  );
+  expect(select.value).toBe("");
+  expect(select.querySelector('option[value="1"]')).toBeNull();
+  expect(modal.textContent).toContain("숨김");
+  expect(
+    host.querySelector<HTMLInputElement>('[name="mongAmount"]')!.value,
+  ).toBe("110");
+  await input("title", "신규 상품", modal);
+  await input("mongBaseAmount", "300", modal);
+  await input("supplyAmountKRW", "2000", modal);
+  await flush(() => button("상품 등록").click());
+  await flush(() => {});
+  expect(fetcher).toHaveBeenCalledWith("/api/v1/admins/business-mong-presets", {
+    method: "POST",
+    json: {
+      title: "신규 상품",
+      mongBaseAmount: 300,
+      mongBonusAmount: 0,
+      supplyAmountKRW: 2000,
+      sortOrder: 0,
+      isHidden: false,
+    },
+  });
+  expect(select.querySelector('option[value="2"]')?.textContent).toContain(
+    "신규 상품",
+  );
+  expect(modal.textContent).toContain("상품을 등록했습니다.");
 });

@@ -15,6 +15,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { formatDate } from "@/utils/date";
+import BusinessMongPresetManagement from "./preset-management";
 import BusinessMongGrantForm from "./grant-form";
 import BusinessMongGrantDetail from "./grant-detail";
 import { businessMongError, registrationNumberSchema } from "./validation";
@@ -44,13 +45,16 @@ export default function BusinessMongManagement() {
       className="mb-10 space-y-5"
       aria-labelledby="business-mong-heading"
     >
-      <div>
-        <h2 id="business-mong-heading" className="text-xl font-semibold">
-          원장님 몽 지급관리
-        </h2>
-        <p className="mt-2 text-sm text-gray-600">
-          사업자 입금 확인 → 지급 등록 → 직원 및 원장님 분배
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 id="business-mong-heading" className="text-xl font-semibold">
+            원장님 몽 지급관리
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            사업자 입금 확인 → 지급 등록 → 직원 및 원장님 분배
+          </p>
+        </div>
+        <BusinessMongPresetManagement />
       </div>
       <BusinessMongGrantForm onCreated={created} />
       <div className="space-y-3">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
@@ -55,6 +55,16 @@ export default function BusinessMongGrantForm({
   const [confirmation, setConfirmation] = useState<GrantForm | null>(null);
   const [message, setMessage] = useState("");
   const [selectedPresetId, setSelectedPresetId] = useState("");
+  const amount = useWatch({ control: form.control, name: "mongAmount" });
+  const selectedPreset = presets.data?.dataList.find(
+    (item) => String(item.id) === selectedPresetId,
+  );
+  const visiblePresetId =
+    selectedPreset &&
+    !selectedPreset.isHidden &&
+    selectedPreset.mongAmount === Number(amount)
+      ? selectedPresetId
+      : "";
   const busy = useRef(false);
   const locked =
     !pending.ready ||
@@ -132,7 +142,7 @@ export default function BusinessMongGrantForm({
               상품 수량 불러오기 (선택)
               <select
                 className="rounded border p-2"
-                value={selectedPresetId}
+                value={visiblePresetId}
                 onChange={(event) => {
                   setSelectedPresetId(event.target.value);
                   const preset = presets.data?.dataList.find(

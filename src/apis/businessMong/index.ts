@@ -42,15 +42,19 @@ export interface BusinessMongDistribution {
     mongMoneyId: number;
   }[];
 }
-export interface BusinessMongPreset {
-  id: number;
+export interface BusinessMongPresetValues {
   title: string;
   mongBaseAmount: number;
   mongBonusAmount: number;
-  mongAmount: number;
   supplyAmountKRW: number;
-  paymentAmountKRW: number;
   isHidden: boolean;
+  sortOrder: number;
+}
+export interface BusinessMongPreset extends BusinessMongPresetValues {
+  id: number;
+  mongAmount: number;
+  vatAmountKRW: number;
+  paymentAmountKRW: number;
 }
 export interface BusinessMongPage<T> {
   dataList: T[];
@@ -61,6 +65,16 @@ export const businessMongAPI = {
   presets: () =>
     fetcher<{ dataList: BusinessMongPreset[] }>(
       `${BASE}/business-mong-presets`,
+    ),
+  createPreset: (values: BusinessMongPresetValues) =>
+    fetcher<{ data: BusinessMongPreset }>(`${BASE}/business-mong-presets`, {
+      method: "POST",
+      json: values,
+    }),
+  updatePreset: (id: number, values: Partial<BusinessMongPresetValues>) =>
+    fetcher<{ data: BusinessMongPreset }>(
+      `${BASE}/business-mong-presets/${id}`,
+      { method: "PUT", json: values },
     ),
   grants: (
     businessRegistrationNumber?: string,
