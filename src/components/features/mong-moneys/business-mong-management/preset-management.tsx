@@ -1,5 +1,6 @@
 "use client";
 
+import { ApiError } from "@/apis/core";
 import { useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +12,7 @@ import {
 import {
   businessMongQueries,
   useSaveBusinessMongPreset,
+  useDeleteBusinessMongPreset,
 } from "@/queries/businessMong";
 import { CommonForm } from "@/components/shared/common-form";
 import CommonTable from "@/components/shared/common-table";
@@ -22,6 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { businessMongError } from "./validation";
 import {
@@ -39,28 +42,32 @@ const defaults: BusinessMongPresetValues = {
 };
 export default function BusinessMongPresetManagement() {
   const [open, setOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [pending, setPending] = useState(false);
   return (
     <Dialog
       open={open}
       onOpenChange={(next) => {
-        if (!saving) setOpen(next);
+        if (!pending) setOpen(next);
       }}
     >
       <Button type="button" variant="outline" onClick={() => setOpen(true)}>
         상품 관리
       </Button>
-      {open && <BusinessMongPresetEditor onSavingChange={setSaving} />}
+      {open && <BusinessMongPresetEditor onPendingChange={setPending} />}
     </Dialog>
   );
 }
 function BusinessMongPresetEditor({
-  onSavingChange,
+  onPendingChange,
 }: {
-  onSavingChange: (saving: boolean) => void;
+  onPendingChange: (pending: boolean) => void;
 }) {
   const presets = useQuery(businessMongQueries.presets());
-  const mutation = useSaveBusinessMongPreset();
+  const saveMutation = useSaveBusinessMongPreset();
+  const deleteMutation = useDeleteBusinessMongPreset();
+  const isPending = saveMutation.isPending || deleteMutation.isPending;
+  const [deleting, setDeleting] = useState<BusinessMongPreset | null>(null);
+  const [deleteError, setDeleteError] = useState("");
   const [editing, setEditing] = useState<BusinessMongPreset | null>(null);
   const [message, setMessage] = useState("");
   const busy = useRef(false);
@@ -101,10 +108,10 @@ function BusinessMongPresetEditor({
       return;
     }
     busy.current = true;
-    onSavingChange(true);
+    onPendingChange(true);
     setMessage("");
     try {
-      await mutation.mutateAsync(
+      await saveMutation.mutateAsync(
         editing
           ? { kind: "update", id: editing.id, values: changes }
           : { kind: "create", values: next },
@@ -118,17 +125,54 @@ function BusinessMongPresetEditor({
       );
     } finally {
       busy.current = false;
-      onSavingChange(false);
+      onPendingChange(false);
+    }
+  };
+  const deletePreset = async () => {
+    if (!deleting || busy.current) return;
+    busy.current = true;
+    onPendingChange(true);
+    setDeleteError("");
+    try {
+      await deleteMutation.mutateAsync(deleting.id);
+      if (editing?.id === deleting.id) {
+        form.reset(defaults);
+        setEditing(null);
+      }
+      setMessage(`「${deleting.title}」 상품을 삭제했습니다.`);
+      setDeleting(null);
+    } catch (error) {
+      if (
+        error instanceof ApiError &&
+        error.status === 404 &&
+        error.code === "NOT_FOUND_ERROR"
+      ) {
+        if (editing?.id === deleting.id) {
+          form.reset(defaults);
+          setEditing(null);
+        }
+        setDeleting(null);
+        setMessage(
+          "이미 삭제되었거나 존재하지 않는 상품입니다. 목록을 갱신했습니다.",
+        );
+      } else {
+        setDeleteError(
+          `${businessMongError(error)} 목록을 새로고침해 삭제 여부를 확인해주세요.`,
+        );
+      }
+    } finally {
+      busy.current = false;
+      onPendingChange(false);
     }
   };
   return (
     <DialogContent
       className="flex max-h-[90vh] flex-col sm:max-w-5xl"
       onInteractOutside={(event) => {
-        if (mutation.isPending) event.preventDefault();
+        if (isPending) event.preventDefault();
       }}
       onEscapeKeyDown={(event) => {
-        if (mutation.isPending) event.preventDefault();
+        if (isPending) event.preventDefault();
       }}
     >
       <DialogHeader>
@@ -143,7 +187,7 @@ function BusinessMongPresetEditor({
           <Button
             type="button"
             variant="outline"
-            disabled={mutation.isPending}
+            disabled={isPending}
             onClick={startNew}
           >
             새 상품
@@ -151,7 +195,7 @@ function BusinessMongPresetEditor({
           <Button
             type="button"
             variant="outline"
-            disabled={presets.isFetching || mutation.isPending}
+            disabled={presets.isFetching || isPending}
             onClick={() => presets.refetch()}
           >
             상품 목록 새로고침
@@ -219,20 +263,36 @@ function BusinessMongPresetEditor({
                     enableSorting: false,
                   },
                   {
-                    id: "edit",
+                    id: "actions",
                     header: "관리",
-                    size: 75,
+                    size: 140,
                     cell: ({ row }) => (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={mutation.isPending}
-                        onClick={() => edit(row.original)}
-                        aria-label={`${row.original.title} 수정`}
-                      >
-                        수정
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={isPending}
+                          onClick={() => edit(row.original)}
+                          aria-label={`${row.original.title} 수정`}
+                        >
+                          수정
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600"
+                          disabled={isPending}
+                          aria-label={`${row.original.title} 삭제`}
+                          onClick={() => {
+                            setDeleting(row.original);
+                            setDeleteError("");
+                          }}
+                        >
+                          삭제
+                        </Button>
+                      </div>
                     ),
                   },
                 ]}
@@ -250,7 +310,7 @@ function BusinessMongPresetEditor({
               {editing ? `상품 #${editing.id} 수정` : "새 상품 등록"}
             </h3>
             <fieldset
-              disabled={mutation.isPending}
+              disabled={isPending}
               className="grid gap-x-4 md:grid-cols-2"
             >
               <CommonForm.Input name="title" label="상품명" maxLength={100} />
@@ -292,7 +352,7 @@ function BusinessMongPresetEditor({
                   label="노출 설정"
                   checkboxLabel="상품 숨김"
                   checked={values.isHidden}
-                  disabled={mutation.isPending}
+                  disabled={isPending}
                   onChange={(checked) =>
                     form.setValue("isHidden", checked, { shouldDirty: true })
                   }
@@ -305,7 +365,7 @@ function BusinessMongPresetEditor({
               </p>
               <div className="flex gap-2">
                 <Button type="submit">
-                  {mutation.isPending
+                  {isPending
                     ? "저장 중..."
                     : editing
                       ? "상품 수정 저장"
@@ -326,6 +386,44 @@ function BusinessMongPresetEditor({
           </p>
         )}
       </div>
+      <Dialog
+        open={deleting !== null}
+        onOpenChange={(next) => {
+          if (!next && !isPending) setDeleting(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>사업자 몽 상품 삭제</DialogTitle>
+            <DialogDescription>
+              삭제한 상품은 공개 상품 안내와 관리자 상품 목록에서 제외됩니다.
+            </DialogDescription>
+          </DialogHeader>
+          <p className="font-semibold break-words">{deleting?.title}</p>
+          <p>
+            상품 #{deleting?.id} · {deleting?.mongAmount.toLocaleString()}몽 ·{" "}
+            {deleting?.paymentAmountKRW.toLocaleString()}원 (VAT 포함)
+          </p>
+          {deleteError && (
+            <p role="alert" className="text-sm text-red-600">
+              {deleteError}
+            </p>
+          )}
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isPending}
+              onClick={() => setDeleting(null)}
+            >
+              취소
+            </Button>
+            <Button type="button" disabled={isPending} onClick={deletePreset}>
+              {deleteMutation.isPending ? "삭제 중..." : "삭제 확정"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DialogContent>
   );
 }

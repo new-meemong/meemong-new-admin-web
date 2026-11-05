@@ -76,6 +76,8 @@ export const businessMongAPI = {
       `${BASE}/business-mong-presets/${id}`,
       { method: "PUT", json: values },
     ),
+  deletePreset: (id: number) =>
+    fetcher<null>(`${BASE}/business-mong-presets/${id}`, { method: "DELETE" }),
   grants: (
     businessRegistrationNumber?: string,
     cursor?: string,

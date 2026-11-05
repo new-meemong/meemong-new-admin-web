@@ -341,3 +341,139 @@ it("manages presets in a modal and refreshes the grant selector after update/cre
   );
   expect(modal.textContent).toContain("상품을 등록했습니다.");
 });
+
+it.each([false, true])(
+  "confirms deletion, removes the preset and clears its editor (hidden=%s)",
+  async (isHidden) => {
+    let products = [
+      {
+        id: 7,
+        title: "삭제할 상품",
+        mongBaseAmount: 100,
+        mongBonusAmount: 0,
+        mongAmount: 100,
+        supplyAmountKRW: 1000,
+        vatAmountKRW: 100,
+        paymentAmountKRW: 1100,
+        isHidden,
+        sortOrder: 0,
+      },
+    ];
+    vi.mocked(fetcher).mockImplementation(async (url, options) => {
+      if (options?.method === "DELETE") {
+        products = [];
+        return null;
+      }
+      if (url.endsWith("business-mong-presets")) return { dataList: products };
+      return { dataList: [], dataCount: 0, __nextCursor: null };
+    });
+    await mount(<BusinessMongManagement />);
+    await flush(() => {});
+    const select = host.querySelector("select")!;
+    if (!isHidden)
+      await flush(() => {
+        select.value = "7";
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+    await flush(() => button("상품 관리").click());
+    const modal = document.querySelector<HTMLElement>('[role="dialog"]')!;
+    await flush(() =>
+      modal
+        .querySelector<HTMLButtonElement>('[aria-label="삭제할 상품 수정"]')!
+        .click(),
+    );
+    const deleteButton = modal.querySelector<HTMLButtonElement>(
+      '[aria-label="삭제할 상품 삭제"]',
+    )!;
+    await flush(() => deleteButton.click());
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(2);
+    expect(
+      vi
+        .mocked(fetcher)
+        .mock.calls.some(([, options]) => options?.method === "DELETE"),
+    ).toBe(false);
+    await flush(() => button("취소").click());
+    expect(modal.querySelector<HTMLInputElement>('[name="title"]')!.value).toBe(
+      "삭제할 상품",
+    );
+    await flush(() =>
+      modal
+        .querySelector<HTMLButtonElement>('[aria-label="삭제할 상품 삭제"]')!
+        .click(),
+    );
+    await flush(() => button("삭제 확정").click());
+    await flush(() => {});
+    expect(fetcher).toHaveBeenCalledWith(
+      "/api/v1/admins/business-mong-presets/7",
+      { method: "DELETE" },
+    );
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1);
+    expect(modal.querySelector('[aria-label="삭제할 상품 수정"]')).toBeNull();
+    expect(modal.querySelector<HTMLInputElement>('[name="title"]')!.value).toBe(
+      "",
+    );
+    expect(select.querySelector('option[value="7"]')).toBeNull();
+    expect(select.value).toBe("");
+  },
+);
+
+it.each([403, 404])(
+  "handles deletion error %s without silently succeeding",
+  async (status) => {
+    let products = [
+      {
+        id: 7,
+        title: "삭제할 상품",
+        mongBaseAmount: 100,
+        mongBonusAmount: 0,
+        mongAmount: 100,
+        supplyAmountKRW: 1000,
+        vatAmountKRW: 100,
+        paymentAmountKRW: 1100,
+        isHidden: false,
+        sortOrder: 0,
+      },
+    ];
+    vi.mocked(fetcher).mockImplementation(async (url, options) => {
+      if (options?.method === "DELETE") {
+        if (status === 404) products = [];
+        throw new ApiError(
+          "삭제 실패",
+          status,
+          status === 404 ? "NOT_FOUND_ERROR" : "FORBIDDEN",
+        );
+      }
+      if (url.endsWith("business-mong-presets")) return { dataList: products };
+      return { dataList: [], dataCount: 0, __nextCursor: null };
+    });
+    await mount(<BusinessMongManagement />);
+    await flush(() => {});
+    await flush(() => button("상품 관리").click());
+    const modal = document.querySelector<HTMLElement>('[role="dialog"]')!;
+    await flush(() =>
+      modal
+        .querySelector<HTMLButtonElement>('[aria-label="삭제할 상품 삭제"]')!
+        .click(),
+    );
+    await flush(() => button("삭제 확정").click());
+    await flush(() => {});
+    if (status === 404) {
+      expect(document.body.textContent).toContain(
+        "이미 삭제되었거나 존재하지 않는 상품",
+      );
+      expect(modal.querySelector('[aria-label="삭제할 상품 삭제"]')).toBeNull();
+    } else {
+      expect(document.querySelector('[role="alert"]')?.textContent).toContain(
+        "삭제 실패",
+      );
+      expect(
+        modal.querySelector('[aria-label="삭제할 상품 삭제"]'),
+      ).not.toBeNull();
+    }
+    expect(
+      vi
+        .mocked(fetcher)
+        .mock.calls.filter(([, options]) => options?.method === "DELETE"),
+    ).toHaveLength(1);
+  },
+);

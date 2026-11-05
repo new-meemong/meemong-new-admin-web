@@ -1,3 +1,4 @@
+import { ApiError } from "@/apis/core";
 import {
   infiniteQueryOptions,
   queryOptions,
@@ -134,6 +135,41 @@ export function useSaveBusinessMongPreset() {
               }
             : undefined,
       );
+      void client.invalidateQueries({
+        queryKey: businessMongQueries.presets().queryKey,
+      });
+    },
+  });
+}
+
+export function useDeleteBusinessMongPreset() {
+  const client = useQueryClient();
+  const removeFromCache = (id: number) => {
+    client.setQueryData<{ dataList: BusinessMongPreset[] }>(
+      businessMongQueries.presets().queryKey,
+      (previous) =>
+        previous
+          ? {
+              ...previous,
+              dataList: previous.dataList.filter((item) => item.id !== id),
+            }
+          : undefined,
+    );
+  };
+  return useMutation({
+    mutationFn: businessMongAPI.deletePreset,
+    retry: false,
+    onSuccess: (_result, id) => removeFromCache(id),
+    onError: (error, id) => {
+      if (
+        error instanceof ApiError &&
+        error.status === 404 &&
+        error.code === "NOT_FOUND_ERROR"
+      )
+        removeFromCache(id);
+    },
+    onSettled: () => {
+      // 응답 유실/동시 삭제의 처리 여부도 최신 목록으로 확인한다.
       void client.invalidateQueries({
         queryKey: businessMongQueries.presets().queryKey,
       });

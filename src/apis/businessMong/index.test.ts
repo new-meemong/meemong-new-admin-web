@@ -182,3 +182,15 @@ it("creates and partially updates presets through authenticated JSON transport",
     sortOrder: 5,
   });
 });
+
+it("deletes a preset without a body and accepts the empty 204 response", async () => {
+  fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+  await expect(businessMongAPI.deletePreset(7)).resolves.toBeNull();
+  const [url, options] = fetchMock.mock.calls[0];
+  expect(url).toBe(
+    "https://api.example.test/api/v1/admins/business-mong-presets/7",
+  );
+  expect(options?.method).toBe("DELETE");
+  expect(options?.body).toBeUndefined();
+  expect(new Headers(options?.headers).get("Authorization")).toBe("JWT%20test");
+});
