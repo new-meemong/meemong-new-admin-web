@@ -39,6 +39,7 @@ export default function V3ConsultationDetailModal({
     <Modal
       isOpen
       onClose={onClose}
+      onClickOutside={onClose}
       size="lg"
       className="h-[calc(100dvh-32px)] max-h-[1040px]"
     >
