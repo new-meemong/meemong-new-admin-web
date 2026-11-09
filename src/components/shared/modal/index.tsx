@@ -52,6 +52,16 @@ export function Modal({
     return () => window.removeEventListener("keydown", handler);
   }, [isOpen, rest.onClose]);
 
+  // 모달이 보이는 동안(닫힘 애니메이션 포함) 배경 페이지로 스크롤이 넘어가지 않게 잠급니다.
+  React.useEffect(() => {
+    if (!show) return;
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = overflow;
+    };
+  }, [show]);
+
   if (!show) return null;
 
   const sizeClass = {
