@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
 import ContentsTable from "@/components/features/contents/contents-table";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
+import V3HairConsultationContent from "@/components/features/contents/v3-hair-consultation-content";
 import HairConsultationContent from "@/components/features/contents/hair-consultation-content";
 import { IContents } from "@/models/contents";
 import { JobPostingRoleType } from "@/models/jobPostings";
@@ -251,6 +252,10 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
 
   if (tabId === "6") {
     return <HairConsultationContent className={className} />;
+  }
+
+  if (tabId === "8") {
+    return <V3HairConsultationContent className={className} />;
   }
 
   if (tabId === "7") {

@@ -1,0 +1,161 @@
+/* Source: meemong-flutter-app/lib/style/meemong_typography.dart. */
+
+@utility meemong-display1-bold {
+  font-family: var(--font-pretendard);
+  font-size: 40px;
+  line-height: 52px;
+  letter-spacing: 0;
+  font-weight: 700;
+}
+
+@utility meemong-display2-bold {
+  font-family: var(--font-pretendard);
+  font-size: 36px;
+  line-height: 48px;
+  letter-spacing: 0;
+  font-weight: 700;
+}
+
+@utility meemong-display3-bold {
+  font-family: var(--font-pretendard);
+  font-size: 32px;
+  line-height: 44px;
+  letter-spacing: 0;
+  font-weight: 700;
+}
+
+@utility meemong-heading1-bold {
+  font-family: var(--font-pretendard);
+  font-size: 24px;
+  line-height: 34px;
+  letter-spacing: 0;
+  font-weight: 700;
+}
+
+@utility meemong-heading2-bold {
+  font-family: var(--font-pretendard);
+  font-size: 22px;
+  line-height: 30px;
+  letter-spacing: 0;
+  font-weight: 700;
+}
+
+@utility meemong-heading3-bold {
+  font-family: var(--font-pretendard);
+  font-size: 20px;
+  line-height: 30px;
+  letter-spacing: 0;
+  font-weight: 700;
+}
+
+@utility meemong-heading3-semi-bold {
+  font-family: var(--font-pretendard);
+  font-size: 20px;
+  line-height: 30px;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+@utility meemong-title1-semi-bold {
+  font-family: var(--font-pretendard);
+  font-size: 18px;
+  line-height: 26px;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+@utility meemong-title2-semi-bold {
+  font-family: var(--font-pretendard);
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+@utility meemong-title3-semi-bold {
+  font-family: var(--font-pretendard);
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+@utility meemong-title4-semi-bold {
+  font-family: var(--font-pretendard);
+  font-size: 13px;
+  line-height: 20px;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+@utility meemong-body1-regular {
+  font-family: var(--font-pretendard);
+  font-size: 18px;
+  line-height: 26px;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+@utility meemong-body2-regular {
+  font-family: var(--font-pretendard);
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+@utility meemong-body2-medium {
+  font-family: var(--font-pretendard);
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+@utility meemong-body3-regular {
+  font-family: var(--font-pretendard);
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+@utility meemong-body4-regular {
+  font-family: var(--font-pretendard);
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+@utility meemong-body5-regular {
+  font-family: var(--font-pretendard);
+  font-size: 13px;
+  line-height: 20px;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+@utility meemong-caption1-semi-bold {
+  font-family: var(--font-pretendard);
+  font-size: 12px;
+  line-height: 18px;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+@utility meemong-caption2-medium {
+  font-family: var(--font-pretendard);
+  font-size: 12px;
+  line-height: 18px;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+@utility meemong-caption3-semi-bold {
+  font-family: var(--font-pretendard);
+  font-size: 10px;
+  line-height: 16px;
+  letter-spacing: 0;
+  font-weight: 600;
+}

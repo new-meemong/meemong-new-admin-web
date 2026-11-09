@@ -11,6 +11,8 @@ export class ApiError extends Error {
 
 export interface FetcherOptions extends RequestInit {
   baseUrl?: string;
+  /** false인 공개 API는 쿠키 토큰을 첨부하지 않습니다. */
+  auth?: boolean;
   query?: Record<
     string,
     | string
@@ -165,6 +167,7 @@ export async function fetcher<T>(
   {
     baseUrl = process.env.NEXT_PUBLIC_API_URL!,
     query,
+    auth = true,
     headers,
     json,
     ...options
@@ -180,7 +183,7 @@ export async function fetcher<T>(
   const hdrs = new Headers(headers);
 
   // Authorization 자동 주입(없을 때만)
-  if (!hdrs.has("Authorization")) {
+  if (auth && !hdrs.has("Authorization")) {
     const token = getAccessTokenFromCookie();
     if (token) hdrs.set("Authorization", token);
   }

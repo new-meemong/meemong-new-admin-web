@@ -1,0 +1,12 @@
+@import 'tailwindcss' source(none);
+@import './source/styles/theme.css';
+@import './source/styles/radius.css';
+@import './source/styles/typography.css';
+@import './source/styles/effect.css';
+@source './source';
+@source './index.tsx';
+@font-face { font-family: 'PreviewPretendard'; src: url('/v3-hair-preview/PretendardVariable.woff2') format('woff2'); font-weight: 100 900; font-display: swap; }
+@layer base {
+  html, body { margin: 0; background: #fff; color: var(--color-text-primary); font-family: 'PreviewPretendard', sans-serif; --font-pretendard: 'PreviewPretendard'; }
+  button { cursor: pointer; }
+}

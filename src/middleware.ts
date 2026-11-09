@@ -14,5 +14,6 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|robots.txt).*)"],
+  // Public preview assets contain no consultation data; React portals supply it.
+  matcher: ["/((?!_next/static|_next/image|v3-hair-preview(?:/|$)|favicon.ico|robots.txt).*)"],
 };

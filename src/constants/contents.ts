@@ -8,5 +8,6 @@ export const CONTENTS_CATEGORY_MAP: Record<ContentsCategoryType, string> = {
   "4": "모집공고",
   "5": "샴푸실",
   "6": "헤어컨설팅",
-  "7": "리뷰특가"
+  "7": "리뷰특가",
+  "8": "v3 헤어컨설팅"
 } as const;
