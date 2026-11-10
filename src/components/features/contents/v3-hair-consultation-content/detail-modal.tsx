@@ -22,7 +22,10 @@ import {
   Rating,
   date,
   label,
+  paymentType,
   percent,
+  purchaseAmount,
+  readSummary,
   ConsultationTypeBadge,
 } from "./presentation";
 import V3ConsultationAnswers, { V3AnswerDetailPanel } from "./answers";
@@ -118,6 +121,7 @@ function ConsultationDetail({ detail }: { detail: V3ConsultationDetail }) {
                     : "정보 없음",
                 ],
                 ["공개 상태", detail.withdrawnAt ? "숨김" : "공개"],
+                ["받은 답변", `${detail.answerCount}개`],
                 ["숨김일", date(detail.withdrawnAt)],
                 ["등록일", date(detail.createdAt)],
                 ["수정일", date(detail.updatedAt)],
@@ -137,6 +141,29 @@ function ConsultationDetail({ detail }: { detail: V3ConsultationDetail }) {
                 구매 / 유료 답변 {detail.deepStatistics.payment.paidAnswerCount}{" "}
                 / {detail.deepStatistics.payment.payableAnswerCount}건
               </p>
+              <p className="text-sm">
+                답변 열람 {readSummary(detail.deepStatistics.read)}
+              </p>
+              <div aria-label="구매 내역" className="space-y-2 text-sm">
+                {detail.deepStatistics.payment.purchaseList.length ? (
+                  detail.deepStatistics.payment.purchaseList.map((purchase) => (
+                    <div key={purchase.id} className="rounded-lg border p-2">
+                      <p>
+                        {paymentType(purchase.paymentType)} ·{" "}
+                        {purchaseAmount(purchase)}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        구매 #{purchase.id} · 답변 {purchase.answerCount}개 구매
+                        {purchase.answerIdList.length
+                          ? ` · 답변 #${purchase.answerIdList.join(", #")}`
+                          : ""}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500">구매 내역이 없습니다.</p>
+                )}
+              </div>
               <Rating rating={detail.deepStatistics.rating} />
             </details>
           )}
@@ -277,6 +304,7 @@ function ConsultationDetail({ detail }: { detail: V3ConsultationDetail }) {
         <V3ConsultationAnswers
           key={detail.id}
           consultationId={detail.id}
+          answerCount={detail.answerCount}
           selectedId={answerId}
           onSelect={setAnswerId}
         />

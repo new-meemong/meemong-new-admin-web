@@ -12,14 +12,33 @@ import {
   ConsultationAnswerCard,
   ConsultationAnswerAppPreview,
 } from "@/components/features/contents/v3-hair-consultation-preview";
-import { CursorPagination, Fields, QueryStatus, date } from "./presentation";
+import type { V3ConsultationAnswer } from "@/models/v3HairConsultations";
+import {
+  CursorPagination,
+  Fields,
+  QueryStatus,
+  date,
+  paymentTypes,
+} from "./presentation";
+
+/** 결제와 열람은 독립 상태입니다(미몽패스 무료 열람, 환불 후 열람 이력). */
+const paymentStatus = (status: V3ConsultationAnswer["deepStatus"]) =>
+  status
+    ? status.isPaid
+      ? `결제(${paymentTypes(status.paymentTypeList)})`
+      : "미결제"
+    : "-";
+const readStatus = (status: V3ConsultationAnswer["deepStatus"]) =>
+  status ? (status.isRead ? "열람" : "미열람") : "-";
 
 export default function V3ConsultationAnswers({
   consultationId,
+  answerCount,
   selectedId,
   onSelect,
 }: {
   consultationId: number;
+  answerCount: number;
   selectedId: number | null;
   onSelect: (id: number) => void;
 }) {
@@ -34,7 +53,7 @@ export default function V3ConsultationAnswers({
       className="flex min-h-0 flex-col border-t pt-3"
     >
       <div className="flex justify-between items-center mb-2">
-        <h3 className="font-semibold">받은 답변</h3>
+        <h3 className="font-semibold">받은 답변 {answerCount}개</h3>
         <span className="text-xs text-gray-500">
           현재 페이지 {query.data?.dataCount ?? 0}건 · 카드를 클릭하면 오른쪽에
           답변이 표시됩니다.
@@ -92,7 +111,7 @@ function AnswerCard({
         <span>
           {query.data?.hiddenAt ? "숨김" : "공개"}
           {query.data?.deepStatus
-            ? ` · ${query.data.deepStatus.isPaid ? "결제" : "미결제"}`
+            ? ` · ${paymentStatus(query.data.deepStatus)} · ${readStatus(query.data.deepStatus)}`
             : ""}
         </span>
       </div>
@@ -145,21 +164,19 @@ export function V3AnswerDetailPanel({
             <ConsultationAnswerAppPreview detail={detail} sex={sex} />
           </div>
           <details className="shrink-0 max-h-40 overflow-y-auto text-sm">
-            <summary className="cursor-pointer">결제·리뷰 운영 정보</summary>
+            <summary className="cursor-pointer">
+              결제·열람·리뷰 운영 정보
+            </summary>
             <div className="space-y-3 pt-3">
               <Fields
                 rows={[
                   ["디자이너 ID", detail.designerUserId],
                   ["전화번호", detail.designerUser?.phone],
                   ["상태", detail.hiddenAt ? "숨김" : "공개"],
-                  [
-                    "실제 결제",
-                    detail.deepStatus
-                      ? detail.deepStatus.isPaid
-                        ? "결제"
-                        : "미결제"
-                      : "-",
-                  ],
+                  ["실제 결제", paymentStatus(detail.deepStatus)],
+                  ["작성자 열람", readStatus(detail.deepStatus)],
+                  ["최초 열람", date(detail.deepStatus?.firstReadAt)],
+                  ["최근 열람", date(detail.deepStatus?.lastReadAt)],
                   ["현재 별점", detail.deepStatus?.review?.rating],
                 ]}
               />

@@ -24,7 +24,9 @@ import {
   ConsultationTypeBadge,
   date,
   label,
+  paymentTypes,
   percent,
+  readSummary,
 } from "./presentation";
 import V3ConsultationDetailModal from "./detail-modal";
 
@@ -110,6 +112,12 @@ export default function V3HairConsultationContent({
       cell: ({ row }) => (row.original.withdrawnAt ? "숨김" : "공개"),
     },
     {
+      accessorKey: "answerCount",
+      header: "받은 답변",
+      size: 90,
+      cell: ({ row }) => `${row.original.answerCount}개`,
+    },
+    {
       id: "payment",
       header: "결제 여부",
       size: 90,
@@ -118,6 +126,28 @@ export default function V3HairConsultationContent({
           ? row.original.deepStatistics.payment.isPaid
             ? "결제"
             : "미결제"
+          : "-",
+    },
+    {
+      id: "paymentType",
+      header: "결제 수단",
+      size: 130,
+      cell: ({ row }) =>
+        row.original.deepStatistics
+          ? paymentTypes(
+              row.original.deepStatistics.payment.purchaseList.map(
+                (purchase) => purchase.paymentType,
+              ),
+            )
+          : "-",
+    },
+    {
+      id: "read",
+      header: "답변 열람",
+      size: 120,
+      cell: ({ row }) =>
+        row.original.deepStatistics
+          ? readSummary(row.original.deepStatistics.read)
           : "-",
     },
     {
@@ -320,7 +350,7 @@ export default function V3HairConsultationContent({
       />
       {!list.isPending && !list.isError && (
         <div className="overflow-x-auto">
-          <div className="min-w-[1400px]">
+          <div className="min-w-[1740px]">
             <CommonTable
               data={list.data?.dataList ?? []}
               columns={columns}

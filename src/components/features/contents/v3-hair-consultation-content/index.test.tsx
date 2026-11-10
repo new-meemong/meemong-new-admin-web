@@ -4,7 +4,10 @@ import { createRoot, type Root } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import V3HairConsultationContent from "./index";
-import type { V3ConsultationDetail } from "@/models/v3HairConsultations";
+import type {
+  V3ConsultationAnswer,
+  V3ConsultationDetail,
+} from "@/models/v3HairConsultations";
 // The existing shared select is tested by its library; retain its public change contract.
 vi.mock("@/components/shared/select-box", () => ({
   default: ({
@@ -61,17 +64,30 @@ const rating = {
   ratingCountList: [1, 2, 3, 4, 5].map((rating) => ({ rating, count: 0 })),
 };
 const payment = {
-  isPaid: false,
-  payableAnswerCount: 0,
-  paidAnswerCount: 0,
-  paymentRate: null,
+  isPaid: true,
+  payableAnswerCount: 3,
+  paidAnswerCount: 3,
+  paymentRate: 100,
+  purchaseList: [
+    {
+      id: 789,
+      paymentType: "MONG" as const,
+      answerCount: 3,
+      paymentAmountKRW: null,
+      mongAmount: 30,
+      answerIdList: [456, 455, 454],
+    },
+  ],
 };
+// 3개 구매·1개만 열람: 구매 수로 전체 열람을 추정하지 않아야 합니다.
+const read = { answerCount: 3, readAnswerCount: 1, isAllRead: false };
 let detail: V3ConsultationDetail;
 let root: Root;
 let host: HTMLDivElement;
 let client: QueryClient;
 let calls: { url: URL; init: RequestInit }[];
 let answerHidden: boolean;
+let answerDeepStatus: V3ConsultationAnswer["deepStatus"];
 const response = (data: unknown) =>
   new Response(JSON.stringify(data), {
     headers: { "content-type": "application/json" },
@@ -117,11 +133,20 @@ beforeEach(async () => {
   vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.test");
   calls = [];
   answerHidden = false;
+  answerDeepStatus = {
+    isPaid: true,
+    paymentTypeList: ["MONG"],
+    isRead: true,
+    firstReadAt: "2026-11-09T00:00:00Z",
+    lastReadAt: "2026-11-09T01:00:00Z",
+    review: null,
+  };
   detail = {
     id: 123,
     userId: 9,
     consultationType: "DEEP",
     customerType: "CONSULTING",
+    answerCount: 3,
     createdAt: "2026-11-09T00:00:00Z",
     updatedAt: "2026-11-09T00:00:00Z",
     withdrawnAt: null,
@@ -131,7 +156,7 @@ beforeEach(async () => {
       phone: "01000000000",
       deletedAt: "2026-11-08T00:00:00Z",
     },
-    deepStatistics: { payment, rating },
+    deepStatistics: { payment, read, rating },
     aspirationDescription: "원본 내용",
     additionalInquiry: null,
     treatmentHistoryDescription: null,
@@ -189,7 +214,7 @@ beforeEach(async () => {
         price: 50000,
         description: "답변 본문",
         hiddenAt: answerHidden ? "2026-11-09T00:00:00Z" : null,
-        deepStatus: { isPaid: false, review: null },
+        deepStatus: answerDeepStatus,
         imageList: [
           {
             id: 1,
@@ -294,15 +319,56 @@ describe("v3 content production UI and query wiring", () => {
     expect(stats.url.searchParams.get("consultationType")).toBe("DEEP");
     expect(stats.url.searchParams.has("__limit")).toBe(false);
   });
+  it("shows server answer count, payment type and actual read status", async () => {
+    const row = host.querySelector(".cursor-pointer.grid")!;
+    expect(row.textContent).toContain("3개");
+    expect(row.textContent).toContain("몽결제");
+    expect(row.textContent).toContain("1/3 · 일부 열람");
+    await openConsultation(host);
+    const modal = document.body.querySelector(".fixed")!;
+    expect(modal.textContent).toContain("답변 열람 1/3 · 일부 열람");
+    expect(modal.textContent).toContain("몽결제 · 30몽");
+    expect(modal.textContent).toContain("구매 #789 · 답변 3개 구매");
+    // 답변 목록 현재 페이지(1건)가 아니라 상담 전체 답변 수를 표시합니다.
+    expect(modal.textContent).toContain("받은 답변 3개");
+    expect(modal.textContent).toContain("결제(몽결제) · 열람");
+  });
+  it("shows unpaid answers read via free access as read", async () => {
+    // 미몽패스 무료 열람·환불 후 열람 이력: 결제 여부로 열람을 추정하지 않습니다.
+    answerDeepStatus = {
+      isPaid: false,
+      paymentTypeList: [],
+      isRead: true,
+      firstReadAt: "2026-11-09T00:00:00Z",
+      lastReadAt: "2026-11-09T00:00:00Z",
+      review: null,
+    };
+    await openConsultation(host);
+    expect(document.body.querySelector(".fixed")!.textContent).toContain(
+      "미결제 · 열람",
+    );
+  });
   it("renders QUICK request fields using the original web reader", async () => {
     detail = {
       ...detail,
       consultationType: "QUICK",
       customerType: "PARTIAL_STYLE",
+      answerCount: 7,
+      deepStatistics: null,
       wantedTreatmentList: ["컷트"],
       aspirationDescription: "짧은 단발을 원해요",
     };
+    answerDeepStatus = null;
+    await click("새로고침");
+    const row = host.querySelector(".cursor-pointer.grid")!;
+    // QUICK은 받은 답변 수만 표시하고 결제·열람 칸은 "-"입니다.
+    expect(row.textContent).toContain("7개");
+    expect(row.textContent).not.toMatch(/결제|열람/);
     await openConsultation(host);
+    const answerHeader = Array.from(
+      document.body.querySelectorAll("span"),
+    ).find((span) => span.textContent === "답변 #456")!.parentElement!;
+    expect(answerHeader.textContent).toBe("답변 #456공개");
     const preview = document.querySelector('[aria-label="상담 앱 미리보기"]')!;
     expect(preview.textContent).toContain("간편상담");
     expect(preview.textContent).toContain("컷트");

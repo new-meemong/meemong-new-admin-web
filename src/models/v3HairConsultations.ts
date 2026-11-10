@@ -11,12 +11,30 @@ export interface V3RatingStatistics {
   averageRating: number | null;
   ratingCountList: { rating: number; count: number }[];
 }
+export type V3PaymentType = "STORE" | "MONG";
+export interface V3Purchase {
+  id: number;
+  paymentType: V3PaymentType;
+  /** 구매 당시 답변 수 */
+  answerCount: number;
+  paymentAmountKRW: number | null;
+  mongAmount: number | null;
+  answerIdList: number[];
+}
 export interface V3DeepStatistics {
   payment: {
     isPaid: boolean;
     payableAnswerCount: number;
     paidAnswerCount: number;
     paymentRate: number | null;
+    /** 검증 성공·미환불 구매, ID 내림차순 */
+    purchaseList: V3Purchase[];
+  };
+  /** 작성자의 실제 열람 집계(구매 여부와 독립, 무료·숨김 답변 포함) */
+  read: {
+    answerCount: number;
+    readAnswerCount: number;
+    isAllRead: boolean;
   };
   rating: V3RatingStatistics;
 }
@@ -31,6 +49,8 @@ export interface V3ConsultationListItem {
   userId: number;
   consultationType: V3ConsultationType;
   customerType: string;
+  /** 전체 회차의 유료·무료·숨김 답변 수(페이지 크기와 무관) */
+  answerCount: number;
   createdAt: string;
   updatedAt: string;
   withdrawnAt: string | null;
@@ -121,7 +141,16 @@ export interface V3ConsultationAnswer {
   accessType: string;
   submittedAt: string;
   hiddenAt: string | null;
-  deepStatus: { isPaid: boolean; review: V3AnswerReview | null } | null;
+  deepStatus: {
+    isPaid: boolean;
+    /** 유효 구매 수단(중복 없음), 미구매 시 빈 배열 */
+    paymentTypeList: V3PaymentType[];
+    /** 작성자의 실제 열람 여부(미몽패스 무료 열람 포함) */
+    isRead: boolean;
+    firstReadAt: string | null;
+    lastReadAt: string | null;
+    review: V3AnswerReview | null;
+  } | null;
 }
 export interface V3ConsultationAnswerDetail extends V3ConsultationAnswer {
   imageList: V3ConsultationImage[];

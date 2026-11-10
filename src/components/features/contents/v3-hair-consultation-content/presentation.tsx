@@ -6,6 +6,9 @@ import type { V3CursorResponse } from "@/apis/v3HairConsultations";
 import type {
   V3ConsultationType,
   V3ConsultationImage,
+  V3DeepStatistics,
+  V3PaymentType,
+  V3Purchase,
   V3RatingStatistics,
 } from "@/models/v3HairConsultations";
 
@@ -52,6 +55,30 @@ export const date = (value?: string | null) =>
     : "-";
 export const money = (value?: number | null) =>
   value == null ? "-" : `${value.toLocaleString("ko-KR")}원`;
+const PAYMENT_TYPE_LABELS: Record<V3PaymentType, string> = {
+  STORE: "단건결제",
+  MONG: "몽결제",
+};
+export const paymentType = (value: V3PaymentType) =>
+  PAYMENT_TYPE_LABELS[value] ?? value;
+/** 결제 수단 목록을 중복 없이 표시합니다. 비어 있으면 "-"입니다. */
+export const paymentTypes = (values: V3PaymentType[]) =>
+  values.length ? [...new Set(values)].map(paymentType).join(" · ") : "-";
+export const purchaseAmount = ({
+  paymentType,
+  paymentAmountKRW,
+  mongAmount,
+}: V3Purchase) =>
+  paymentType === "MONG"
+    ? mongAmount == null
+      ? "-"
+      : `${mongAmount.toLocaleString("ko-KR")}몽`
+    : money(paymentAmountKRW);
+/** 서버의 실제 열람 집계만 사용하며 구매 수로 전체 열람을 추정하지 않습니다. */
+export const readSummary = (read: V3DeepStatistics["read"]) =>
+  `${read.readAnswerCount}/${read.answerCount} · ${
+    read.isAllRead ? "전체 열람" : read.readAnswerCount ? "일부 열람" : "미열람"
+  }`;
 export function Section({
   title,
   children,
