@@ -41,8 +41,12 @@
   * {
     @apply border-border;
   }
+  :root {
+    --font-pretendard: "Pretendard Variable", Pretendard, "Noto Sans KR", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
   body {
     @apply bg-background text-foreground typo-body-1-long-regular;
+    font-family: var(--font-pretendard);
   }
 }
 

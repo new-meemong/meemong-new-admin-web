@@ -8,9 +8,12 @@ import IcContentsMenu from "@/assets/icons/ic_contents_menu.svg";
 import IcPopupMenu from "@/assets/icons/ic_popup_menu.svg";
 import IcReportMenu from "@/assets/icons/ic_report_menu.svg";
 import IcUserMenu from "@/assets/icons/ic_user_menu.svg";
-import { Coins, LayoutDashboard, Package } from "lucide-react";
+import { Coins, LayoutDashboard, MessagesSquare, Package } from "lucide-react";
+import { signOutSupportAdmin } from "@/lib/firebase/support-chat";
+import { useSupportChatUnreadRoomCount } from "@/components/features/support-chat/use-support-chat-unread-room-count";
 import SideNav from "@/components/layouts/app-layout/side-nav";
 import SideNavItem from "@/components/layouts/app-layout/side-nav/side-nav-item";
+import SideNavGroup from "@/components/layouts/app-layout/side-nav/side-nav-group";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
@@ -22,6 +25,8 @@ interface DefaultLayoutProps {
 function AppLayout({ children, className }: DefaultLayoutProps) {
   const router = useRouter();
 
+  const supportChatUnreadRooms = useSupportChatUnreadRoomCount();
+
   const handleLogout = useCallback(() => {
     // 세션 스토리지 클리어
     sessionStorage.removeItem("adminName");
@@ -29,6 +34,8 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
 
     // 쿠키 삭제
     document.cookie = "accessToken=; path=/; max-age=0";
+    // 운영팀 채팅 Firebase 운영자 세션도 어드민 로그인과 함께 끝낸다.
+    void signOutSupportAdmin();
 
     // 로그인 페이지로 리다이렉트
     router.push("/login");
@@ -63,6 +70,14 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
           icon={<IcReportMenu />}
           label={"신고 관리"}
         />
+        <SideNavGroup
+          icon={<MessagesSquare className="h-4 w-4" />}
+          label={"상담 관리"}
+          items={[
+            { href: "/support-chat", label: "상담함", badgeCount: supportChatUnreadRooms },
+            { href: "/support-chat-faq", label: "챗봇 FAQ" },
+          ]}
+        />
         <SideNavItem
           href={"/banner"}
           icon={<IcBannerMenu />}
@@ -88,14 +103,13 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
           icon={<IcBannerMenu />}
           label={"브랜드 관리"}
         />
-        <div className="mt-auto mb-4 px-[4px]">
+        <div className="mt-auto pt-4">
           <Button
             variant="outline"
             onClick={handleLogout}
             className={cn(
-              "w-full rounded-6 gap-[12px] px-[20px] py-[16px] justify-start",
-              "hover:bg-muted-foreground/10 text-foreground typo-body-2-long-semibold",
-              "border-border",
+              "h-11 w-full justify-start rounded-lg border-[#dcdcdc] px-5 text-[15px] font-normal text-[#444444]",
+              "hover:bg-muted-foreground/10",
             )}
           >
             로그아웃

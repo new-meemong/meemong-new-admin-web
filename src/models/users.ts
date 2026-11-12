@@ -50,6 +50,7 @@ export interface IUserForm extends IUser {
   name: string; // 이름
   loginType: LoginType; // 가입형태
   profilePictureURL: string; // 프로필 url
+  address?: string | null; // 역할별 프로필 지역
   phone: string; // 전화번호
   email: string; // 이메일
   description: string; // 소개

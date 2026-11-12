@@ -44,7 +44,7 @@ function SideNav({ children, className }: SideNavProps) {
       <nav
         aria-label="어드민 메뉴"
         className={cn(
-          "hidden md:flex flex-col w-[162px] shrink-0 min-h-screen bg-background border-r border-border-alternative shadow-sidenav",
+          "hidden md:flex flex-col gap-0.5 w-[232px] shrink-0 min-h-screen bg-background border-r border-[#e8e8e8] px-2.5 pt-5 pb-4",
           className,
         )}
       >

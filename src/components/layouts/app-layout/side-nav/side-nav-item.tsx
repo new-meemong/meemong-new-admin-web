@@ -19,11 +19,12 @@ function SideNavItem({ href, icon, label, className }: SideNavItemProps) {
   return (
     <Link
       href={href}
+      // 크기·색은 어드민 프로토타입 사이드바(높이 46, 15px, 활성 #c8c2dd/#5a4b8a)를 따른다.
       className={cn(
-        "flex items-center mx-[4px] mt-[4px] rounded-6 gap-[12px] px-[20px] py-[16px] transition-colors duration-300",
+        "flex h-[46px] items-center gap-[14px] rounded-lg px-4 text-[15px] tracking-[-0.3px] transition-colors duration-300",
         isActive
-          ? "text-primary-foreground bg-primary-background typo-body-2-long-bold"
-          : "hover:bg-muted-foreground/10 text-foreground typo-body-2-long-semibold",
+          ? "bg-[#c8c2dd] font-semibold text-[#5a4b8a]"
+          : "font-medium text-[#4a4a4a] hover:bg-muted-foreground/10",
         className,
       )}
     >

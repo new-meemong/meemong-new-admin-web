@@ -241,6 +241,7 @@ export default function UserDetailForm({
       form.reset(
         {
           ...formData,
+          address: formData.address ?? "",
           recentLoginTime: formData.recentLoginTime ?? undefined,
           recentRealLoginTime: formData.recentRealLoginTime ?? undefined,
         },

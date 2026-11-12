@@ -55,7 +55,7 @@ function buildUrl(
   return url.toString();
 }
 
-function getAccessTokenFromCookie(): string | undefined {
+export function getAccessTokenFromCookie(): string | undefined {
   if (typeof document === "undefined") return undefined;
   return document.cookie
     .split("; ")
