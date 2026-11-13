@@ -3,6 +3,7 @@ import {
   IUserBlockInfo,
   IUserForm,
   UserListRoleType,
+  UserSearchType,
 } from "@/models/users";
 
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
@@ -11,7 +12,6 @@ import {
   ServerPaginatedResponse,
   normalizePaginatedResponse,
 } from "@/apis/types";
-import { SearchType } from "@/models/common";
 import { fetcher } from "@/apis/core";
 
 const BASE_URL = "/api/v1/admins/users";
@@ -19,7 +19,7 @@ const BASE_URL = "/api/v1/admins/users";
 export type GetUsersRequest = {
   role?: UserListRoleType; // 1 | 2 (1: model, 2: designer)
   blockType?: 1 | 2; // 1: 차단, 2: 탈퇴 (차단이랑 같음)
-  searchType?: SearchType;
+  searchType?: UserSearchType;
   searchKeyword?: string;
   brandId?: number;
   page?: number;
@@ -46,32 +46,17 @@ export type UpdateUserBlockResponse = {
   isBlocked: boolean;
 };
 
-export type UpdateUserDescriptionRequest = {
+export type UpdateUserRequest = {
   userId: number;
-  description: string;
+  displayName?: string;
+  designerInfo?: {
+    description?: string | null;
+    storeReservationNotice?: string | null;
+  };
+  modelInfo?: { paymodel?: boolean };
 };
 
-export type UpdateUserDescriptionResponse = {
-  description: string;
-};
-
-export type UpdateUserPayModelRequest = {
-  userId: number;
-  paymodel: boolean;
-};
-
-export type UpdateUserPayModelResponse = {
-  paymodel: boolean;
-};
-
-export type UpdateUserDisplayNameRequest = {
-  userId: number;
-  displayName: string;
-};
-
-export type UpdateUserDisplayNameResponse = {
-  data: null;
-};
+export type UpdateUserResponse = { data: null };
 
 export const userAPI = {
   deletePhoto: (deleteUrl: string) =>
@@ -129,45 +114,11 @@ export const userAPI = {
 
     return response;
   },
-  updateDescription: async (request: UpdateUserDescriptionRequest) => {
-    const response = await fetcher<UpdateUserDescriptionResponse>(
-      `${BASE_URL}/${request.userId}/description`,
-      {
-        method: "PUT",
-        body: JSON.stringify({
-          description: request.description,
-        }),
-      },
-    );
-
-    return response;
-  },
-  updatePayModel: async (request: UpdateUserPayModelRequest) => {
-    const response = await fetcher<UpdateUserPayModelResponse>(
-      `${BASE_URL}/${request.userId}/paymodel`,
-      {
-        method: "PUT",
-        body: JSON.stringify({
-          paymodel: request.paymodel,
-        }),
-      },
-    );
-
-    return response;
-  },
-  updateDisplayName: async (request: UpdateUserDisplayNameRequest) => {
-    const response = await fetcher<UpdateUserDisplayNameResponse>(
-      `${BASE_URL}/${request.userId}`,
-      {
-        method: "PUT",
-        body: JSON.stringify({
-          displayName: request.displayName,
-        }),
-      },
-    );
-
-    return response;
-  },
+  update: ({ userId, ...changes }: UpdateUserRequest) =>
+    fetcher<UpdateUserResponse>(`${BASE_URL}/${userId}`, {
+      method: "PUT",
+      body: JSON.stringify(changes),
+    }),
   delete: (id: number) =>
     fetcher<void>(`${BASE_URL}/${id}`, {
       method: "DELETE",

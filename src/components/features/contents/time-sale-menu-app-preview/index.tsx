@@ -7,11 +7,11 @@ import { UserFileType } from "@/models/userFiles";
 import localFont from "next/font/local";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import type { ImageSwiperItem } from "@/components/shared/image-swiper";
-import TimeSaleMenuPreviewImageViewer from "./image-viewer";
+import AppPreviewImageViewer from "@/components/shared/app-preview/image-viewer";
 import { ITimeSaleMenu } from "@/models/timeSaleMenus";
 import { UserPhotoType } from "@/models/users";
 import TimeSaleMenuReservationTab from "./reservation-tab";
-import TimeSaleMenuStoreMap from "./store-map";
+import AppPreviewStoreMap from "@/components/shared/app-preview/store-map";
 import { getDefaultPreviewReservationDate } from "./reservation";
 import { parseImageUrl } from "@/utils/image";
 
@@ -319,7 +319,7 @@ export default function TimeSaleMenuAppPreview({
                   <p className="mt-1 rounded-[10px] border border-[#EFF1F4] p-3 text-[14px] leading-5 text-[#525A66]">
                     {address || "주소 정보가 없습니다."}
                   </p>
-                  <TimeSaleMenuStoreMap
+                  <AppPreviewStoreMap
                     lat={menu.designer?.lat}
                     lng={menu.designer?.lng}
                   />
@@ -366,7 +366,7 @@ export default function TimeSaleMenuAppPreview({
           )}
         </div>
         {viewer && (
-          <TimeSaleMenuPreviewImageViewer
+          <AppPreviewImageViewer
             images={viewer.images}
             initialIndex={viewer.initialIndex}
             returnFocusTo={viewer.returnFocusTo}

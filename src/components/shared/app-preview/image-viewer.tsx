@@ -6,7 +6,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { ImageSwiperItem } from "@/components/shared/image-swiper";
 
-export default function TimeSaleMenuPreviewImageViewer({
+export default function AppPreviewImageViewer({
   images,
   initialIndex,
   onClose,

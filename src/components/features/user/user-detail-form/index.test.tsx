@@ -14,23 +14,18 @@ const mocks = vi.hoisted(() => ({
 }));
 vi.mock("@/queries/users", () => ({
   useDeleteUserPhotoMutation: () => ({ mutateAsync: mocks.mutateAsync }),
-  useUpdateUserDescriptionMutation: () => ({}),
-  useUpdateUserDisplayNameMutation: () => ({}),
-  useUpdateUserPayModelMutation: () => ({}),
+  useUpdateUserMutation: () => ({}),
 }));
 vi.mock("react-toastify", () => ({ toast: mocks }));
-vi.mock(
-  "@/components/features/user/user-right-drawer/user-block-info-list",
-  () => ({ default: () => null }),
-);
-vi.mock(
-  "@/components/features/user/user-right-drawer/user-mong-money-deposit-form",
-  () => ({ default: () => null }),
-);
-vi.mock(
-  "@/components/features/user/user-right-drawer/user-mong-money-history",
-  () => ({ default: () => null }),
-);
+vi.mock("@/components/features/user/user-block-info-list", () => ({
+  default: () => null,
+}));
+vi.mock("@/components/features/user/user-mong-money-deposit-form", () => ({
+  default: () => null,
+}));
+vi.mock("@/components/features/user/user-mong-money-history", () => ({
+  default: () => null,
+}));
 interface CapturedImage {
   src: string;
   images: ImageSwiperItem[];

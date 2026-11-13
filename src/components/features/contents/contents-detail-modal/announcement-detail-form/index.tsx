@@ -3,10 +3,12 @@
 import React, { useCallback } from "react";
 import {
   useDeleteBeautyApplicationMutation,
-  useGetBeautyApplicationByIdQuery
+  useGetBeautyApplicationByIdQuery,
 } from "@/queries/beautyApplications";
 
 import AnnouncementDetailItem from "@/components/features/contents/contents-detail-modal/announcement-detail-form/announcement-detail-item";
+import { ApiError } from "@/apis/core";
+import { Button } from "@/components/ui/button";
 import { FormGroup } from "@/components/ui/form-group";
 import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
@@ -21,7 +23,7 @@ interface AnnouncementDetailFormProps {
 export default function AnnouncementDetailForm({
   id,
   onClose,
-  onRefresh
+  onRefresh,
 }: AnnouncementDetailFormProps) {
   const dialog = useDialog();
 
@@ -51,7 +53,28 @@ export default function AnnouncementDetailForm({
   return (
     <FormGroup>
       <div className={cn("flex flex-col gap-4")}>
-        {announcement && (
+        {getBeautyApplicationByIdQuery.isPending && (
+          <p role="status">메뉴를 불러오는 중…</p>
+        )}
+        {getBeautyApplicationByIdQuery.isError && (
+          <div role="alert">
+            <p>
+              {getBeautyApplicationByIdQuery.error instanceof ApiError &&
+              [401, 403].includes(getBeautyApplicationByIdQuery.error.status)
+                ? "조회 권한이 없습니다."
+                : getBeautyApplicationByIdQuery.error instanceof ApiError &&
+                    getBeautyApplicationByIdQuery.error.status === 404
+                  ? "메뉴를 찾을 수 없습니다."
+                  : "메뉴를 불러오지 못했습니다."}
+            </p>
+            <Button
+              onClick={() => void getBeautyApplicationByIdQuery.refetch()}
+            >
+              다시 시도
+            </Button>
+          </div>
+        )}
+        {announcement && !getBeautyApplicationByIdQuery.isError && (
           <AnnouncementDetailItem
             announcement={announcement}
             onDelete={handleClickDeleteButton}

@@ -30,7 +30,7 @@ function UserPageContent({ className }: UserPageContentProps) {
     defaultParams: DEFAULT_SEARCH_PARAMS
   });
 
-  // 쿼리는 searchParams(제출된 값) 기준으로만 수행
+  // 검색 조건 변경을 즉시 반영하는 params 기준으로 조회
   const getUsersQuery = useGetUsersQuery(
     {
       role:

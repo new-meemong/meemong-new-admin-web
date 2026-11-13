@@ -11,9 +11,7 @@ import React, {
 } from "react";
 import {
   useDeleteUserPhotoMutation,
-  useUpdateUserDescriptionMutation,
-  useUpdateUserDisplayNameMutation,
-  useUpdateUserPayModelMutation,
+  useUpdateUserMutation,
 } from "@/queries/users";
 
 import { Button } from "@/components/ui/button";
@@ -23,9 +21,9 @@ import { FormGroup } from "@/components/ui/form-group";
 import ImageBox from "@/components/shared/image-box";
 import { ImageSwiperItem } from "@/components/shared/image-swiper";
 import { LOGIN_TYPE_MAP } from "@/constants/users";
-import UserBlockInfoList from "@/components/features/user/user-right-drawer/user-block-info-list";
-import UserMongMoneyDepositForm from "@/components/features/user/user-right-drawer/user-mong-money-deposit-form";
-import UserMongMoneyHistory from "@/components/features/user/user-right-drawer/user-mong-money-history";
+import UserBlockInfoList from "@/components/features/user/user-block-info-list";
+import UserMongMoneyDepositForm from "@/components/features/user/user-mong-money-deposit-form";
+import UserMongMoneyHistory from "@/components/features/user/user-mong-money-history";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
 import { getUserRole } from "@/utils/user";
@@ -67,7 +65,7 @@ export default function UserDetailForm({
       z.object({
         id: z.union([z.number(), z.string()]),
         s3Path: z.string().nullable(),
-        fileType: z.string(),
+        fileType: z.string().nullable(),
         source: z.enum(["UserFiles", "BeautyApplicationImages", "Users"]),
         sourceId: z.number().optional(),
         beautyApplicationId: z.number().optional(),
@@ -78,6 +76,7 @@ export default function UserDetailForm({
     email: z.string(),
     paymodel: z.string(),
     description: z.string(),
+    storeReservationNotice: z.string(),
     isBlocked: z.boolean(),
   });
 
@@ -97,12 +96,11 @@ export default function UserDetailForm({
       phone: "",
       email: "",
       description: "",
+      storeReservationNotice: "",
     },
   });
 
-  const updateUserDescriptionMutation = useUpdateUserDescriptionMutation();
-  const updateUserPayModelMutation = useUpdateUserPayModelMutation();
-  const updateUserDisplayNameMutation = useUpdateUserDisplayNameMutation();
+  const updateUserMutation = useUpdateUserMutation();
   const deleteUserPhotoMutation = useDeleteUserPhotoMutation(formData.id);
 
   const userId: string = useMemo(() => {
@@ -118,34 +116,29 @@ export default function UserDetailForm({
 
   const updateUserPayModel = useCallback(
     async (next: boolean) => {
+      if (updateUserMutation.isPending) return;
       const prevYN = form.getValues("paymodel");
       const prev = prevYN === "Y";
 
       form.setValue("paymodel", next ? "Y" : "N", { shouldDirty: true });
 
       try {
-        const res = await updateUserPayModelMutation.mutateAsync({
+        await updateUserMutation.mutateAsync({
           userId: form.getValues("id"),
-          paymodel: next,
+          modelInfo: { paymodel: next },
         });
-
-        if (typeof res?.paymodel === "boolean") {
-          if (res.paymodel) {
-            toast.success("추천모델로 추가했습니다.");
-          } else {
-            toast.success("추천모델에서 제외됐습니다.");
-          }
-          form.setValue("paymodel", res.paymodel ? "Y" : "N", {
-            shouldDirty: true,
-          });
-        }
+        form.resetField("paymodel", { defaultValue: next ? "Y" : "N" });
+        toast.success(
+          next ? "추천모델로 추가했습니다." : "추천모델에서 제외됐습니다.",
+        );
+        onRefresh();
       } catch (error) {
         console.error(error);
         form.setValue("paymodel", prev ? "Y" : "N", { shouldDirty: true });
         toast.error("잠시 후 다시 시도해주세요.");
       }
     },
-    [form.watch("id")],
+    [form, onRefresh, updateUserMutation],
   );
 
   const userImages: ImageSwiperItem[] = useMemo(
@@ -156,7 +149,7 @@ export default function UserDetailForm({
               {
                 id: photo.id,
                 src: photo.s3Path,
-                title: photo.fileType,
+                title: photo.fileType ?? undefined,
                 deleteUrl: photo.deleteUrl,
                 deletable: Boolean(photo.deleteUrl),
               },
@@ -200,48 +193,71 @@ export default function UserDetailForm({
     [deleteUserPhotoMutation],
   );
 
-  const handleUpdateDescription = useCallback(async () => {
+  const handleUpdateDesignerText = async (
+    field: "description" | "storeReservationNotice",
+  ) => {
+    const value = form.getValues(field);
     try {
-      const res = await updateUserDescriptionMutation.mutateAsync({
+      await updateUserMutation.mutateAsync({
         userId: form.getValues("id"),
-        description: form.getValues("description"),
+        designerInfo: { [field]: value },
       });
-
-      if (res.description) {
-        toast.success("소개글을 수정했습니다.");
-      } else {
-        throw new Error();
-      }
-      form.setValue("description", res.description, {
-        shouldDirty: true,
-      });
+      form.resetField(field, { defaultValue: value });
+      toast.success(
+        field === "description"
+          ? "소개글을 수정했습니다."
+          : "예약 방법 안내를 수정했습니다.",
+      );
+      onRefresh();
     } catch (error) {
       console.error(error);
-      toast.error("잠시 후 다시 시도해주세요.");
+      toast.error(
+        "저장하지 못했습니다. 회원 정보와 수정 권한을 확인하고 다시 시도해주세요.",
+      );
     }
-  }, [form.getValues("id"), form.getValues("description")]);
+  };
 
   const handleUpdateDisplayName = useCallback(async () => {
+    if (!form.getValues("displayName").trim()) {
+      toast.error("닉네임을 입력해주세요.");
+      return;
+    }
     try {
-      await updateUserDisplayNameMutation.mutateAsync({
+      await updateUserMutation.mutateAsync({
         userId: form.getValues("id"),
         displayName: form.getValues("displayName"),
       });
 
+      form.resetField("displayName", {
+        defaultValue: form.getValues("displayName"),
+      });
       toast.success("닉네임을 수정했습니다.");
       onRefresh();
     } catch (error) {
       console.error(error);
       toast.error("잠시 후 다시 시도해주세요.");
     }
-  }, [form.getValues("id"), form.getValues("displayName"), onRefresh]);
+  }, [form, onRefresh, updateUserMutation]);
 
   useEffect(() => {
     if (formData) {
       form.reset(
         {
           ...formData,
-          address: formData.address ?? "",
+          address:
+            ("modelInfo" in formData || "designerInfo" in formData
+              ? (formData.modelInfo?.address ?? formData.designerInfo?.address)
+              : formData.address) ?? "",
+          description:
+            ("designerInfo" in formData
+              ? formData.designerInfo?.description
+              : formData.description) ?? "",
+          storeReservationNotice:
+            formData.designerInfo?.storeReservationNotice ?? "",
+          paymodel:
+            ("modelInfo" in formData
+              ? formData.modelInfo?.paymodel
+              : (formData as IUserForm & { paymodel?: string }).paymodel) ?? "",
           recentLoginTime: formData.recentLoginTime ?? undefined,
           recentRealLoginTime: formData.recentRealLoginTime ?? undefined,
         },
@@ -272,6 +288,7 @@ export default function UserDetailForm({
           />
           <CommonForm.InputRow
             label={"닉네임"}
+            disabled={updateUserMutation.isPending}
             name={"displayName"}
             inputClassName={cn("min-w-0")}
           >
@@ -279,6 +296,7 @@ export default function UserDetailForm({
               <Button
                 variant={"outline"}
                 type={"button"}
+                disabled={updateUserMutation.isPending}
                 onClick={handleUpdateDisplayName}
               >
                 수정
@@ -354,32 +372,57 @@ export default function UserDetailForm({
             label={"이메일"}
             value={form.watch("email") || "-"}
           />
-          {form.watch("role") === 1 && (
+          {(form.watch("role") === 1 || form.watch("role") === 3) && (
             <CommonForm.CheckBox
               label={"추천모델"}
               checked={form.watch("paymodel") === "Y"}
+              disabled={updateUserMutation.isPending}
               onChange={updateUserPayModel}
               name={"paymodel"}
               checkboxLabel={form.watch("paymodel") === "Y" ? "ON" : "OFF"}
             />
           )}
-          {form.watch("role") === 2 && (
-            <CommonForm.TextAreaRow
-              label={"소개글"}
-              value={form.watch("description") || ""}
-              name={"description"}
-              textareaClassName={cn("min-h-[192px]")}
-            >
-              <div className={cn("ml-2")}>
-                <Button
-                  variant={"outline"}
-                  type={"button"}
-                  onClick={handleUpdateDescription}
-                >
-                  수정
-                </Button>
-              </div>
-            </CommonForm.TextAreaRow>
+          {(form.watch("role") === 2 || form.watch("role") === 4) && (
+            <>
+              <CommonForm.TextAreaRow
+                label={"소개글"}
+                value={form.watch("description") || ""}
+                disabled={updateUserMutation.isPending}
+                name={"description"}
+                textareaClassName={cn("min-h-[192px]")}
+              >
+                <div className={cn("ml-2")}>
+                  <Button
+                    variant={"outline"}
+                    type={"button"}
+                    disabled={updateUserMutation.isPending}
+                    onClick={() => void handleUpdateDesignerText("description")}
+                  >
+                    수정
+                  </Button>
+                </div>
+              </CommonForm.TextAreaRow>
+              <CommonForm.TextAreaRow
+                label="예약 방법 안내"
+                disabled={updateUserMutation.isPending}
+                name="storeReservationNotice"
+                value={form.watch("storeReservationNotice") || ""}
+                textareaClassName="min-h-[192px]"
+              >
+                <div className="ml-2">
+                  <Button
+                    variant="outline"
+                    type="button"
+                    disabled={updateUserMutation.isPending}
+                    onClick={() =>
+                      void handleUpdateDesignerText("storeReservationNotice")
+                    }
+                  >
+                    수정
+                  </Button>
+                </div>
+              </CommonForm.TextAreaRow>
+            </>
           )}
         </FormGroup>
         <FormGroup title={"사진 정보"}>

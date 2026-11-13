@@ -5,12 +5,8 @@ import {
   GetUsersResponse,
   UpdateUserBlockRequest,
   UpdateUserBlockResponse,
-  UpdateUserDescriptionRequest,
-  UpdateUserDescriptionResponse,
-  UpdateUserDisplayNameRequest,
-  UpdateUserDisplayNameResponse,
-  UpdateUserPayModelRequest,
-  UpdateUserPayModelResponse,
+  UpdateUserRequest,
+  UpdateUserResponse,
   userAPI,
 } from "@/apis/user";
 import {
@@ -71,60 +67,14 @@ export const useUpdateUserBlockMutation = (
     ...config,
   });
 
-export const useUpdateUserDescriptionMutation = (
+export const useUpdateUserMutation = (
   config?: Omit<
-    UseMutationOptions<
-      UpdateUserDescriptionResponse,
-      Error,
-      UpdateUserDescriptionRequest
-    >,
+    UseMutationOptions<UpdateUserResponse, Error, UpdateUserRequest>,
     "mutationFn"
   >,
-): UseMutationResult<
-  UpdateUserDescriptionResponse,
-  Error,
-  UpdateUserDescriptionRequest
-> =>
+) =>
   useMutation({
-    mutationFn: (request) => userAPI.updateDescription(request),
-    ...config,
-  });
-
-export const useUpdateUserPayModelMutation = (
-  config?: Omit<
-    UseMutationOptions<
-      UpdateUserPayModelResponse,
-      Error,
-      UpdateUserPayModelRequest
-    >,
-    "mutationFn"
-  >,
-): UseMutationResult<
-  UpdateUserPayModelResponse,
-  Error,
-  UpdateUserPayModelRequest
-> =>
-  useMutation({
-    mutationFn: (request) => userAPI.updatePayModel(request),
-    ...config,
-  });
-
-export const useUpdateUserDisplayNameMutation = (
-  config?: Omit<
-    UseMutationOptions<
-      UpdateUserDisplayNameResponse,
-      Error,
-      UpdateUserDisplayNameRequest
-    >,
-    "mutationFn"
-  >,
-): UseMutationResult<
-  UpdateUserDisplayNameResponse,
-  Error,
-  UpdateUserDisplayNameRequest
-> =>
-  useMutation({
-    mutationFn: (request) => userAPI.updateDisplayName(request),
+    mutationFn: (request: UpdateUserRequest) => userAPI.update(request),
     ...config,
   });
 

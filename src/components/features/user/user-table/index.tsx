@@ -2,21 +2,21 @@
 
 import { CellContext, ColumnDef, Row } from "@tanstack/react-table";
 import CommonPagination, {
-  CommonPaginationProps
+  CommonPaginationProps,
 } from "@/components/shared/common-pagination";
 import CommonTable, {
-  CommonTableProps
+  CommonTableProps,
 } from "@/components/shared/common-table";
 import { IUser, UserRoleType } from "@/models/users";
 import React, { useCallback, useState } from "react";
 
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import ImageTable from "@/components/shared/image-table";
-import UserRightDrawer from "@/components/features/user/user-right-drawer";
+import UserDetailModal from "@/components/features/user/user-detail-modal";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
 import { getUserRole } from "@/utils/user";
-import { useDrawer } from "@/stores/drawer";
+
 import { useUsersContext } from "@/components/contexts/users-context";
 
 interface UserTableProps
@@ -41,7 +41,7 @@ function UserTable({
   ...props
 }: UserTableProps) {
   const { isPhotoMode } = useUsersContext();
-  const { openDrawer } = useDrawer();
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
@@ -66,7 +66,7 @@ function UserTable({
         return cellValue;
       },
       size: 80,
-      enableSorting: false
+      enableSorting: false,
     },
     {
       accessorKey: "displayName",
@@ -74,13 +74,13 @@ function UserTable({
       cell: (info) => (
         <span
           className={cn(
-            "cursor-pointer text-secondary-foreground hover:underline"
+            "cursor-pointer text-secondary-foreground hover:underline",
           )}
         >
           {info.getValue() as string}
         </span>
       ),
-      enableSorting: false
+      enableSorting: false,
     },
     {
       accessorKey: "role",
@@ -96,7 +96,7 @@ function UserTable({
         }
       },
       size: 120,
-      enableSorting: false
+      enableSorting: false,
     },
     {
       accessorKey: "createdAt",
@@ -104,7 +104,7 @@ function UserTable({
       cell: (info) =>
         formatDate(info.getValue() as string, "YYYY.MM.DD HH:mm") || "-",
       size: 160,
-      enableSorting: true
+      enableSorting: true,
     },
     {
       accessorKey: "recentLoginTime",
@@ -114,7 +114,7 @@ function UserTable({
         return value ? formatDate(value, "YYYY.MM.DD HH:mm:ss") || "-" : "-";
       },
       size: 180,
-      enableSorting: true
+      enableSorting: true,
     },
     {
       accessorKey: "recentRealLoginTime",
@@ -124,7 +124,7 @@ function UserTable({
         return value ? formatDate(value, "YYYY.MM.DD HH:mm:ss") || "-" : "-";
       },
       size: 180,
-      enableSorting: true
+      enableSorting: true,
     },
     ...(showModelColumns
       ? [
@@ -140,7 +140,7 @@ function UserTable({
               );
             },
             size: 100,
-            enableSorting: false
+            enableSorting: false,
           } as ColumnDef<IUser>,
           {
             accessorKey: "isRecommended",
@@ -154,8 +154,8 @@ function UserTable({
               );
             },
             size: 100,
-            enableSorting: false
-          } as ColumnDef<IUser>
+            enableSorting: false,
+          } as ColumnDef<IUser>,
         ]
       : []),
     {
@@ -170,7 +170,7 @@ function UserTable({
         }
       },
       size: 80,
-      enableSorting: false
+      enableSorting: false,
     },
     {
       accessorKey: "isBlocked",
@@ -188,13 +188,13 @@ function UserTable({
         }
       },
       size: 80,
-      enableSorting: false
-    }
+      enableSorting: false,
+    },
   ];
 
   const handleClickRow = useCallback((row: Row<IUser>) => {
     setSelectedUserId(row.original?.id);
-    openDrawer();
+    setDetailOpen(true);
   }, []);
 
   return (
@@ -211,7 +211,7 @@ function UserTable({
             return (
               <div
                 className={cn(
-                  "w-full h-full relative flex cursor-pointer items-center justify-center"
+                  "w-full h-full relative flex cursor-pointer items-center justify-center",
                 )}
               >
                 {user.profilePictureURL ? (
@@ -232,7 +232,7 @@ function UserTable({
                     {isModel && (
                       <span
                         className={cn(
-                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold"
+                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold",
                         )}
                       >
                         모델
@@ -241,7 +241,7 @@ function UserTable({
                     {isDesigner && (
                       <span
                         className={cn(
-                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold"
+                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold",
                         )}
                       >
                         디자이너
@@ -256,7 +256,7 @@ function UserTable({
                     {user.isBreakTime && (
                       <span
                         className={cn(
-                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold"
+                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold",
                         )}
                       >
                         휴식중
@@ -265,7 +265,7 @@ function UserTable({
                     {user.isRecommended && (
                       <span
                         className={cn(
-                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold"
+                          "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold",
                         )}
                       >
                         추천모델
@@ -294,7 +294,12 @@ function UserTable({
           onSizeChange={onSizeChange}
         />
       )}
-      <UserRightDrawer userId={selectedUserId!} onRefresh={onRefresh} />
+      <UserDetailModal
+        isOpen={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        userId={selectedUserId ?? 0}
+        onRefresh={onRefresh}
+      />
     </div>
   );
 }

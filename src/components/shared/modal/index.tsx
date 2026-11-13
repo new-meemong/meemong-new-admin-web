@@ -4,7 +4,7 @@ import * as React from "react";
 
 import {
   ModalContextProps,
-  ModalProvider
+  ModalProvider,
 } from "@/components/shared/modal/context";
 
 import { cn } from "@/lib/utils";
@@ -12,6 +12,8 @@ import { createPortal } from "react-dom";
 
 interface ModalProps extends ModalContextProps {
   isOpen: boolean;
+  /** Keep the current form mounted while a related detail modal is displayed. */
+  suspended?: boolean;
   onClickOutside?: () => void;
   children: React.ReactNode;
   className?: string;
@@ -19,6 +21,7 @@ interface ModalProps extends ModalContextProps {
 
 export function Modal({
   isOpen,
+  suspended = false,
   onClickOutside,
   children,
   className,
@@ -41,7 +44,7 @@ export function Modal({
   }, [isOpen]);
 
   React.useEffect(() => {
-    if (!isOpen || !rest.onClose) return;
+    if (!isOpen || suspended || !rest.onClose) return;
     const onClose = rest.onClose;
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -50,7 +53,7 @@ export function Modal({
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [isOpen, rest.onClose]);
+  }, [isOpen, suspended, rest.onClose]);
 
   // 모달이 보이는 동안(닫힘 애니메이션 포함) 배경 페이지로 스크롤이 넘어가지 않게 잠급니다.
   React.useEffect(() => {
@@ -68,15 +71,17 @@ export function Modal({
     xs: "max-w-[480px] h-[562px] min-w-[360px]",
     sm: "max-w-[768px] h-[620px]",
     md: "max-w-[1024px] h-[720px] min-w-[768px]",
-    lg: "max-w-[1400px] h-[800px] min-w-[1200px]"
+    lg: "max-w-[1400px] h-[800px] min-w-[1200px]",
   };
 
   return createPortal(
     <ModalProvider {...rest}>
       <div
+        aria-hidden={suspended || undefined}
+        style={suspended ? { display: "none" } : undefined}
         className={cn(
           "fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity",
-          closing ? "animate-fade-out" : "animate-fade-in"
+          closing ? "animate-fade-out" : "animate-fade-in",
         )}
         onClick={() => {
           if (onClickOutside) {
@@ -90,7 +95,7 @@ export function Modal({
             "duration-300 ease-out",
             closing ? "animate-modal-out" : "animate-modal-in",
             sizeClass[rest.size || "sm"],
-            className
+            className,
           )}
           onClick={(e) => e.stopPropagation()}
         >
@@ -98,6 +103,6 @@ export function Modal({
         </div>
       </div>
     </ModalProvider>,
-    document.body
+    document.body,
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { PaginationType, SearchType } from "@/models/common";
+import { PaginationType } from "@/models/common";
 import {
   SearchForm,
   SearchFormInput,
@@ -8,7 +8,7 @@ import {
   SearchFormSelectBox
 } from "@/components/shared/search-form";
 
-import { BlockType } from "@/models/users";
+import { BlockType, UserSearchType } from "@/models/users";
 import { Checkbox } from "@/components/ui/checkbox";
 import { IUseSearchMethods } from "@/components/shared/search-form/useSearchMethods";
 import React from "react";
@@ -21,7 +21,7 @@ type BlockTypeWithAll = BlockType | "ALL";
 export type IUserSearchParams = {
   role?: string;
   blockType?: BlockTypeWithAll;
-  searchType?: SearchType;
+  searchType?: UserSearchType;
   searchKeyword?: string;
   brandId?: string;
 } & PaginationType;
@@ -31,12 +31,13 @@ interface UserSearchFormProps extends SearchFormProps {
   className?: string;
 }
 
-const USER_SEARCH_TYPE_OPTIONS: { value: SearchType; label: string }[] = [
+const USER_SEARCH_TYPE_OPTIONS: { value: UserSearchType; label: string }[] = [
   { value: "USERS_ID", label: "아이디" },
   { value: "NAME", label: "닉네임" },
   { value: "NAME_EQUALS", label: "닉네임(일치)" },
   { value: "PHONE", label: "전화번호" },
-  { value: "PROFILE_DESCRIPTION", label: "프로필 소개" }
+  { value: "PROFILE_DESCRIPTION", label: "프로필 소개" },
+  { value: "STORE_RESERVATION_NOTICE", label: "예약안내" }
 ];
 
 function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
@@ -58,7 +59,7 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
   const roleValue = methods.params.role ?? "ALL";
   const blockTypeValue = (methods.params.blockType ??
     "ALL") as BlockTypeWithAll;
-  const searchTypeValue = (methods.params.searchType ?? "NAME") as SearchType;
+  const searchTypeValue = (methods.params.searchType ?? "NAME") as UserSearchType;
   const searchKeywordValue = methods.params.searchKeyword ?? "";
   const brandIdValue = methods.params.brandId ?? "ALL";
   const isDesignerRole = roleValue === "2";
@@ -119,7 +120,7 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
   const handleSearchTypeChange = React.useCallback(
     ({ value }: { key: keyof IUserSearchParams; value: string }) => {
       const nextSearchType =
-        !isDesignerRole && value === "BRAND" ? "NAME" : (value as SearchType);
+        !isDesignerRole && value === "BRAND" ? "NAME" : (value as UserSearchType);
 
       updateSearchParams((prev) => ({
         ...prev,
@@ -132,6 +133,12 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
     },
     [isDesignerRole, updateSearchParams]
   );
+
+  const handleSearchKeywordChange: React.ChangeEventHandler<HTMLInputElement> =
+    (event) => {
+      const searchKeyword = event.target.value;
+      updateSearchParams((prev) => ({ ...prev, searchKeyword, page: 1 }));
+    };
 
   const handleBrandChange = React.useCallback(
     ({ value }: { key: keyof IUserSearchParams; value: string }) => {
@@ -185,7 +192,7 @@ function UserSearchForm({ methods, className, ...props }: UserSearchFormProps) {
           <SearchFormInput
             className={cn("w-[165px]")}
             name="searchKeyword"
-            onChange={methods.handleChangeText}
+            onChange={handleSearchKeywordChange}
             value={searchKeywordValue}
           />
         )}

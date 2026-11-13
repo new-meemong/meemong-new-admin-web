@@ -11,7 +11,7 @@ import RightDrawer, {
 } from "@/components/shared/right-drawer";
 import { ChevronRight } from "lucide-react";
 import { useGetUserDetailQuery } from "@/queries/users";
-import UserDetailForm from "@/components/features/user/user-right-drawer/user-detail-form";
+import UserDetailForm from "@/components/features/user/user-detail-form";
 import { Button } from "@/components/ui/button";
 
 const SupportChatOutreachDialog = lazy(
@@ -112,7 +112,10 @@ function UserRightDrawer({
             onSubmit={() => {
               closeDrawer();
             }}
-            onRefresh={onRefresh}
+            onRefresh={() => {
+              void getUserDetailQuery.refetch();
+              onRefresh();
+            }}
           />
         ) : (
           <div>...loading</div>

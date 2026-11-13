@@ -17,7 +17,7 @@ type NaverMaps = {
   };
 };
 
-export default function TimeSaleMenuStoreMap({
+export default function AppPreviewStoreMap({
   lat,
   lng,
 }: {

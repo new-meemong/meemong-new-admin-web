@@ -1,7 +1,7 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import TimeSaleMenuPreviewImageViewer from "./image-viewer";
+import AppPreviewImageViewer from "./image-viewer";
 
 const images = [
   { src: "https://example.test/first.jpg" },
@@ -12,7 +12,7 @@ describe("phone preview image viewer", () => {
   it("renders inside its host instead of a document-body portal", () => {
     const html = renderToStaticMarkup(
       <section aria-label="phone">
-        <TimeSaleMenuPreviewImageViewer
+        <AppPreviewImageViewer
           returnFocusTo={null}
           images={images}
           initialIndex={1}
@@ -29,7 +29,7 @@ describe("phone preview image viewer", () => {
   });
   it("omits image navigation for a single photo", () => {
     const html = renderToStaticMarkup(
-      <TimeSaleMenuPreviewImageViewer
+      <AppPreviewImageViewer
         images={[images[0]]}
         initialIndex={0}
         returnFocusTo={null}

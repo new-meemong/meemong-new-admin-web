@@ -56,7 +56,7 @@ vi.mock("@/components/shared/right-drawer", () => ({
   },
 }));
 vi.mock(
-  "@/components/features/user/user-right-drawer/user-detail-form",
+  "@/components/features/user/user-detail-form",
   () => ({ default: () => <div>회원 상세 폼</div> }),
 );
 vi.mock("@/components/shared/image-swiper", () => ({

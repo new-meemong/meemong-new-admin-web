@@ -1,3 +1,8 @@
+import type { UserDesignerInfo, UserModelInfo } from "./user-profile";
+import type { SearchType } from "@/models/common";
+
+export type UserSearchType = SearchType | "STORE_RESERVATION_NOTICE";
+
 export type UserRoleType = 1 | 2 | 3 | 4; // 유저 타입
 export type UserListRoleType = 1 | 2; // 유저 목록 조회용 타입
 
@@ -14,7 +19,7 @@ export type BlockInfoType = {
 export type UserPhotoType = {
   id: number | string;
   s3Path: string | null;
-  fileType: string;
+  fileType: string | null;
   source: "UserFiles" | "BeautyApplicationImages" | "Users";
   sourceId?: number;
   beautyApplicationId?: number;
@@ -45,6 +50,10 @@ export interface IUser {
 }
 
 export interface IUserForm extends IUser {
+  sex?: string | null;
+  snsInfoList?: { id: number; type: string; value: string }[];
+  modelInfo?: UserModelInfo | null;
+  designerInfo?: UserDesignerInfo | null;
   isWithdraw: boolean;
   isBlocked: boolean;
   name: string; // 이름
