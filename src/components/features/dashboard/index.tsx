@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -33,7 +33,20 @@ export default function DashboardPageContent() {
   const [range, setRange] = useState(() => dateRange(30));
   const [draft, setDraft] = useState(range);
   const [preset, setPreset] = useState("30");
-  const error = validateRange(draft);
+  // Do not prerender a date-dependent max: React can retain yesterday's
+  // HTML attribute during hydration even when the client computes today.
+  const [today, setToday] = useState<string>();
+  useEffect(() => {
+    const refreshToday = () => setToday(kstToday());
+    refreshToday();
+    const timer = window.setInterval(refreshToday, 60_000);
+    window.addEventListener("focus", refreshToday);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refreshToday);
+    };
+  }, []);
+  const error = validateRange(draft, today);
   function choosePeriod(value: string) {
     setPreset(value);
     const next = dateRange(Number(value));
@@ -120,12 +133,13 @@ export default function DashboardPageContent() {
                         ? parseISO(draft.endDateKST)
                         : undefined,
                     }}
-                    disabled={{ after: parseISO(kstToday()) }}
-                    onSelect={(selection, triggerDate) =>
+                    disabled={{ after: parseISO(today ?? kstToday()) }}
+                    onSelect={(selection, triggerDate) => {
+                      setPreset("custom");
                       setDraft((current) =>
                         calendarRangeDraft(current, selection, triggerDate),
-                      )
-                    }
+                      );
+                    }}
                   />
                   <p className="px-3 pb-3 text-xs text-muted-foreground">
                     최대 90일 · 날짜 선택 후 조회를 눌러주세요.
@@ -136,20 +150,22 @@ export default function DashboardPageContent() {
                 aria-label={section === "activity" ? "탈퇴 시작일" : "시작일"}
                 type="date"
                 value={draft.startDateKST}
-                max={kstToday()}
-                onChange={(event) =>
-                  setDraft({ ...draft, startDateKST: event.target.value })
-                }
+                max={today}
+                onChange={(event) => {
+                  setPreset("custom");
+                  setDraft({ ...draft, startDateKST: event.target.value });
+                }}
               />
               <span>~</span>
               <input
                 aria-label={section === "activity" ? "탈퇴 마감일" : "마감일"}
                 type="date"
                 value={draft.endDateKST}
-                max={kstToday()}
-                onChange={(event) =>
-                  setDraft({ ...draft, endDateKST: event.target.value })
-                }
+                max={today}
+                onChange={(event) => {
+                  setPreset("custom");
+                  setDraft({ ...draft, endDateKST: event.target.value });
+                }}
               />
               <Button type="submit" variant="ghost" disabled={!!error}>
                 조회
