@@ -10,6 +10,9 @@ import type {
   UserStatistics,
   WithdrawalStatistics,
   LegacyMongDetailsResponse,
+  PaymentStatistics,
+  V3HairConsultationStatistics,
+  V3HairConsultationSummary,
 } from "./types";
 
 const BASE_URL = "/api/v1/un-auth/dashboards";
@@ -36,6 +39,20 @@ export const dashboardAPI = {
   mongTotals: (range: DashboardDateRange, signal?: AbortSignal) =>
     getStatistics<DailyStatistics<MongTotalsDay>>(
       "mong-statistics/totals",
+      range,
+      signal,
+    ),
+  payments: (range: DashboardDateRange, signal?: AbortSignal) =>
+    getStatistics<PaymentStatistics>("payment-statistics", range, signal),
+  hairConsultations: (range: DashboardDateRange, signal?: AbortSignal) =>
+    getStatistics<V3HairConsultationStatistics>(
+      "v3-hair-consultation-statistics",
+      range,
+      signal,
+    ),
+  hairConsultationSummary: (range: DashboardDateRange, signal?: AbortSignal) =>
+    getStatistics<V3HairConsultationSummary>(
+      "v3-hair-consultation-statistics/summary",
       range,
       signal,
     ),

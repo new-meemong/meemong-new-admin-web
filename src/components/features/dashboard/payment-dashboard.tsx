@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import GrowthPassEstimateTrend from "./growth-pass-estimate-trend";
+import { KrwPaymentSection } from "./krw-payment-sections";
 import type {
   DashboardDateRange,
   DashboardRoleFilter,
@@ -121,8 +122,14 @@ export default function PaymentDashboard({
   }));
   return (
     <div className="dashboard-sections">
+      <KrwPaymentSection range={range} role={role} />
+      {role !== "designer" && <PassPayments range={range} />}
+      <div className="dashboard-section-heading">
+        <h2>몽</h2>
+        <p>충전 · 사용 · 보상 · 몽 단위</p>
+      </div>
       <QueryState query={mong}>
-        <div className="dashboard-metrics three">
+        <div className="dashboard-metrics two">
           <Metric
             label="총 충전몽"
             value={formatNumber(mong.data ? summary.charged : null, "몽")}
@@ -130,28 +137,13 @@ export default function PaymentDashboard({
             color="#34b878"
           />
           <Metric
-            label="매출"
-            value={formatNumber(
-              mong.data ? summary.displayRevenue : null,
-              "원",
-            )}
-            detail={
-              summary.unknown
-                ? `미확인 ${formatNumber(summary.unknown, "건")}`
-                : "구매 당시 결제액 · 환불 차감 전"
-            }
-          />
-          <Metric
-            label="일 평균 충전"
+            label="일 평균 충전몽"
             value={formatNumber(
               mong.data ? summary.charged / dayCount(range) : null,
               "몽",
             )}
           />
         </div>
-      </QueryState>
-      {role !== "model" && <GrowthPassEstimateTrend />}
-      <QueryState query={mong}>
         <ChargeTrend days={days} role={role} range={range} />
         <div className="dashboard-grid">
           <Panel
@@ -182,6 +174,9 @@ export default function PaymentDashboard({
             />
           </Panel>
         </div>
+      </QueryState>
+      {role !== "model" && <GrowthPassEstimateTrend />}
+      <QueryState query={mong}>
         <Panel
           title="몽 보상"
           description="실제 지급 원장 기준 · 충전 보너스·환불·관리자 지급 제외"
@@ -204,7 +199,6 @@ export default function PaymentDashboard({
           />
         </Panel>
       </QueryState>
-      {role !== "designer" && <PassPayments range={range} />}
       <PresetPrices />
     </div>
   );

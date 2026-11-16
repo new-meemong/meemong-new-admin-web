@@ -33,11 +33,15 @@ export function validateRange(range: DashboardDateRange, today = kstToday()) {
     /^\d{4}-\d{2}-\d{2}$/.test(value) &&
     Number.isFinite(Date.parse(value)) &&
     new Date(value).toISOString().slice(0, 10) === value;
-  if (!validDate(range.startDateKST) || !validDate(range.endDateKST))
+  if (!range.startDateKST || !range.endDateKST)
     return "유효한 시작일과 마감일을 입력해주세요.";
+  if (!validDate(range.startDateKST) || !validDate(range.endDateKST))
+    return "존재하지 않는 날짜입니다. 날짜를 다시 확인해 주세요.";
   if (range.endDateKST > today) return "미래 날짜는 조회할 수 없습니다.";
-  if (dayCount(range) < 1 || dayCount(range) > 90)
-    return "시작일과 마감일을 포함해 최대 90일까지 조회할 수 있습니다.";
+  if (range.endDateKST < range.startDateKST)
+    return "종료일은 시작일 이후로 선택해 주세요.";
+  if (dayCount(range) > 90)
+    return "조회 기간은 최대 90일까지 선택할 수 있습니다.";
   return null;
 }
 export const sumKnown = (values: (number | null)[]) =>

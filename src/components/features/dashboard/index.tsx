@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { CalendarDays } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -18,13 +18,22 @@ import HomeDashboard from "./home-dashboard";
 import PaymentDashboard from "./payment-dashboard";
 import ReviewSaleDashboard from "./review-sale-dashboard";
 import ActivityDashboard from "./activity-dashboard";
+import HairConsultationDashboard from "./hair-consultation-dashboard";
 import "./dashboard.css";
 
-type DashboardSection = "home" | "payments" | "reviews" | "activity";
+type DashboardSection =
+  | "home"
+  | "payments"
+  | "reviews"
+  | "hairConsultations"
+  | "activity";
+/** 회원 역할 조건이 없는 통계 탭은 역할 토글을 전체로 고정합니다. */
+const roleFixedSections: DashboardSection[] = ["reviews", "hairConsultations"];
 const sections: { value: DashboardSection; label: string }[] = [
   { value: "home", label: "홈" },
   { value: "payments", label: "결제" },
   { value: "reviews", label: "리뷰특가" },
+  { value: "hairConsultations", label: "헤어컨설팅" },
   { value: "activity", label: "활동" },
 ];
 export default function DashboardPageContent() {
@@ -74,9 +83,9 @@ export default function DashboardPageContent() {
           <div className="dashboard-filters">
             <Segments
               label="회원 역할"
-              value={section === "reviews" ? "all" : role}
+              value={roleFixedSections.includes(section) ? "all" : role}
               onChange={setRole}
-              disabled={section === "reviews"}
+              disabled={roleFixedSections.includes(section)}
               options={[
                 { value: "all", label: "전체" },
                 { value: "model", label: "고객" },
@@ -85,7 +94,7 @@ export default function DashboardPageContent() {
             />
             {section === "activity" && (
               <span className="dashboard-note">
-                행동 지표는 당일 고정 · 탈퇴 기간
+                행동 지표 카드는 당일 고정 · 추이·탈퇴는 선택 기간
               </span>
             )}
             <Segments
@@ -116,7 +125,12 @@ export default function DashboardPageContent() {
                     variant="ghost"
                     aria-label="기간 달력 열기"
                   >
-                    <CalendarDays size={16} aria-hidden />
+                    <Image
+                      src="/dashboard/calendar.svg"
+                      width={14}
+                      height={14}
+                      alt=""
+                    />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -147,7 +161,7 @@ export default function DashboardPageContent() {
                 </PopoverContent>
               </Popover>
               <input
-                aria-label={section === "activity" ? "탈퇴 시작일" : "시작일"}
+                aria-label="시작일"
                 type="date"
                 value={draft.startDateKST}
                 max={today}
@@ -158,7 +172,7 @@ export default function DashboardPageContent() {
               />
               <span>~</span>
               <input
-                aria-label={section === "activity" ? "탈퇴 마감일" : "마감일"}
+                aria-label="마감일"
                 type="date"
                 value={draft.endDateKST}
                 max={today}
@@ -174,7 +188,7 @@ export default function DashboardPageContent() {
           </div>
           {error && (
             <p className="dashboard-filter-error" role="alert">
-              {error} 기존 조회 결과를 표시합니다.
+              {error}
             </p>
           )}
         </div>
@@ -185,6 +199,9 @@ export default function DashboardPageContent() {
           <PaymentDashboard range={range} role={role} />
         )}{" "}
         {section === "reviews" && <ReviewSaleDashboard range={range} />}{" "}
+        {section === "hairConsultations" && (
+          <HairConsultationDashboard range={range} />
+        )}{" "}
         {section === "activity" && (
           <ActivityDashboard range={range} role={role} />
         )}

@@ -14,6 +14,9 @@ import totals from "./__fixtures__/mong-statistics-totals.json";
 import passes from "./__fixtures__/meemong-pass-statistics.json";
 import sales from "./__fixtures__/time-sale-menu-statistics.json";
 import presets from "./__fixtures__/presets.json";
+import payments from "./__fixtures__/payment-statistics.json";
+import hair from "./__fixtures__/v3-hair-consultation-statistics.json";
+import hairSummary from "./__fixtures__/v3-hair-consultation-statistics-summary.json";
 const fixtures: Record<string, unknown> = {
   "user-statistics": users,
   "withdrawal-statistics": withdrawals,
@@ -22,6 +25,9 @@ const fixtures: Record<string, unknown> = {
   "meemong-pass-statistics": passes,
   "time-sale-menu-statistics": sales,
   presets,
+  "payment-statistics": payments,
+  "v3-hair-consultation-statistics": hair,
+  "v3-hair-consultation-statistics/summary": hairSummary,
 };
 const range = { startDateKST: "2026-09-01", endDateKST: "2026-09-10" };
 beforeEach(() => {
@@ -105,6 +111,9 @@ describe("dashboard server contracts", () => {
     ["mongTotals", "mong-statistics/totals"],
     ["passes", "meemong-pass-statistics"],
     ["timeSales", "time-sale-menu-statistics"],
+    ["payments", "payment-statistics"],
+    ["hairConsultations", "v3-hair-consultation-statistics"],
+    ["hairConsultationSummary", "v3-hair-consultation-statistics/summary"],
   ] as const)(
     "queries %s through the API boundary with KST dates",
     async (key, endpoint) => {

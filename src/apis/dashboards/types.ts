@@ -185,3 +185,92 @@ export type LegacyMongDetailsResponse = {
     usedMongByType: Record<string, number>;
   }[];
 };
+
+/** 원화 결제 통계의 금액·건수·환불 필드입니다. 확인 불가 금액은 null입니다. */
+export type KrwPaymentTotals = {
+  purchaseCount: number;
+  knownRefundedCount: number;
+  unknownRefundStatusCount: number;
+  knownTotalPaymentAmountKRW: number;
+  unknownTotalPaymentCount: number;
+  knownRefundedPaymentAmountKRW: number;
+  unknownRefundedPaymentCount: number;
+  refundedCount: number | null;
+  totalPaymentAmountKRW: number | null;
+  refundedPaymentAmountKRW: number | null;
+  netPaymentAmountKRW: number | null;
+};
+export type PaymentCategory =
+  | "MONG_CHARGE"
+  | "MEEMONG_PASS"
+  | "THUNDER"
+  | "V3_HAIR_CONSULTATION";
+export type PaymentStatisticsItem = KrwPaymentTotals & {
+  paymentCategory: PaymentCategory;
+  platform: string;
+  productId: string | null;
+};
+export type PaymentStatisticsDay = {
+  dateKST: string;
+  totals: KrwPaymentTotals;
+  itemList: PaymentStatisticsItem[];
+};
+export type PaymentStatistics = DailyStatistics<PaymentStatisticsDay>;
+
+export type V3StorePayment = Omit<
+  KrwPaymentTotals,
+  "knownRefundedCount" | "unknownRefundStatusCount" | "netPaymentAmountKRW"
+>;
+export type V3MongPayment = {
+  purchaseCount: number;
+  knownRefundedCount: number;
+  unknownRefundStatusCount: number;
+  totalUsedMongAmount: number;
+  knownRefundedUsedMongAmount: number;
+  refundedCount: number | null;
+  refundedUsedMongAmount: number | null;
+  netUsedMongAmount: number | null;
+};
+export type V3Rating = {
+  ratingCountList: { rating: number; count: number }[];
+  ratedAnswerCount: number;
+  averageRating: number | null;
+};
+export type V3HairConsultationDay = {
+  dateKST: string;
+  deepStatistics: {
+    createdConsultationCount: number;
+    createdAnswerCount: number;
+    paidConsultationCount: number;
+    paymentRate: number | null;
+    storePayment: V3StorePayment;
+    rating: V3Rating;
+    mongPayment: V3MongPayment;
+  };
+  quickStatistics: {
+    createdConsultationCount: number;
+    createdAnswerCount: number;
+    mongPayment: V3MongPayment;
+  };
+};
+export type V3HairConsultationStatistics =
+  DailyStatistics<V3HairConsultationDay>;
+type V3AnswerSummary = {
+  createdConsultationCount: number;
+  answeredConsultationCount: number;
+  answerCount: number;
+  answerRate: number | null;
+  mongPayment: V3MongPayment;
+};
+export type V3HairConsultationSummary = {
+  meta: DashboardMeta;
+  data: {
+    deepStatistics: V3AnswerSummary & {
+      paidConsultationCount: number;
+      paymentRate: number | null;
+      storePayment: V3StorePayment;
+      rating: V3Rating;
+    };
+    quickStatistics: V3AnswerSummary;
+  };
+};

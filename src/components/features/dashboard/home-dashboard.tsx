@@ -5,16 +5,12 @@ import type {
 } from "@/apis/dashboards/types";
 import {
   useDashboardMong,
+  useDashboardPayments,
   useDashboardTimeSales,
   useDashboardUsers,
   useDashboardWithdrawals,
 } from "@/queries/dashboards";
-import {
-  ascending,
-  formatNumber,
-  paymentSummary,
-  roleCount,
-} from "./statistics";
+import { ascending, formatNumber, roleCount } from "./statistics";
 import {
   Funnel,
   Metric,
@@ -24,6 +20,8 @@ import {
 } from "./dashboard-widgets";
 import { ChargeTrend } from "./payment-dashboard";
 import { customerFunnel, saleSummary } from "./review-sale-dashboard";
+import { visibleSinglePaymentCategories } from "./krw-payments";
+import { HomeRevenueMetric, RevenueRoutes } from "./krw-payment-sections";
 
 export default function HomeDashboard({
   range,
@@ -33,28 +31,19 @@ export default function HomeDashboard({
   role: DashboardRoleFilter;
 }) {
   const mong = useDashboardMong(range);
+  const payments = useDashboardPayments(range);
   const users = useDashboardUsers(range);
   const sales = useDashboardTimeSales(range);
   const withdrawals = useDashboardWithdrawals(range);
-  const money = paymentSummary(mong.data?.dataList ?? [], role);
   const latestUser = ascending(users.data?.dataList ?? []).at(-1);
   const sale = saleSummary(sales.data?.dataList ?? []);
   const userDays = users.data?.dataList ?? [];
   const withdrawalDays = ascending(withdrawals.data?.dataList ?? []);
   return (
     <div className="dashboard-sections">
-      <div className="dashboard-metrics six">
-        <QueryState query={mong}>
-          <Metric
-            label="매출"
-            value={formatNumber(mong.data ? money.displayRevenue : null, "원")}
-            detail={
-              money.unknown
-                ? `미확인 ${formatNumber(money.unknown, "건")}`
-                : `1몽 = ${formatNumber(money.unitPrice, "원")}`
-            }
-            color="#34b878"
-          />
+      <div className="dashboard-metrics three">
+        <QueryState query={payments}>
+          <HomeRevenueMetric days={payments.data?.dataList ?? []} role={role} />
         </QueryState>
         <QueryState query={users}>
           <Metric
@@ -79,6 +68,8 @@ export default function HomeDashboard({
             detail={`고객 응답 기준 · 노출 ${formatNumber(sale.views, "회")}`}
           />
         </QueryState>
+      </div>
+      <div className="dashboard-metrics three">
         <QueryState query={users}>
           <Metric
             label="총 회원"
@@ -121,10 +112,13 @@ export default function HomeDashboard({
               "명",
             )}
             detail="선택 기간 합계"
-            color="#ff453a"
+            color="#ef4444"
           />
         </QueryState>
       </div>
+      <QueryState query={payments}>
+        <RevenueRoutes days={payments.data?.dataList ?? []} range={range} />
+      </QueryState>
       <QueryState query={mong}>
         <ChargeTrend
           days={mong.data?.dataList ?? []}
@@ -154,8 +148,14 @@ export default function HomeDashboard({
         </Panel>
       </div>
       <p className="dashboard-note">
-        매출은 몽 충전 결제액의 환불 차감 전 합계입니다. 미몽패스 결제는 결제
-        탭에서 별도로 확인할 수 있습니다. 오늘의 통계는 잠정값입니다.
+        매출은 몽 충전과 단건결제(고객 미몽패스·헤어컨설팅 심층답변
+        {visibleSinglePaymentCategories(payments.data?.dataList ?? []).includes(
+          "THUNDER",
+        )
+          ? "·빠른매칭"
+          : ""}
+        )의 원화 결제 합계이며 환불 차감 전 금액입니다. 테스트(Sandbox) 결제는
+        집계에서 제외됩니다. 오늘의 통계는 잠정값입니다.
       </p>
     </div>
   );

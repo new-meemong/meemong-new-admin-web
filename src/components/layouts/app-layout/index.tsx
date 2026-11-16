@@ -15,7 +15,7 @@ import SideNav from "@/components/layouts/app-layout/side-nav";
 import SideNavItem from "@/components/layouts/app-layout/side-nav/side-nav-item";
 import SideNavGroup from "@/components/layouts/app-layout/side-nav/side-nav-group";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 interface DefaultLayoutProps {
   children: React.ReactNode;
@@ -24,6 +24,7 @@ interface DefaultLayoutProps {
 
 function AppLayout({ children, className }: DefaultLayoutProps) {
   const router = useRouter();
+  const isDashboard = usePathname() === "/dashboard";
 
   const supportChatUnreadRooms = useSupportChatUnreadRoomCount();
 
@@ -45,10 +46,11 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
     <div
       className={cn(
         "app-layout flex min-h-screen flex-col md:flex-row",
+        isDashboard && "md:flex-col",
         className,
       )}
     >
-      <SideNav>
+      <SideNav drawerOnly={isDashboard}>
         <SideNavItem
           href={"/dashboard"}
           icon={<LayoutDashboard className="h-4 w-4" />}
@@ -74,7 +76,11 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
           icon={<MessagesSquare className="h-4 w-4" />}
           label={"상담 관리"}
           items={[
-            { href: "/support-chat", label: "상담함", badgeCount: supportChatUnreadRooms },
+            {
+              href: "/support-chat",
+              label: "상담함",
+              badgeCount: supportChatUnreadRooms,
+            },
             { href: "/support-chat-faq", label: "챗봇 FAQ" },
           ]}
         />

@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "startDateKST": "2026-09-10",
+    "endDateKST": "2026-09-10",
+    "timezone": "Asia/Seoul"
+  },
+  "dataCount": 1,
+  "dataList": [
+    {
+      "dateKST": "2026-09-10",
+      "deepStatistics": {
+        "createdConsultationCount": 4,
+        "createdAnswerCount": 9,
+        "paidConsultationCount": 2,
+        "paymentRate": 50,
+        "storePayment": {
+          "purchaseCount": 1,
+          "refundedCount": 0,
+          "knownTotalPaymentAmountKRW": 2900,
+          "unknownTotalPaymentCount": 0,
+          "knownRefundedPaymentAmountKRW": 0,
+          "unknownRefundedPaymentCount": 0,
+          "totalPaymentAmountKRW": 2900,
+          "refundedPaymentAmountKRW": 0
+        },
+        "rating": {
+          "ratingCountList": [
+            {
+              "rating": 1,
+              "count": 0
+            },
+            {
+              "rating": 2,
+              "count": 0
+            },
+            {
+              "rating": 3,
+              "count": 1
+            },
+            {
+              "rating": 4,
+              "count": 2
+            },
+            {
+              "rating": 5,
+              "count": 7
+            }
+          ],
+          "ratedAnswerCount": 10,
+          "averageRating": 4.6
+        },
+        "mongPayment": {
+          "purchaseCount": 1,
+          "knownRefundedCount": 0,
+          "unknownRefundStatusCount": 0,
+          "totalUsedMongAmount": 30,
+          "knownRefundedUsedMongAmount": 0,
+          "refundedCount": 0,
+          "refundedUsedMongAmount": 0,
+          "netUsedMongAmount": 30
+        }
+      },
+      "quickStatistics": {
+        "createdConsultationCount": 6,
+        "createdAnswerCount": 11,
+        "mongPayment": {
+          "purchaseCount": 11,
+          "knownRefundedCount": 0,
+          "unknownRefundStatusCount": 0,
+          "totalUsedMongAmount": 220,
+          "knownRefundedUsedMongAmount": 0,
+          "refundedCount": 0,
+          "refundedUsedMongAmount": 0,
+          "netUsedMongAmount": 220
+        }
+      }
+    }
+  ]
+}

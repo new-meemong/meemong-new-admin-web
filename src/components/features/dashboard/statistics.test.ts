@@ -39,15 +39,18 @@ describe("dashboard date and aggregation semantics", () => {
     });
     expect(dayCount(dateRange(90, "2026-09-23"))).toBe(90);
     expect(validateRange(dateRange(90, "2026-09-23"), "2026-09-23")).toBeNull();
-    expect(
-      validateRange(dateRange(91, "2026-09-23"), "2026-09-23"),
-    ).not.toBeNull();
+    expect(validateRange(dateRange(91, "2026-09-23"), "2026-09-23")).toBe(
+      "조회 기간은 최대 90일까지 선택할 수 있습니다.",
+    );
     expect(
       validateRange({ startDateKST: "2026-02-30", endDateKST: "2026-03-01" }),
-    ).not.toBeNull();
+    ).toBe("존재하지 않는 날짜입니다. 날짜를 다시 확인해 주세요.");
     expect(
-      validateRange({ startDateKST: "2026-09-24", endDateKST: "2026-09-23" }),
-    ).not.toBeNull();
+      validateRange(
+        { startDateKST: "2026-09-23", endDateKST: "2026-09-22" },
+        "2026-09-23",
+      ),
+    ).toBe("종료일은 시작일 이후로 선택해 주세요.");
     expect(
       validateRange(dateRange(1, "2026-09-24"), "2026-09-23"),
     ).not.toBeNull();

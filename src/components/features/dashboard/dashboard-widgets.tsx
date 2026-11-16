@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import type { ReactNode } from "react";
 import {
   ResponsiveContainer,
@@ -9,6 +10,7 @@ import {
   YAxis,
   Tooltip,
   Legend,
+  ReferenceLine,
   BarChart,
   Bar,
 } from "recharts";
@@ -46,20 +48,63 @@ export function Metric({
   value,
   detail,
   color = "#007aff",
+  badges = [],
+  markerSrc,
+  split,
 }: {
   label: string;
   value: string;
-  detail?: string;
+  detail?: string | string[];
   color?: string;
+  markerSrc?: string;
+  /** 확인 불가·집계 기준처럼 값 해석에 필요한 상태를 라벨 옆에 표시합니다. */
+  badges?: string[];
+  split?: { label: string; value: number; text: string; color: string }[];
 }) {
+  const splitTotal = split?.reduce((sum, part) => sum + part.value, 0) ?? 0;
   return (
     <div className="dashboard-metric">
       <div className="dashboard-metric-label">
-        <span style={{ background: color }} />
+        {markerSrc ? (
+          <Image src={markerSrc} width={6} height={6} alt="" />
+        ) : (
+          <span style={{ background: color }} />
+        )}
         {label}
+        {badges.map((badge) => (
+          <em key={badge} className="dashboard-badge">
+            {badge}
+          </em>
+        ))}
       </div>
       <strong>{value}</strong>
-      {detail && <p>{detail}</p>}
+      {split && (
+        <div className="dashboard-split">
+          <div className="dashboard-split-bar">
+            {split.map((part) => (
+              <span
+                key={part.label}
+                style={{
+                  width: `${splitTotal ? (part.value / splitTotal) * 100 : 0}%`,
+                  background: part.color,
+                }}
+              />
+            ))}
+          </div>
+          <ul>
+            {split.map((part) => (
+              <li key={part.label}>
+                <i style={{ background: part.color }} />
+                {part.label}
+                <b>{part.text}</b>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {(Array.isArray(detail) ? detail : detail ? [detail] : []).map((line) => (
+        <p key={line}>{line}</p>
+      ))}
     </div>
   );
 }
@@ -128,11 +173,24 @@ export function TrendChart({
   data,
   lines,
   height = 280,
+  splitByMonth = false,
+  preserveSeriesOrder = false,
+  unit = "",
 }: {
   data: object[];
   lines: { key: string; label: string; color: string; right?: boolean }[];
   height?: number;
+  splitByMonth?: boolean;
+  preserveSeriesOrder?: boolean;
+  unit?: string;
 }) {
+  const datedData = data as { dateKST: string; [key: string]: unknown }[];
+  const months = splitByMonth
+    ? [...new Set(datedData.map((day) => day.dateKST.slice(0, 7)))]
+    : [];
+  const plottedLines = splitByMonth
+    ? months.flatMap((month) => lines.map((line) => ({ ...line, month })))
+    : lines.map((line) => ({ ...line, month: undefined }));
   if (!data.length)
     return <div className="dashboard-state">조회된 데이터가 없습니다.</div>;
   return (
@@ -179,7 +237,7 @@ export function TrendChart({
           )}
           <Tooltip
             formatter={(value) =>
-              formatNumber(typeof value === "number" ? value : null)
+              formatNumber(typeof value === "number" ? value : null, unit)
             }
             contentStyle={{ borderRadius: 12, border: "1px solid #eee" }}
           />
@@ -187,17 +245,62 @@ export function TrendChart({
             align="left"
             iconType="plainline"
             wrapperStyle={{ fontSize: 12, paddingTop: 16 }}
+            content={
+              splitByMonth || preserveSeriesOrder
+                ? () => (
+                    <ul className="dashboard-chart-legend">
+                      {lines.map((line) => (
+                        <li key={line.key}>
+                          <i style={{ background: line.color }} />
+                          {line.label}
+                        </li>
+                      ))}
+                    </ul>
+                  )
+                : undefined
+            }
           />
-          {lines.map((line) => (
+          {splitByMonth &&
+            datedData
+              .filter((day) => day.dateKST.endsWith("-01"))
+              .map((day) => (
+                <ReferenceLine
+                  key={day.dateKST}
+                  yAxisId="left"
+                  x={day.dateKST}
+                  stroke="#c7c7cc"
+                  strokeDasharray="3 3"
+                  label={{
+                    value: `${Number(day.dateKST.slice(5, 7))}월 집계 시작`,
+                    position: "insideTopLeft",
+                    fill: "#6e6e73",
+                    fontSize: 10,
+                  }}
+                />
+              ))}
+          {plottedLines.map((line) => (
             <Line
-              key={line.key}
+              key={`${line.key}-${line.month ?? "all"}`}
               yAxisId={line.right ? "right" : "left"}
-              dataKey={line.key}
+              dataKey={
+                line.month
+                  ? (day: (typeof datedData)[number]) =>
+                      day.dateKST.startsWith(line.month!) ? day[line.key] : null
+                  : line.key
+              }
               name={line.label}
               stroke={line.color}
               type="monotone"
               strokeWidth={line.key === "charged" ? 1.3 : 2}
-              dot={data.length === 1}
+              dot={
+                line.month
+                  ? datedData.filter(
+                      (day) =>
+                        day.dateKST.startsWith(line.month!) &&
+                        day[line.key] != null,
+                    ).length === 1
+                  : data.length === 1
+              }
               connectNulls={false}
               isAnimationActive={false}
             />
@@ -305,6 +408,77 @@ export function Ranking({
         </li>
       ))}
     </ul>
+  );
+}
+export function StackedBarChart({
+  data,
+  bars,
+  height = 260,
+  unit = "",
+}: {
+  data: object[];
+  bars: { key: string; label: string; color: string }[];
+  height?: number;
+  unit?: string;
+}) {
+  if (!data.length || !bars.length)
+    return <div className="dashboard-state">조회된 데이터가 없습니다.</div>;
+  return (
+    <div
+      style={{ height }}
+      aria-label={bars.map((bar) => bar.label).join(" · ")}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={data}
+          margin={{ top: 16, right: 8, bottom: 4, left: 0 }}
+        >
+          <CartesianGrid
+            strokeDasharray="3 3"
+            vertical={false}
+            stroke="#e9e9eb"
+          />
+          <XAxis
+            dataKey="dateKST"
+            tickFormatter={(value) => String(value).slice(5).replace("-", ".")}
+            tickLine={false}
+            axisLine={false}
+            minTickGap={30}
+            fontSize={11}
+          />
+          <YAxis
+            tickFormatter={compact}
+            tickLine={false}
+            axisLine={false}
+            width={48}
+            fontSize={11}
+            allowDecimals={false}
+          />
+          <Tooltip
+            formatter={(value) =>
+              formatNumber(typeof value === "number" ? value : null, unit)
+            }
+            contentStyle={{ borderRadius: 12, border: "1px solid #eee" }}
+          />
+          <Legend
+            align="left"
+            iconType="circle"
+            wrapperStyle={{ fontSize: 12, paddingTop: 16 }}
+          />
+          {bars.map((bar, index) => (
+            <Bar
+              key={bar.key}
+              dataKey={bar.key}
+              name={bar.label}
+              stackId="stack"
+              fill={bar.color}
+              radius={index === bars.length - 1 ? [3, 3, 0, 0] : 0}
+              isAnimationActive={false}
+            />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
 // 참고 대시보드의 --chart-1 ~ --chart-4 색상입니다.

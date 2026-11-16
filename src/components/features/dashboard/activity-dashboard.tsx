@@ -26,6 +26,11 @@ import {
   Ranking,
   TrendChart,
 } from "./dashboard-widgets";
+import {
+  activityRoleLines,
+  activityTrendData,
+  activityTrendDescription,
+} from "./activity-trends";
 import { withdrawalRetention } from "./withdrawal-retention";
 
 export default function ActivityDashboard({
@@ -36,6 +41,12 @@ export default function ActivityDashboard({
   role: DashboardRoleFilter;
 }) {
   const users = useDashboardUsers(dateRange(1));
+  const trendUsers = useDashboardUsers(range);
+  const dauTrend = activityTrendData(trendUsers.data, range, "dau");
+  const mauTrend = activityTrendData(trendUsers.data, range, "mau");
+  const trendLines = activityRoleLines.filter(
+    (line) => role === "all" || line.key === role,
+  );
   const withdrawals = useDashboardWithdrawals(range);
   const records = useDashboardWithdrawalRecords(range);
   const retention = withdrawalRetention(records.data ?? [], range, role);
@@ -66,7 +77,7 @@ export default function ActivityDashboard({
         ? "일부 기간 수집 · 월 1일부터"
         : "해당 월 1일부터 오늘까지";
   return (
-    <div className="dashboard-sections">
+    <div className="dashboard-sections activity-dashboard">
       <div className="dashboard-section-title">
         <h2>{label} 행동 지표</h2>
         <span>오늘(KST) 기준 · 잠정값</span>
@@ -74,16 +85,19 @@ export default function ActivityDashboard({
       <QueryState query={users}>
         <div className="dashboard-metrics four">
           <Metric
+            markerSrc="/dashboard/consultation-answers.svg"
             label="DAU"
             value={formatNumber(dau, "명")}
             detail={activityDetail}
           />
           <Metric
+            markerSrc="/dashboard/consultation-answers.svg"
             label="MAU"
             value={formatNumber(mau, "명")}
             detail={mauDetail}
           />
           <Metric
+            markerSrc="/dashboard/activity-stickiness.svg"
             label="고착도 (DAU/MAU)"
             value={formatNumber(
               dau !== null && mau ? (dau / mau) * 100 : null,
@@ -98,6 +112,7 @@ export default function ActivityDashboard({
             color="#34b878"
           />
           <Metric
+            markerSrc="/dashboard/activity-members.svg"
             label="회원수"
             value={formatNumber(
               users.data
@@ -110,6 +125,33 @@ export default function ActivityDashboard({
           />
         </div>
       </QueryState>
+      <QueryState query={trendUsers}>
+        <Panel
+          title="DAU 추이"
+          description={activityTrendDescription(dauTrend, role, "dau")}
+        >
+          <TrendChart
+            data={dauTrend}
+            lines={trendLines}
+            height={300}
+            preserveSeriesOrder
+            unit="명"
+          />
+        </Panel>
+        <Panel
+          title="MAU 추이"
+          description={activityTrendDescription(mauTrend, role, "mau")}
+        >
+          <TrendChart
+            data={mauTrend}
+            lines={trendLines}
+            height={300}
+            preserveSeriesOrder
+            splitByMonth
+            unit="명"
+          />
+        </Panel>
+      </QueryState>
       <div className="dashboard-section-title">
         <h2>{label} 탈퇴 분석</h2>
         <span>선택한 기간 기준</span>
@@ -117,13 +159,15 @@ export default function ActivityDashboard({
       <QueryState query={withdrawals}>
         <div className="dashboard-metrics three">
           <Metric
+            markerSrc="/dashboard/activity-withdrawals.svg"
             label={`${label} 탈퇴`}
             value={formatNumber(withdrawn, "명")}
             detail="선택 기간 합계"
-            color="#ff453a"
+            color="#ff6b63"
           />
           <QueryState query={records}>
             <Metric
+              markerSrc="/dashboard/activity-members.svg"
               label="평균 유지 기간"
               value={formatNumber(retention.averageDays, "일")}
               detail={
@@ -135,10 +179,11 @@ export default function ActivityDashboard({
             />
           </QueryState>
           <Metric
+            markerSrc="/dashboard/activity-withdrawals.svg"
             label="일 평균 탈퇴"
             value={formatNumber(withdrawn / dayCount(range), "명")}
             detail="탈퇴 없는 날 포함"
-            color="#ff453a"
+            color="#ff6b63"
           />
         </div>
         <Panel
@@ -170,7 +215,7 @@ export default function ActivityDashboard({
           >
             <Ranking
               rows={reasonRows(days.map((day) => day.reasonCounts))}
-              color="#ff453a"
+              color="#ff6b63"
             />
           </Panel>
           <Panel
@@ -186,7 +231,7 @@ export default function ActivityDashboard({
                 () => 1,
               )}
               unit="회"
-              color="#86868b"
+              color="#ff6b63"
             />
           </Panel>
         </div>

@@ -317,3 +317,358 @@
   overflow-wrap: anywhere;
   font-size: 10px !important;
 }
+.dashboard-metrics.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.dashboard-badge {
+  margin-left: auto;
+  border-radius: 999px;
+  background: #fff4e5;
+  color: #b25000;
+  font-size: 11px;
+  font-style: normal;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+.dashboard-badge + .dashboard-badge {
+  margin-left: 4px;
+}
+.dashboard-badge.neutral {
+  background: #f0f0f2;
+  color: #6e6e73;
+}
+.dashboard-split {
+  margin-top: 10px;
+}
+.dashboard-split-bar {
+  display: flex;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #f5f5f7;
+}
+.dashboard-split ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: #86868b;
+}
+.dashboard-split li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.dashboard-split i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.dashboard-split b {
+  color: #1d1d1f;
+  font-weight: 600;
+}
+.dashboard-section-heading {
+  margin-top: 12px;
+}
+.dashboard-section-heading h2 {
+  font-size: 16px;
+  font-weight: 700;
+}
+.dashboard-section-heading p {
+  color: #86868b;
+  font-size: 12px;
+  margin-top: 2px;
+}
+.dashboard-route-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 24px;
+  align-items: start;
+}
+.dashboard-ranking li.sub {
+  padding-left: 14px;
+}
+.dashboard-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.dashboard-table-wrap {
+  max-height: 440px;
+  overflow: auto;
+  border-top: 1px solid #f1f1f3;
+}
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-table th,
+.dashboard-table td {
+  padding: 9px 10px;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid #f1f1f3;
+}
+.dashboard-table th:first-child,
+.dashboard-table td:first-child {
+  text-align: left;
+}
+.dashboard-table thead th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  color: #86868b;
+  font-weight: 500;
+}
+.dashboard-table tfoot td {
+  position: sticky;
+  bottom: 0;
+  background: #fafafa;
+  font-weight: 700;
+}
+.dashboard-table .negative {
+  color: #c32c27;
+}
+.dashboard-table small {
+  display: block;
+  color: #86868b;
+  font-size: 10px;
+}
+.dashboard-table .dashboard-badge {
+  margin-left: 6px;
+}
+.dashboard-rating {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+}
+.dashboard-rating > strong {
+  font-size: 36px;
+  font-weight: 700;
+}
+.dashboard-rating > strong small {
+  font-size: 14px;
+  color: #86868b;
+  font-weight: 400;
+}
+@media (max-width: 850px) {
+  .dashboard-route-grid,
+  .dashboard-rating {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .dashboard-metrics.two {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* 헤어컨설팅 Figma 9865:1826의 카드와 표. 다른 탭의 기존 배치는 유지합니다. */
+.operations-dashboard:has(.hair-consultation-dashboard, .activity-dashboard) {
+  font-family: var(--font-pretendard);
+  line-height: normal;
+}
+.hair-consultation-dashboard .dashboard-metric strong {
+  font-size: 20px;
+}
+.hair-consultation-dashboard .dashboard-metric p,
+.hair-consultation-dashboard .dashboard-panel-heading p,
+.hair-consultation-dashboard .dashboard-note {
+  color: #6e6e73;
+}
+.hair-consultation-dashboard .dashboard-metric strong + p {
+  color: #1f7a4d;
+}
+.hair-consultation-dashboard .dashboard-panel {
+  box-shadow: none;
+}
+.consultation-summary-panel .dashboard-panel-heading {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+}
+.consultation-summary-value {
+  font-size: 32px;
+  letter-spacing: -1px;
+  white-space: nowrap;
+  line-height: normal;
+}
+.consultation-summary-value small {
+  font-size: 18px;
+  letter-spacing: normal;
+  margin-left: 1px;
+}
+.consultation-summary-value .consultation-rating-unit {
+  color: #c7c7cc;
+  margin-left: 4px;
+}
+.consultation-rate-rows,
+.consultation-rating-rows {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.consultation-rate-rows {
+  gap: 16px;
+}
+.consultation-rate-rows li > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+.consultation-rate-rows strong,
+.consultation-rating-rows strong {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.consultation-rate-rows small,
+.consultation-rating-rows small {
+  color: #6e6e73;
+  font-size: 11px;
+  font-weight: 400;
+  margin-left: 4px;
+}
+.consultation-summary-panel .dashboard-bar-track {
+  height: 10px;
+}
+.consultation-rating-rows {
+  gap: 10px;
+}
+.consultation-rating-rows li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 84px;
+  gap: 12px;
+  align-items: center;
+  font-size: 12px;
+  min-height: 16px;
+}
+.consultation-rating-rows strong {
+  text-align: right;
+}
+.consultation-rating-rows .empty strong,
+.consultation-rating-rows .empty small {
+  color: #c7c7cc;
+}
+.hair-consultation-dashboard .dashboard-table-wrap {
+  border: 1px solid #f1f1f3;
+  border-radius: 16px;
+}
+.hair-consultation-dashboard .dashboard-table th {
+  font-weight: 400;
+}
+.hair-consultation-dashboard .dashboard-table tfoot td {
+  background: #fafafb;
+  font-weight: 600;
+}
+.consultation-answer-rate {
+  color: #007aff;
+  font-weight: 600;
+}
+.dashboard-day-saturday {
+  color: #0062cc;
+}
+.dashboard-day-sunday {
+  color: #c32c27;
+}
+.operations-dashboard:has(.hair-consultation-dashboard, .activity-dashboard)
+  .dashboard-navigation
+  button,
+.operations-dashboard:has(.hair-consultation-dashboard, .activity-dashboard)
+  .dashboard-segments
+  button {
+  color: #6e6e73;
+}
+.operations-dashboard:has(.hair-consultation-dashboard, .activity-dashboard)
+  .dashboard-navigation
+  button[aria-current="page"] {
+  color: #fff;
+}
+.operations-dashboard:has(.hair-consultation-dashboard, .activity-dashboard)
+  .dashboard-segments
+  button[aria-pressed="true"] {
+  color: #1d1d1f;
+}
+.operations-dashboard:has(.hair-consultation-dashboard, .activity-dashboard)
+  .dashboard-date-range {
+  padding: 8px 14px;
+}
+.operations-dashboard:has(.hair-consultation-dashboard, .activity-dashboard)
+  .dashboard-date-range
+  button {
+  height: 16px;
+  padding: 0;
+}
+.operations-dashboard:has(.hair-consultation-dashboard, .activity-dashboard)
+  .dashboard-date-range
+  input {
+  width: 88px;
+}
+.operations-dashboard:has(.hair-consultation-dashboard, .activity-dashboard)
+  .dashboard-date-range
+  input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+.activity-dashboard .dashboard-metric strong {
+  font-size: 20px;
+}
+.activity-dashboard .dashboard-metric p,
+.activity-dashboard .dashboard-panel-heading p,
+.activity-dashboard .dashboard-note,
+.activity-dashboard .dashboard-section-title span {
+  color: #6e6e73;
+}
+.activity-dashboard .dashboard-panel {
+  box-shadow: none;
+}
+.activity-dashboard .dashboard-section-title {
+  margin-top: 0;
+  align-items: center;
+}
+.activity-dashboard .dashboard-section-title h2 {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.activity-dashboard .dashboard-ranking {
+  gap: 12px;
+}
+.operations-dashboard:has(.activity-dashboard)
+  .dashboard-filters
+  > .dashboard-note {
+  font-size: 11px;
+  padding: 0 4px;
+  color: #6e6e73;
+}
+.dashboard-chart-legend {
+  display: flex;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  color: #6e6e73;
+}
+.dashboard-chart-legend li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.dashboard-chart-legend i {
+  width: 14px;
+  height: 2px;
+  border-radius: 2px;
+}
+.activity-dashboard .recharts-legend-item-text {
+  color: #6e6e73 !important;
+}

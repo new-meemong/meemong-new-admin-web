@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "startDateKST": "2026-09-10",
+    "endDateKST": "2026-09-10",
+    "timezone": "Asia/Seoul",
+    "unit": "KRW",
+    "dateBasis": "purchase.createdAt",
+    "priceBasis": "recordedPaymentAmountKRW",
+    "refundBasis": "purchaseDateCohortAsOfEndDate",
+    "sourceList": [
+      "MongPurchases",
+      "AdBlockPurchases",
+      "ThunderPurchases",
+      "V3HairConsultationPurchases"
+    ]
+  },
+  "dataCount": 1,
+  "dataList": [
+    {
+      "dateKST": "2026-09-10",
+      "totals": {
+        "purchaseCount": 5,
+        "knownRefundedCount": 1,
+        "unknownRefundStatusCount": 0,
+        "knownTotalPaymentAmountKRW": 27200,
+        "unknownTotalPaymentCount": 1,
+        "knownRefundedPaymentAmountKRW": 4500,
+        "unknownRefundedPaymentCount": 0,
+        "refundedCount": 1,
+        "totalPaymentAmountKRW": null,
+        "refundedPaymentAmountKRW": 4500,
+        "netPaymentAmountKRW": null
+      },
+      "itemList": [
+        {
+          "paymentCategory": "MONG_CHARGE",
+          "platform": "ios",
+          "productId": "com.meemong.mong_100",
+          "purchaseCount": 2,
+          "knownRefundedCount": 0,
+          "unknownRefundStatusCount": 0,
+          "knownTotalPaymentAmountKRW": 19800,
+          "unknownTotalPaymentCount": 0,
+          "knownRefundedPaymentAmountKRW": 0,
+          "unknownRefundedPaymentCount": 0,
+          "refundedCount": 0,
+          "totalPaymentAmountKRW": 19800,
+          "refundedPaymentAmountKRW": 0,
+          "netPaymentAmountKRW": 19800
+        },
+        {
+          "paymentCategory": "MEEMONG_PASS",
+          "platform": "android",
+          "productId": "com.meemong.ad_block_model_month",
+          "purchaseCount": 1,
+          "knownRefundedCount": 1,
+          "unknownRefundStatusCount": 0,
+          "knownTotalPaymentAmountKRW": 4500,
+          "unknownTotalPaymentCount": 0,
+          "knownRefundedPaymentAmountKRW": 4500,
+          "unknownRefundedPaymentCount": 0,
+          "refundedCount": 1,
+          "totalPaymentAmountKRW": 4500,
+          "refundedPaymentAmountKRW": 4500,
+          "netPaymentAmountKRW": 0
+        },
+        {
+          "paymentCategory": "V3_HAIR_CONSULTATION",
+          "platform": "ios",
+          "productId": "com.meemong.view_deep_v3_hair_consultation_answers1",
+          "purchaseCount": 1,
+          "knownRefundedCount": 0,
+          "unknownRefundStatusCount": 0,
+          "knownTotalPaymentAmountKRW": 2900,
+          "unknownTotalPaymentCount": 0,
+          "knownRefundedPaymentAmountKRW": 0,
+          "unknownRefundedPaymentCount": 0,
+          "refundedCount": 0,
+          "totalPaymentAmountKRW": 2900,
+          "refundedPaymentAmountKRW": 0,
+          "netPaymentAmountKRW": 2900
+        },
+        {
+          "paymentCategory": "V3_HAIR_CONSULTATION",
+          "platform": "ios",
+          "productId": null,
+          "purchaseCount": 1,
+          "knownRefundedCount": 0,
+          "unknownRefundStatusCount": 0,
+          "knownTotalPaymentAmountKRW": 0,
+          "unknownTotalPaymentCount": 1,
+          "knownRefundedPaymentAmountKRW": 0,
+          "unknownRefundedPaymentCount": 0,
+          "refundedCount": 0,
+          "totalPaymentAmountKRW": null,
+          "refundedPaymentAmountKRW": 0,
+          "netPaymentAmountKRW": null
+        }
+      ]
+    }
+  ]
+}

@@ -40,6 +40,25 @@ export const dashboardQueryOptions = {
       queryFn: ({ signal }) => dashboardAPI.mongTotals(range, signal),
       staleTime: 60_000,
     }),
+  payments: (range: DashboardDateRange) =>
+    queryOptions({
+      queryKey: ["dashboard", "payments", range],
+      queryFn: ({ signal }) => dashboardAPI.payments(range, signal),
+      staleTime: 60_000,
+    }),
+  hairConsultations: (range: DashboardDateRange) =>
+    queryOptions({
+      queryKey: ["dashboard", "hair-consultations", range],
+      queryFn: ({ signal }) => dashboardAPI.hairConsultations(range, signal),
+      staleTime: 60_000,
+    }),
+  hairConsultationSummary: (range: DashboardDateRange) =>
+    queryOptions({
+      queryKey: ["dashboard", "hair-consultation-summary", range],
+      queryFn: ({ signal }) =>
+        dashboardAPI.hairConsultationSummary(range, signal),
+      staleTime: 60_000,
+    }),
   passes: (range: DashboardDateRange) =>
     queryOptions({
       queryKey: ["dashboard", "passes", range],
@@ -75,3 +94,10 @@ export const useDashboardLegacyMongDetails = () =>
   useQuery(dashboardQueryOptions.legacyMongDetails());
 export const useDashboardWithdrawalRecords = (range: DashboardDateRange) =>
   useQuery(dashboardQueryOptions.withdrawalRecords(range));
+export const useDashboardPayments = (range: DashboardDateRange) =>
+  useQuery(dashboardQueryOptions.payments(range));
+export const useDashboardHairConsultations = (range: DashboardDateRange) =>
+  useQuery(dashboardQueryOptions.hairConsultations(range));
+export const useDashboardHairConsultationSummary = (
+  range: DashboardDateRange,
+) => useQuery(dashboardQueryOptions.hairConsultationSummary(range));
