@@ -14,6 +14,10 @@ import { useGetUsersQuery } from "@/queries/users";
 import { Row } from "@tanstack/react-table";
 import BrandDesignerCount from "../brand-designer-count";
 
+vi.mock("next/font/local", () => ({
+  default: () => ({ className: "app-font" }),
+}));
+
 vi.mock("@/components/shared/common-table", async (importOriginal) => {
   const actual =
     await importOriginal<typeof import("@/components/shared/common-table")>();

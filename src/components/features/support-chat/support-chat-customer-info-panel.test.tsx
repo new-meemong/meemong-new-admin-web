@@ -4,7 +4,6 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import SupportChatCustomerInfoPanel from "./support-chat-customer-info-panel";
 import SupportChatOutreachDialog from "./support-chat-outreach-dialog";
-import { useDrawer } from "@/stores/drawer";
 import type { SupportInboxRoom } from "./support-chat-model";
 import type { IUserForm } from "@/models/users";
 
@@ -38,27 +37,14 @@ vi.mock("firebase/firestore", () => ({
   serverTimestamp: () => "server-time",
   writeBatch: () => ({ set: mocks.set, update: vi.fn(), commit: mocks.commit }),
 }));
-vi.mock("@/components/shared/right-drawer", () => ({
-  default: function MockRightDrawer({
-    headerActions,
-    children,
-  }: {
-    headerActions: React.ReactNode;
-    children: React.ReactNode;
-  }) {
-    const { isOpen } = useDrawer();
-    return isOpen ? (
-      <section aria-label="회원 상세창">
-        {headerActions}
-        {children}
-      </section>
-    ) : null;
-  },
+vi.mock("@/components/features/user/user-app-preview", () => ({
+  default: ({ user }: { user: IUserForm }) => (
+    <div>앱 화면 {user.displayName}</div>
+  ),
 }));
-vi.mock(
-  "@/components/features/user/user-detail-form",
-  () => ({ default: () => <div>회원 상세 폼</div> }),
-);
+vi.mock("@/components/features/user/user-detail-form", () => ({
+  default: () => <div>회원 상세 폼</div>,
+}));
 vi.mock("@/components/shared/image-swiper", () => ({
   default: ({ images }: { images: { src: string }[] }) => (
     <div role="dialog" aria-label="이미지 확대">
@@ -114,7 +100,7 @@ async function click(element: Element | null) {
 }
 function button(text: string) {
   return (
-    [...container.querySelectorAll("button")].find(
+    [...document.querySelectorAll("button")].find(
       (el) => el.textContent === text,
     ) ?? null
   );
@@ -127,7 +113,6 @@ beforeEach(() => {
   mocks.detail = { data: user, refetch: vi.fn() };
   mocks.ensureAdmin.mockResolvedValue({ adminId: "1", adminName: "관리자" });
   mocks.commit.mockResolvedValue(undefined);
-  useDrawer.setState({ isOpen: false });
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -138,6 +123,59 @@ afterEach(async () => {
 });
 
 describe("운영팀 고객 프로필 연결", () => {
+  it("상담함 회원 상세 클릭으로 앱 미리보기와 수정 폼이 있는 중앙 모달을 연다", async () => {
+    await render(
+      <SupportChatCustomerInfoPanel
+        room={room}
+        className=""
+        onBack={() => {}}
+      />,
+    );
+    await click(
+      container.querySelector('[aria-label="테스트 디자이너 회원 상세 보기"]'),
+    );
+    expect(
+      document.querySelector('[aria-label="앱 프로필 미리보기"]')?.textContent,
+    ).toContain("앱 화면 테스트 디자이너");
+    expect(
+      document.querySelector('[aria-label="회원 정보 수정"]')?.textContent,
+    ).toContain("수정하기");
+  });
+  it("다른 상담방으로 전환하면 상세 모달을 닫고 돌아와도 다시 열지 않는다", async () => {
+    await render(
+      <SupportChatCustomerInfoPanel
+        room={room}
+        className=""
+        onBack={() => {}}
+      />,
+    );
+    await click(
+      container.querySelector('[aria-label="테스트 디자이너 회원 상세 보기"]'),
+    );
+    expect(
+      document.querySelector('[aria-label="앱 프로필 미리보기"]'),
+    ).not.toBeNull();
+    await render(
+      <SupportChatCustomerInfoPanel
+        room={{ ...room, roomId: "member_43", memberUserId: "43" }}
+        className=""
+        onBack={() => {}}
+      />,
+    );
+    expect(
+      document.querySelector('[aria-label="앱 프로필 미리보기"]'),
+    ).toBeNull();
+    await render(
+      <SupportChatCustomerInfoPanel
+        room={room}
+        className=""
+        onBack={() => {}}
+      />,
+    );
+    expect(
+      document.querySelector('[aria-label="앱 프로필 미리보기"]'),
+    ).toBeNull();
+  });
   it("API 프로필 이미지를 확대하고 회원 상세창에서 검색 없이 해당 회원 연락창을 연다", async () => {
     await render(
       <SupportChatCustomerInfoPanel
@@ -157,7 +195,7 @@ describe("운영팀 고객 프로필 연결", () => {
       container.querySelector('[aria-label="테스트 디자이너 회원 상세 보기"]'),
     );
     expect(
-      container.querySelector('[aria-label="회원 상세창"]'),
+      document.querySelector('[aria-label="회원 정보 수정"]'),
     ).not.toBeNull();
     const contact = button("먼저 연락하기");
     expect(contact?.nextElementSibling?.textContent).toContain(
@@ -169,7 +207,7 @@ describe("운영팀 고객 프로필 연결", () => {
         '[placeholder="닉네임, 회원번호, 연락처로 검색"]',
       ),
     ).toBeNull();
-    expect(container.textContent).toContain("42 · 01000000000");
+    expect(document.body.textContent).toContain("42 · 01000000000");
     expect(mocks.getAll).not.toHaveBeenCalled();
   });
   it("비회원에게 다른 회원 이미지나 상세창을 제공하지 않는다", async () => {
@@ -187,7 +225,7 @@ describe("운영팀 고객 프로필 연결", () => {
     );
     expect(container.querySelector("img")).toBeNull();
     expect(button("비회원로그아웃 상태에서 문의했어요")?.disabled).toBe(true);
-    expect(container.querySelector('[aria-label="회원 상세창"]')).toBeNull();
+    expect(document.querySelector('[aria-label="회원 정보 수정"]')).toBeNull();
   });
   it("탈퇴 회원의 먼저 연락하기를 비활성화한다", async () => {
     mocks.detail.data = { ...user, isWithdraw: true, role: 4 };

@@ -10,6 +10,10 @@ import {
 import { cn } from "@/lib/utils";
 import { createPortal } from "react-dom";
 
+// 중첩 모달은 닫히는 순서와 무관하게 마지막 모달이 사라질 때 잠금을 해제합니다.
+let scrollLockCount = 0;
+let originalBodyOverflow = "";
+
 interface ModalProps extends ModalContextProps {
   isOpen: boolean;
   /** Keep the current form mounted while a related detail modal is displayed. */
@@ -58,10 +62,16 @@ export function Modal({
   // 모달이 보이는 동안(닫힘 애니메이션 포함) 배경 페이지로 스크롤이 넘어가지 않게 잠급니다.
   React.useEffect(() => {
     if (!show) return;
-    const { overflow } = document.body.style;
-    document.body.style.overflow = "hidden";
+    if (scrollLockCount === 0) {
+      originalBodyOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+    }
+    scrollLockCount += 1;
     return () => {
-      document.body.style.overflow = overflow;
+      scrollLockCount -= 1;
+      if (scrollLockCount === 0) {
+        document.body.style.overflow = originalBodyOverflow;
+      }
     };
   }, [show]);
 

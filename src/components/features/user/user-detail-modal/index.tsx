@@ -28,6 +28,8 @@ interface UserDetailModalProps {
   className?: string;
   userId: number;
   onRefresh: () => void;
+  /** 부모 모달은 회원 상세에서 연락창으로 전환하는 동안에도 대기 상태를 유지합니다. */
+  onOverlayOpenChange?: (open: boolean) => void;
 }
 
 function UserDetailModal({
@@ -36,6 +38,7 @@ function UserDetailModal({
   onRefresh,
   isOpen,
   onClose,
+  onOverlayOpenChange,
 }: UserDetailModalProps) {
   const [linkedDetail, setLinkedDetail] =
     useState<UserProfileDetailTarget | null>(null);
@@ -58,6 +61,10 @@ function UserDetailModal({
     admin: SupportAdminIdentity;
     recipient: IUserForm;
   } | null>(null);
+  useEffect(() => {
+    onOverlayOpenChange?.(isOpen || outreach !== null);
+  }, [isOpen, outreach, onOverlayOpenChange]);
+  useEffect(() => () => onOverlayOpenChange?.(false), [onOverlayOpenChange]);
   const outreachRevision = useRef(0);
   useEffect(() => {
     outreachRevision.current += 1;

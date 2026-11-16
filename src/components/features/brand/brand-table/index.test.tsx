@@ -4,6 +4,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 import BrandTable from "./index";
 
+vi.mock("next/font/local", () => ({
+  default: () => ({ className: "app-font" }),
+}));
+
 vi.mock("@/components/shared/common-pagination", () => ({
   default: () => null,
 }));

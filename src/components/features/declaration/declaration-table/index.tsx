@@ -20,8 +20,7 @@ import {
 import SelectBox from "@/components/shared/select-box";
 import { usePatchUserReportStatusMutation } from "@/queries/userReports";
 import { toast } from "react-toastify";
-import UserRightDrawer from "@/components/features/user/user-right-drawer";
-import { useDrawer } from "@/stores/drawer";
+import UserDetailModal from "@/components/features/user/user-detail-modal";
 import { useReportedUser } from "@/queries/reportedUser";
 import { ReportManagementType, ReportStatus } from "@/models/reports";
 import { IChattingRoomReport } from "@/models/chattingRoomReports";
@@ -50,7 +49,7 @@ function DeclarationTable({
   ...props
 }: DeclarationTableProps) {
   const modal = useModal();
-  const { openDrawer } = useDrawer();
+  const [isUserDetailOpen, setIsUserDetailOpen] = useState(false);
   const patchUserReportStatusMutation = usePatchUserReportStatusMutation();
   const patchChattingRoomReportStatusMutation =
     usePatchChattingRoomReportStatusMutation();
@@ -63,15 +62,12 @@ function DeclarationTable({
     patchUserReportStatusMutation.isPending ||
     patchChattingRoomReportStatusMutation.isPending;
 
-  const handleOpenUserDrawer = useCallback(
-    (userId?: number) => {
-      if (!userId) return;
+  const handleOpenUserDetail = useCallback((userId?: number) => {
+    if (!userId) return;
 
-      setSelectedUserId(userId);
-      openDrawer();
-    },
-    [openDrawer],
-  );
+    setSelectedUserId(userId);
+    setIsUserDetailOpen(true);
+  }, []);
 
   const handleOpenDetail = useCallback(
     (report: DeclarationReport) => {
@@ -129,7 +125,7 @@ function DeclarationTable({
           <ReportUserButton
             label={(info.getValue() as string) || "-"}
             onClick={() =>
-              handleOpenUserDrawer(info.row.original.userInfo.userId)
+              handleOpenUserDetail(info.row.original.userInfo.userId)
             }
           />
         ),
@@ -145,7 +141,7 @@ function DeclarationTable({
         const report = info.row.original;
 
         return (
-          <ReportedUserButton report={report} onClick={handleOpenUserDrawer} />
+          <ReportedUserButton report={report} onClick={handleOpenUserDetail} />
         );
       },
       size: 140,
@@ -233,7 +229,7 @@ function DeclarationTable({
     currentPage,
     handleChangeStatus,
     handleOpenDetail,
-    handleOpenUserDrawer,
+    handleOpenUserDetail,
     isStatusPending,
     pageSize,
     reportType,
@@ -262,7 +258,14 @@ function DeclarationTable({
         report={selectedReport}
         reportType={reportType}
       />
-      <UserRightDrawer userId={selectedUserId!} onRefresh={handleSubmit} />
+      {selectedUserId !== null && (
+        <UserDetailModal
+          userId={selectedUserId}
+          isOpen={isUserDetailOpen}
+          onClose={() => setIsUserDetailOpen(false)}
+          onRefresh={handleSubmit}
+        />
+      )}
     </div>
   );
 }

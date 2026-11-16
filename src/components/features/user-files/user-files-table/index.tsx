@@ -2,7 +2,7 @@
 
 import { ColumnDef, Row } from "@tanstack/react-table";
 import CommonPagination, {
-  CommonPaginationProps
+  CommonPaginationProps,
 } from "@/components/shared/common-pagination";
 import { IUserFile, UserFileType } from "@/models/userFiles";
 import React, { useCallback, useMemo, useState } from "react";
@@ -12,11 +12,10 @@ import ImageSwiper from "@/components/shared/image-swiper";
 import ImageTable from "@/components/shared/image-table";
 import { Search } from "lucide-react";
 import { UserFilesUserRoleFilter } from "@/components/features/user-files/user-files-search-form";
-import UserRightDrawer from "@/components/features/user/user-right-drawer";
+import UserDetailModal from "@/components/features/user/user-detail-modal";
 import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
 import { useDeleteUserFileMutation } from "@/queries/userFiles";
-import { useDrawer } from "@/stores/drawer";
 
 interface UserFilesTableProps
   extends Omit<CommonPaginationProps, "currentPage"> {
@@ -32,13 +31,13 @@ const USER_ROLE_LABEL_MAP: Record<
   string
 > = {
   "1": "모델",
-  "2": "디자이너"
+  "2": "디자이너",
 };
 
 const FILE_TYPE_LABEL_MAP: Record<UserFileType, string> = {
   profilePhoto: "프로필",
   portfolio: "포트폴리오",
-  shop: "매장"
+  shop: "매장",
 };
 
 function UserFilesTable({
@@ -50,9 +49,9 @@ function UserFilesTable({
   onPageChange,
   onSizeChange,
   onRefresh,
-  selectedUserRole = "ALL"
+  selectedUserRole = "ALL",
 }: UserFilesTableProps) {
-  const { openDrawer } = useDrawer();
+  const [isUserDetailOpen, setIsUserDetailOpen] = useState(false);
   const deleteUserFileMutation = useDeleteUserFileMutation();
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
@@ -64,44 +63,41 @@ function UserFilesTable({
         id: userFile.id,
         src: userFile.s3Path,
         title: `${userFile.userInfo.displayName} · ${FILE_TYPE_LABEL_MAP[userFile.fileType]}`,
-        deletable: true
+        deletable: true,
       })),
-    [data]
+    [data],
   );
 
   const columns: ColumnDef<IUserFile>[] = [
     {
       accessorKey: "id",
-      header: "No"
+      header: "No",
     },
     {
       accessorKey: "fileType",
-      header: "파일타입"
+      header: "파일타입",
     },
     {
       accessorKey: "s3Path",
-      header: "이미지"
-    }
+      header: "이미지",
+    },
   ];
 
-  const handleClickRow = useCallback(
-    (row: Row<IUserFile>) => {
-      setSelectedUserId(row.original.userInfo.userId);
-      openDrawer();
-    },
-    [openDrawer]
-  );
+  const handleClickRow = useCallback((row: Row<IUserFile>) => {
+    setSelectedUserId(row.original.userInfo.userId);
+    setIsUserDetailOpen(true);
+  }, []);
 
   const handleOpenImagePreview = useCallback(
     (imageId: number) => {
       const nextIndex = previewImages.findIndex(
-        (image) => image.id === imageId
+        (image) => image.id === imageId,
       );
       if (nextIndex < 0) return;
       setPreviewImageIndex(nextIndex);
       setIsImagePreviewOpen(true);
     },
-    [previewImages]
+    [previewImages],
   );
 
   const handleDeletePreviewImage = useCallback(
@@ -125,7 +121,7 @@ function UserFilesTable({
         return false;
       }
     },
-    [deleteUserFileMutation, onRefresh]
+    [deleteUserFileMutation, onRefresh],
   );
 
   return (
@@ -146,7 +142,7 @@ function UserFilesTable({
           return (
             <div
               className={cn(
-                "w-full h-full relative flex cursor-pointer items-center justify-center"
+                "w-full h-full relative flex cursor-pointer items-center justify-center",
               )}
             >
               {userFile.s3Path ? (
@@ -164,7 +160,7 @@ function UserFilesTable({
               <button
                 type="button"
                 className={cn(
-                  "absolute top-2 left-2 p-1 rounded-md bg-white/90 text-black hover:bg-white cursor-pointer"
+                  "absolute top-2 left-2 p-1 rounded-md bg-white/90 text-black hover:bg-white cursor-pointer",
                 )}
                 onClick={(event) => {
                   event.stopPropagation();
@@ -178,7 +174,7 @@ function UserFilesTable({
                 <div className="absolute top-10 left-2 flex flex-col gap-1">
                   <span
                     className={cn(
-                      "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold"
+                      "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold",
                     )}
                   >
                     {roleLabel}
@@ -189,7 +185,7 @@ function UserFilesTable({
               <div className="absolute top-2 right-2 flex flex-col gap-1">
                 <span
                   className={cn(
-                    "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold"
+                    "px-2 py-0.5 text-xs rounded-md bg-white text-black font-bold",
                   )}
                 >
                   {FILE_TYPE_LABEL_MAP[userFile.fileType]}
@@ -219,7 +215,14 @@ function UserFilesTable({
         />
       )}
 
-      <UserRightDrawer userId={selectedUserId!} onRefresh={onRefresh} />
+      {selectedUserId !== null && (
+        <UserDetailModal
+          userId={selectedUserId}
+          isOpen={isUserDetailOpen}
+          onClose={() => setIsUserDetailOpen(false)}
+          onRefresh={onRefresh}
+        />
+      )}
     </div>
   );
 }

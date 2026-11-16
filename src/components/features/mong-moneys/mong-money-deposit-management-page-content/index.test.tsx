@@ -9,7 +9,7 @@ import { IMongMoneyGroup } from "@/models/mongMoneys";
 import MongMoneyDepositManagementPageContent from "./index";
 
 vi.mock("@/apis/core", () => ({ fetcher: vi.fn() }));
-vi.mock("@/components/features/user/user-right-drawer", () => ({
+vi.mock("@/components/features/user/user-detail-modal", () => ({
   default: () => null,
 }));
 

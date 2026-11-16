@@ -1,11 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGetUserDetailQuery } from "@/queries/users";
-import { useDrawer } from "@/stores/drawer";
-import UserRightDrawer from "@/components/features/user/user-right-drawer";
+import UserDetailModal from "@/components/features/user/user-detail-modal";
 import ImageBox from "@/components/shared/image-box";
 import { parseImageUrl } from "@/utils/image";
 import {
@@ -37,7 +36,10 @@ export default function SupportChatCustomerInfoPanel({
   onBack: () => void;
 }) {
   const userId = room.memberUserId ? Number(room.memberUserId) : undefined;
-  const { openDrawer } = useDrawer();
+  const [detailRoomId, setDetailRoomId] = useState<string | null>(null);
+  useEffect(() => {
+    setDetailRoomId(null);
+  }, [room.roomId]);
   const { data, refetch } = useGetUserDetailQuery(userId, {
     enabled: room.kind === "member" && userId != null,
     retry: false,
@@ -108,7 +110,7 @@ export default function SupportChatCustomerInfoPanel({
           <button
             type="button"
             disabled={room.kind !== "member" || userId == null}
-            onClick={openDrawer}
+            onClick={() => setDetailRoomId(room.roomId)}
             aria-label={
               room.kind === "member" ? `${name} 회원 상세 보기` : undefined
             }
@@ -155,7 +157,10 @@ export default function SupportChatCustomerInfoPanel({
         )}
       </div>
       {room.kind === "member" && userId != null && (
-        <UserRightDrawer
+        <UserDetailModal
+          key={room.roomId}
+          isOpen={detailRoomId === room.roomId}
+          onClose={() => setDetailRoomId(null)}
           userId={userId}
           onRefresh={() => {
             void refetch();

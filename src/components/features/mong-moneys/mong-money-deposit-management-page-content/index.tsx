@@ -5,13 +5,12 @@ import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import CommonTable from "@/components/shared/common-table";
 import { Button } from "@/components/ui/button";
-import UserRightDrawer from "@/components/features/user/user-right-drawer";
+import UserDetailModal from "@/components/features/user/user-detail-modal";
 import { IMongMoneyGroup } from "@/models/mongMoneys";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date";
 import { formatMongMoneyAdminDescription } from "@/utils/mongMoneys";
 import { useMongMoneyManualDepositsQuery } from "@/queries/mongMoneys";
-import { useDrawer } from "@/stores/drawer";
 import { MONG_MONEY_GROUP_MAX_LIMIT } from "@/apis/mongMoneys";
 
 const EMPTY_DEPOSITS: IMongMoneyGroup[] = [];
@@ -23,7 +22,7 @@ interface MongMoneyDepositManagementPageContentProps {
 export default function MongMoneyDepositManagementPageContent({
   className,
 }: MongMoneyDepositManagementPageContentProps) {
-  const { openDrawer } = useDrawer();
+  const [isUserDetailOpen, setIsUserDetailOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [cursorStack, setCursorStack] = useState<(string | undefined)[]>([
     undefined,
@@ -38,15 +37,12 @@ export default function MongMoneyDepositManagementPageContent({
   const depositHistories = manualDepositsQuery.data?.dataList ?? EMPTY_DEPOSITS;
   const nextCursor = manualDepositsQuery.data?.__nextCursor ?? null;
 
-  const handleOpenUserDrawer = useCallback(
-    (userId?: number) => {
-      if (!userId) return;
+  const handleOpenUserDetail = useCallback((userId?: number) => {
+    if (!userId) return;
 
-      setSelectedUserId(userId);
-      openDrawer();
-    },
-    [openDrawer],
-  );
+    setSelectedUserId(userId);
+    setIsUserDetailOpen(true);
+  }, []);
 
   const handleRefresh = useCallback(() => {
     manualDepositsQuery.refetch();
@@ -92,7 +88,7 @@ export default function MongMoneyDepositManagementPageContent({
               )}
               onClick={(event) => {
                 event.stopPropagation();
-                handleOpenUserDrawer(mongMoney.userId);
+                handleOpenUserDetail(mongMoney.userId);
               }}
             >
               {mongMoney.userId}
@@ -124,7 +120,7 @@ export default function MongMoneyDepositManagementPageContent({
         enableSorting: false,
       },
     ],
-    [handleOpenUserDrawer],
+    [handleOpenUserDetail],
   );
 
   return (
@@ -183,7 +179,9 @@ export default function MongMoneyDepositManagementPageContent({
         </Button>
       </div>
       {selectedUserId !== null && (
-        <UserRightDrawer
+        <UserDetailModal
+          isOpen={isUserDetailOpen}
+          onClose={() => setIsUserDetailOpen(false)}
           userId={selectedUserId}
           onRefresh={manualDepositsQuery.refetch}
         />

@@ -8,8 +8,7 @@ import {
 
 import BrandRecommendationField from "@/components/features/brand/brand-recommendation-field";
 import BrandDesignerList from "@/components/features/brand/brand-designer-list";
-import UserRightDrawer from "@/components/features/user/user-right-drawer";
-import { useDrawer } from "@/stores/drawer";
+import UserDetailModal from "@/components/features/user/user-detail-modal";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { CommonForm } from "@/components/shared/common-form";
@@ -40,14 +39,19 @@ export default function BrandEditModal({
 }: BrandEditModalProps) {
   const dialog = useDialog();
   const queryClient = useQueryClient();
-  const { isOpen: isUserDrawerOpen, openDrawer, closeDrawer } = useDrawer();
+  const [isUserDetailOpen, setIsUserDetailOpen] = useState(false);
+  const [isUserOverlayOpen, setIsUserOverlayOpen] = useState(false);
+  const designerTrigger = useRef<HTMLElement | null>(null);
+  const isDesignerFlowOpen = isUserDetailOpen || isUserOverlayOpen;
+  useEffect(() => {
+    if (!isDesignerFlowOpen && isOpen && designerTrigger.current?.isConnected) {
+      designerTrigger.current.focus();
+    }
+  }, [isDesignerFlowOpen, isOpen]);
   const [selectedDesignerId, setSelectedDesignerId] = useState<number | null>(
     null,
   );
 
-  useEffect(() => {
-    return () => closeDrawer();
-  }, [closeDrawer]);
   const patchBrandMutation = usePatchBrandMutation();
   const deleteBrandMutation = useDeleteBrandMutation();
   const [name, setName] = useState(brand.name);
@@ -67,19 +71,22 @@ export default function BrandEditModal({
     if (!isOpen) {
       initializedBrandId.current = null;
       setSelectedDesignerId(null);
-      closeDrawer();
+      setIsUserDetailOpen(false);
+      setIsUserOverlayOpen(false);
       return;
     }
     // Refreshes update read-only values without replacing an open editing draft.
     if (initializedBrandId.current !== brand.id) {
       initializedBrandId.current = brand.id;
       setSelectedDesignerId(null);
+      setIsUserDetailOpen(false);
+      setIsUserOverlayOpen(false);
       seedDraftFromBrand();
       setIsEditMode(false);
       setShowPasswordModal(false);
       setPassword("");
     }
-  }, [isOpen, brand.id, seedDraftFromBrand, closeDrawer]);
+  }, [isOpen, brand.id, seedDraftFromBrand]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -180,13 +187,13 @@ export default function BrandEditModal({
   );
 
   const handleClose = useCallback(() => {
-    if (isUserDrawerOpen) return;
+    if (isDesignerFlowOpen) return;
     setIsEditMode(false);
     seedDraftFromBrand();
     setShowPasswordModal(false);
     setPassword("");
     onClose();
-  }, [onClose, seedDraftFromBrand, isUserDrawerOpen]);
+  }, [onClose, seedDraftFromBrand, isDesignerFlowOpen]);
 
   const handlePasswordModalClose = useCallback(() => {
     setShowPasswordModal(false);
@@ -197,6 +204,7 @@ export default function BrandEditModal({
     <>
       <Modal
         isOpen={isOpen && !showPasswordModal}
+        suspended={isDesignerFlowOpen}
         closable={false}
         size="md"
         className="h-[900px] max-h-[calc(100dvh-48px)]"
@@ -254,7 +262,9 @@ export default function BrandEditModal({
               brandId={brand.id}
               onSelectDesigner={(userId) => {
                 setSelectedDesignerId(userId);
-                openDrawer();
+                designerTrigger.current =
+                  document.activeElement as HTMLElement | null;
+                setIsUserDetailOpen(true);
               }}
             />
           )}
@@ -298,9 +308,11 @@ export default function BrandEditModal({
         </ModalFooter>
       </Modal>
       {isOpen && selectedDesignerId !== null && (
-        <UserRightDrawer
-          className="z-[60]"
-          overlayClassName="z-[60]"
+        <UserDetailModal
+          key={brand.id}
+          isOpen={isUserDetailOpen}
+          onClose={() => setIsUserDetailOpen(false)}
+          onOverlayOpenChange={setIsUserOverlayOpen}
           userId={selectedDesignerId}
           onRefresh={() => {
             void queryClient.invalidateQueries({ queryKey: ["GET_USERS"] });
