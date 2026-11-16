@@ -152,10 +152,37 @@ describe("dashboard page and query wiring", () => {
     expect(payment).toContain("매출의 72.8% · 2건");
     // 현재 제공하는 결제 유형만 고정 노출하며 빠른매칭 0원 항목은 숨깁니다.
     expect(payment).not.toContain("빠른매칭");
-    expect(payment).toContain("<th>미몽패스 (고객)</th>");
+    expect(payment).toContain("<th>미몽패스·광고 제거</th>");
     expect(home).toContain("헤어컨설팅 심층답변");
     expect(home).not.toContain("빠른매칭");
   });
+  it.each([
+    [2, 4500, "4,500원 (확인 불가 1건)", "−4,500원 (2건 · 확인 불가 1건)"],
+    [1, 0, "확인 불가 (1건)", "확인 불가 (1건)"],
+    [2, 0, "0원 (확인 불가 1건)", "−0원 (2건 · 확인 불가 1건)"],
+  ])(
+    "renders missing refund amounts on home and daily payment rows",
+    (count, amount, expected, expectedCell) => {
+      const data = structuredClone(payments);
+      const row = {
+        ...data.dataList[0].itemList[0],
+        knownRefundedCount: count,
+        knownRefundedPaymentAmountKRW: amount,
+        unknownRefundedPaymentCount: 1,
+        unknownRefundStatusCount: 0,
+      };
+      data.dataList = [{ ...data.dataList[0], totals: row, itemList: [row] }];
+      client.setQueryData(dashboardQueryOptions.payments(range).queryKey, data);
+      for (const role of ["all", "designer"] as const) {
+        const home = render(<HomeDashboard range={range} role={role} />);
+        expect(home).toContain(`환불 ${expected}`);
+        expect(home).toContain("순결제 확인 불가");
+      }
+      const payment = render(<PaymentDashboard range={range} role="all" />);
+      expect(payment).toContain(`>${expectedCell}</td>`);
+      expect(payment).not.toContain("−0원 (1건)");
+    },
+  );
   it("retains historical THUNDER revenue and exposes its row and detail only when present", () => {
     const historical = structuredClone(payments);
     const day = historical.dataList[0];

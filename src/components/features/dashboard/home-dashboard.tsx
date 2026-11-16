@@ -148,7 +148,7 @@ export default function HomeDashboard({
         </Panel>
       </div>
       <p className="dashboard-note">
-        매출은 몽 충전과 단건결제(고객 미몽패스·헤어컨설팅 심층답변
+        매출은 몽 충전과 단건결제(미몽패스·광고 제거·헤어컨설팅 심층답변
         {visibleSinglePaymentCategories(payments.data?.dataList ?? []).includes(
           "THUNDER",
         )

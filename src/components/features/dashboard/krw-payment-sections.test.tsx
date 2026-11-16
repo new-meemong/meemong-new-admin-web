@@ -18,7 +18,10 @@ it("resets a hidden historical category filter when the selected period changes"
   historical.dataList[0].itemList.push({
     ...historical.dataList[0].itemList[0],
     paymentCategory: "THUNDER",
-    productId: "legacy.thunder",
+    productId: null,
+    knownRefundedCount: 1,
+    knownRefundedPaymentAmountKRW: 0,
+    unknownRefundedPaymentCount: 1,
   });
   client.setQueryData(
     dashboardQueryOptions.payments(before).queryKey,
@@ -46,7 +49,11 @@ it("resets a hidden historical category filter when the selected period changes"
     await render(before);
     await click("상품별");
     await click("빠른매칭");
-    expect(host.textContent).toContain("legacy.thunder");
+    expect(host.textContent).toContain("빠른매칭 (상품 ID 미제공)");
+    expect(host.querySelector("tbody tr td:nth-child(5)")?.textContent).toBe(
+      "확인 불가 (1건)",
+    );
+    expect(host.querySelector("tbody")?.textContent).not.toContain("−0원");
     await render(after);
     const filters = host.querySelector('[aria-label="결제 유형"]')!;
     expect(filters.textContent).not.toContain("빠른매칭");
@@ -54,7 +61,7 @@ it("resets a hidden historical category filter when the selected period changes"
       "전체",
     );
     expect(host.textContent).toContain("100몽");
-    expect(host.textContent).not.toContain("legacy.thunder");
+    expect(host.textContent).not.toContain("빠른매칭 (상품 ID 미제공)");
   } finally {
     await act(async () => root.unmount());
     host.remove();

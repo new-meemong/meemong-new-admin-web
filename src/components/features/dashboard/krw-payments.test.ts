@@ -8,6 +8,7 @@ import {
   krwAmountText,
   krwCellText,
   krwRefundCellText,
+  krwRefundAmountText,
   krwSummary,
   previousRange,
   productLabel,
@@ -64,6 +65,28 @@ describe("KRW payment summaries", () => {
     expect(summary.netAmount).toBeNull();
     expect(krwRefundCellText(summary)).toBe("상태 확인 불가 1건");
   });
+  it.each([
+    [2, 4500, "4,500원 (확인 불가 1건)", "−4,500원 (2건 · 확인 불가 1건)"],
+    [1, 0, "확인 불가 (1건)", "확인 불가 (1건)"],
+    [2, 0, "0원 (확인 불가 1건)", "−0원 (2건 · 확인 불가 1건)"],
+  ])(
+    "distinguishes missing refund amounts from known zero refunds",
+    (count, amount, expected, expectedCell) => {
+      const summary = krwSummary([
+        item({
+          knownRefundedCount: count as number,
+          knownRefundedPaymentAmountKRW: amount as number,
+          unknownRefundedPaymentCount: 1,
+        }),
+      ]);
+      expect(krwRefundAmountText(summary)).toBe(expected);
+      expect(krwRefundCellText(summary)).toBe(expectedCell);
+      expect(
+        krwRefundCellText({ ...summary, unknownRefundStatusCount: 1 }),
+      ).toBe(`${expectedCell} · 상태 확인 불가 1건`);
+      expect(summary.netAmount).toBeNull();
+    },
+  );
   it("accepts v3 store payments without refund-status fields", () => {
     expect(
       krwSummary([
@@ -94,6 +117,17 @@ describe("product rows", () => {
       }),
     ).toBe("심층상담 답변 3건 모두 열기");
     expect(productLabel({ productId: null })).toBe("상품 미확인");
+    expect(productLabel({ productId: null, category: "THUNDER" })).toBe(
+      "빠른매칭 (상품 ID 미제공)",
+    );
+    for (const [id, label] of [
+      ["designer_month", "디자이너 광고 제거 1개월"],
+      ["designer_week", "디자이너 광고 제거 1주"],
+      ["model_week", "고객 광고 제거 1주"],
+    ])
+      expect(productLabel({ productId: `com.meemong.ad_block_${id}` })).toBe(
+        label,
+      );
     expect(productLabel({ productId: "x.unknown" })).toBe("x.unknown");
     const days = [
       {

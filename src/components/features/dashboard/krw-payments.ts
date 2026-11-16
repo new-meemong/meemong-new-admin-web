@@ -9,7 +9,7 @@ import { dateRange, dayCount, formatNumber } from "./statistics";
 
 export const PAYMENT_CATEGORY_LABELS: Record<PaymentCategory, string> = {
   MONG_CHARGE: "몽 충전",
-  MEEMONG_PASS: "미몽패스 (고객)",
+  MEEMONG_PASS: "미몽패스·광고 제거",
   THUNDER: "빠른매칭",
   V3_HAIR_CONSULTATION: "헤어컨설팅",
 };
@@ -135,11 +135,28 @@ export function krwCellText(summary: KrwSummary) {
     ? `${amount} (확인 불가 ${formatNumber(summary.unknownAmountCount, "건")})`
     : amount;
 }
+/** 환불 상태와 별개로, 확인된 환불의 금액 누락을 표시합니다. 0원 환불은 확인된 금액입니다. */
+export function krwRefundAmountText(summary: KrwSummary) {
+  const unknown = summary.unknownRefundedPaymentCount;
+  if (unknown > 0 && unknown >= summary.knownRefundedCount)
+    return `확인 불가 (${formatNumber(unknown, "건")})`;
+  const amount = formatNumber(summary.knownRefundedAmount, "원");
+  return unknown > 0
+    ? `${amount} (확인 불가 ${formatNumber(unknown, "건")})`
+    : amount;
+}
 export function krwRefundCellText(summary: KrwSummary) {
-  if (summary.unknownRefundStatusCount)
-    return `상태 확인 불가 ${formatNumber(summary.unknownRefundStatusCount, "건")}`;
-  if (!summary.knownRefundedCount) return "—";
-  return `−${formatNumber(summary.knownRefundedAmount, "원")} (${formatNumber(summary.knownRefundedCount, "건")})`;
+  const status = summary.unknownRefundStatusCount
+    ? `상태 확인 불가 ${formatNumber(summary.unknownRefundStatusCount, "건")}`
+    : null;
+  if (!summary.knownRefundedCount) return status ?? "—";
+  const count = formatNumber(summary.knownRefundedCount, "건");
+  const unknown = summary.unknownRefundedPaymentCount;
+  const refund =
+    unknown >= summary.knownRefundedCount
+      ? `확인 불가 (${count})`
+      : `−${formatNumber(summary.knownRefundedAmount, "원")} (${count}${unknown > 0 ? ` · 확인 불가 ${formatNumber(unknown, "건")}` : ""})`;
+  return status ? `${refund} · ${status}` : refund;
 }
 
 export const categoryItems = (
@@ -150,20 +167,35 @@ export const categoryItems = (
     day.itemList.filter((item) => categories.includes(item.paymentCategory)),
   );
 
-const PASS_DURATION_LABELS: Record<string, string> = {
+const AD_BLOCK_DURATION_LABELS: Record<string, string> = {
+  week: "1주",
   month: "1개월",
   "3month": "3개월",
   year: "1년",
 };
 /** 스토어 상품 ID로 운영자가 읽을 수 있는 상품명을 만듭니다. 알 수 없는 ID는 그대로 표시합니다. */
-export function productLabel(item: Pick<PaymentStatisticsItem, "productId">) {
+export function productLabel(
+  item: Pick<PaymentStatisticsItem, "productId"> & {
+    category?: PaymentCategory;
+  },
+) {
   const id = item.productId;
-  if (!id) return "상품 미확인";
+  if (!id)
+    return item.category === "THUNDER"
+      ? "빠른매칭 (상품 ID 미제공)"
+      : "상품 미확인";
   const mong = id.match(/\.mong_(\d+)(_onboarding)?$/);
   if (mong) return `${mong[1]}몽${mong[2] ? " (온보딩)" : ""}`;
-  const pass = id.match(/\.ad_block_model_(\w+)$/);
-  if (pass && PASS_DURATION_LABELS[pass[1]])
-    return `미몽패스 ${PASS_DURATION_LABELS[pass[1]]}`;
+  const pass = id.match(/\.ad_block_(model|designer)_(\w+)$/);
+  if (pass && AD_BLOCK_DURATION_LABELS[pass[2]]) {
+    const label =
+      pass[1] === "designer"
+        ? "디자이너 광고 제거"
+        : pass[2] === "week"
+          ? "고객 광고 제거"
+          : "미몽패스";
+    return `${label} ${AD_BLOCK_DURATION_LABELS[pass[2]]}`;
+  }
   const answers = id.match(/hair_consultation_answers(\d+)$/);
   if (answers)
     return answers[1] === "1"

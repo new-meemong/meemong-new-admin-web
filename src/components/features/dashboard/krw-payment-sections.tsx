@@ -27,6 +27,7 @@ import {
   krwCellText,
   krwNetText,
   krwRefundCellText,
+  krwRefundAmountText,
   krwSummary,
   percent,
   platformLabel,
@@ -86,8 +87,8 @@ export function HomeRevenueMetric({
 }) {
   const { total, mong, single } = revenueParts(days);
   const refundDetail = total.unknownRefundStatusCount
-    ? `환불 ${formatNumber(total.knownRefundedAmount, "원")} · 환불 여부를 확인할 수 없는 ${formatNumber(total.unknownRefundStatusCount, "건")}은 미포함`
-    : `순결제 ${krwNetText(total)} · 환불 ${formatNumber(total.knownRefundedAmount, "원")}`;
+    ? `환불 ${krwRefundAmountText(total)} · 환불 여부를 확인할 수 없는 ${formatNumber(total.unknownRefundStatusCount, "건")}은 미포함`
+    : `순결제 ${krwNetText(total)} · 환불 ${krwRefundAmountText(total)}`;
   return (
     <Metric
       label="매출"
@@ -108,11 +109,13 @@ export function HomeRevenueMetric({
           color: SINGLE_COLOR,
         },
       ]}
-      detail={
-        role !== "all"
-          ? ROLE_NOTE
-          : (revenueStateDetail(total) ?? `원화 결제 합계 · ${refundDetail}`)
-      }
+      detail={[
+        role !== "all" ? ROLE_NOTE : null,
+        revenueStateDetail(total) ?? "원화 결제 합계",
+        refundDetail,
+      ]
+        .filter(Boolean)
+        .join(" · ")}
     />
   );
 }
@@ -245,7 +248,7 @@ export function KrwPaymentSection({
       <div className="dashboard-section-heading">
         <h2>원화 결제</h2>
         <p>
-          앱스토어·구글플레이 결제 · 몽 충전 + 단건결제(고객 미몽패스 ·
+          앱스토어·구글플레이 결제 · 몽 충전 + 단건결제(미몽패스·광고 제거 ·
           헤어컨설팅 심층답변
           {visibleSinglePaymentCategories(days).includes("THUNDER")
             ? " · 빠른매칭"
