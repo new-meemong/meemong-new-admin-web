@@ -12,6 +12,7 @@ import { fetcher } from "@/apis/core";
 const BASE_URL = "/api/v1/admins/hair-consultations";
 
 export type GetHairConsultationsRequest = {
+  userId?: number;
   __limit?: number;
   __nextCursor?: string;
   __orderColumn?: HairConsultationOrderColumn;
@@ -99,6 +100,7 @@ export type PutHairConsultationRequest = {
 
 export const hairConsultationAPI = {
   getAll: ({
+    userId,
     __limit = 20,
     __nextCursor,
     __orderColumn,
@@ -118,6 +120,7 @@ export const hairConsultationAPI = {
 
     return fetcher<GetHairConsultationsResponse>(BASE_URL, {
       query: {
+        ...(userId !== undefined && { userId }),
         __limit,
         ...(__nextCursor && { __nextCursor }),
         ...(__orderColumn && { __orderColumn }),

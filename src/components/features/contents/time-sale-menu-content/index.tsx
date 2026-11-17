@@ -1,5 +1,9 @@
 "use client";
 
+import useContentSearchInput, {
+  getContentSearchQuery,
+} from "../hooks/useContentSearchInput";
+
 import { ColumnDef, Row } from "@tanstack/react-table";
 import React, { useCallback, useState } from "react";
 
@@ -56,7 +60,7 @@ const TimeSaleMenuDetailModal = dynamic(
 );
 
 type TimeSaleMenuFilterParams = {
-  searchType: TimeSaleMenuSearchType;
+  searchType: TimeSaleMenuSearchType | "USER_ID";
   searchKeyword: string;
   orderBy: TimeSaleMenuOrderBy;
   createdAtStartKST: string;
@@ -74,9 +78,10 @@ const DEFAULT_FILTER_PARAMS: TimeSaleMenuFilterParams = {
 };
 
 const SEARCH_TYPE_OPTIONS: {
-  value: TimeSaleMenuSearchType;
+  value: TimeSaleMenuSearchType | "USER_ID";
   label: string;
 }[] = [
+  { value: "USER_ID", label: "userId" },
   { value: "NICKNAME", label: "닉네임" },
   { value: "PHONE", label: "연락처" },
   { value: "TITLE", label: "제목" },
@@ -98,6 +103,17 @@ const COLUMNS: ColumnDef<ITimeSaleMenu>[] = [
     header: "닉네임",
     cell: (info) => info.getValue(),
     size: 130,
+    enableSorting: false,
+  },
+  {
+    id: "timeSalePosition",
+    accessorFn: (item) => item.designer?.timeSalePosition ?? "-",
+    header: "직급",
+    cell: (info) => {
+      const position = info.getValue() as string;
+      return position === "원장점장" ? "원장·점장" : position || "-";
+    },
+    size: 90,
     enableSorting: false,
   },
   {
@@ -201,12 +217,16 @@ export default function TimeSaleMenuContent({
   const [page, setPage] = useState(DEFAULT_PAGINATION.page);
   const [size, setSize] = useState(DEFAULT_PAGINATION.size);
 
+  const searchInputProps = useContentSearchInput(
+    filters.searchType,
+    filters.searchKeyword,
+  );
   const submittedSearchKeyword = submittedFilters.searchKeyword.trim();
   const getTimeSaleMenusQuery = useGetTimeSaleMenusQuery({
-    ...(submittedSearchKeyword && {
-      searchType: submittedFilters.searchType,
-      searchKeyword: submittedSearchKeyword,
-    }),
+    ...getContentSearchQuery(
+      submittedFilters.searchType,
+      submittedSearchKeyword,
+    ),
     orderBy: submittedFilters.orderBy,
     createdAtStartKST: submittedFilters.createdAtStartKST,
     createdAtEndKST: submittedFilters.createdAtEndKST,
@@ -247,7 +267,7 @@ export default function TimeSaleMenuContent({
     ({ value }: { key: keyof TimeSaleMenuFilterParams; value: string }) => {
       setFilters((previous) => ({
         ...previous,
-        searchType: value as TimeSaleMenuSearchType,
+        searchType: value as TimeSaleMenuSearchType | "USER_ID",
       }));
     },
     [],
@@ -382,6 +402,7 @@ export default function TimeSaleMenuContent({
         <SearchFormInput<TimeSaleMenuFilterParams>
           aria-label="검색어"
           name="searchKeyword"
+          {...searchInputProps}
           className="w-[165px]"
           onChange={handleSearchKeywordChange}
           value={filters.searchKeyword}

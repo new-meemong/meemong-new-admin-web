@@ -21,6 +21,7 @@ import { fetcher } from "@/apis/core";
 const BASE_URL = "/api/v1/admins/beauty-applications";
 
 export type GetBeautyApplicationsRequest = {
+  userId?: number;
   category?: string;
   priceType?: string;
   searchType?: SearchType;
@@ -63,6 +64,7 @@ export type DeleteBeautyApplicationResponse = {
 
 export const beautyApplicationAPI = {
   getAll: async ({
+    userId,
     category,
     priceType,
     searchKeyword,
@@ -74,6 +76,7 @@ export const beautyApplicationAPI = {
       BASE_URL,
       {
         query: {
+          ...(userId !== undefined && { userId }),
           ...(category && { category }),
           ...(priceType && { priceType }),
           ...(searchKeyword && searchType && { searchKeyword, searchType }),

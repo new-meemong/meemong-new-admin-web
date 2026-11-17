@@ -1,7 +1,8 @@
 "use client";
+import { getContentSearchQuery } from "../hooks/useContentSearchInput";
 
 import ContentsSearchForm, {
-  IContentsSearchParams
+  IContentsSearchParams,
 } from "@/components/features/contents/contents-search-form";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
@@ -44,11 +45,11 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     priceType: "ALL",
     searchType: "NAME",
     searchKeyword: "",
-    ...DEFAULT_PAGINATION
+    ...DEFAULT_PAGINATION,
   };
 
   const methods = useSearchMethods<IContentsSearchParams>({
-    defaultParams: DEFAULT_SEARCH_PARAMS
+    defaultParams: DEFAULT_SEARCH_PARAMS,
   });
 
   const thunderAnnouncementType: string | undefined = useMemo(() => {
@@ -63,56 +64,66 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
 
   const getThunderAnnouncementsQuery = useGetThunderAnnouncementsQuery(
     {
+      ...getContentSearchQuery(
+        methods.searchParams.searchType,
+        methods.searchParams.searchKeyword,
+      ),
       role:
         methods.params.role === "ALL"
           ? undefined
           : (Number(methods.params.role) as UserRoleType),
-      searchType: methods.params.searchType,
-      searchKeyword: methods.params.searchKeyword,
       type: thunderAnnouncementType as ThunderAnnouncementType,
       page: methods.params.page,
-      size: methods.params.size
+      size: methods.params.size,
     },
     {
-      enabled: false
-    }
+      enabled: false,
+    },
   );
 
   const getJobPostingsQuery = useGetJobPostingsQuery(
     {
+      ...getContentSearchQuery(
+        methods.searchParams.searchType,
+        methods.searchParams.searchKeyword,
+      ),
       storeName: methods.params.storeName,
       role:
         methods.params.jobPostingRole === "ALL"
           ? undefined
           : (methods.params.jobPostingRole as JobPostingRoleType),
-      searchType: methods.params.searchType,
-      searchKeyword: methods.params.searchKeyword,
       page: methods.params.page,
-      size: methods.params.size
+      size: methods.params.size,
     },
     {
-      enabled: false
-    }
+      enabled: false,
+    },
   );
 
   const getResumesQuery = useGetResumeListQuery(
     {
+      ...getContentSearchQuery(
+        methods.searchParams.searchType,
+        methods.searchParams.searchKeyword,
+      ),
       role:
         methods.params.resumeRole === "ALL"
           ? undefined
           : (methods.params.resumeRole as ResumeRoleType),
-      searchType: methods.params.searchType,
-      searchKeyword: methods.params.searchKeyword,
       page: methods.params.page,
-      size: methods.params.size
+      size: methods.params.size,
     },
     {
-      enabled: false
-    }
+      enabled: false,
+    },
   );
 
   const getAnnouncementsQuery = useGetBeautyApplicationsQuery(
     {
+      ...getContentSearchQuery(
+        methods.searchParams.searchType,
+        methods.searchParams.searchKeyword,
+      ),
       category:
         methods.params.announcementCategory === "ALL"
           ? undefined
@@ -121,14 +132,12 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
         methods.params.priceType === "ALL"
           ? undefined
           : methods.params.priceType,
-      searchType: methods.params.searchType,
-      searchKeyword: methods.params.searchKeyword,
       page: methods.params.page,
-      size: methods.params.size
+      size: methods.params.size,
     },
     {
-      enabled: false
-    }
+      enabled: false,
+    },
   );
 
   const parseContentsData = useCallback((data: unknown[]): IContents[] => {
@@ -153,7 +162,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
         announcementTitle: contentsItem?.description,
         priceType: contentsItem?.priceType,
         createdAt: contentsItem?.createdAt,
-        deletedAt: contentsItem?.deletedAt
+        deletedAt: contentsItem?.deletedAt,
       };
     }) as IContents[];
   }, []);
@@ -172,21 +181,21 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
           [],
         totalCount: getThunderAnnouncementsQuery.data?.totalCount ?? 0,
         isLoading: getThunderAnnouncementsQuery.isLoading,
-        refetch: getThunderAnnouncementsQuery.refetch
+        refetch: getThunderAnnouncementsQuery.refetch,
       };
     } else if (tabId === "2") {
       return {
         data: parseContentsData(getJobPostingsQuery.data?.content || []) ?? [],
         totalCount: getJobPostingsQuery.data?.totalCount ?? 0,
         isLoading: getJobPostingsQuery.isLoading,
-        refetch: getJobPostingsQuery.refetch
+        refetch: getJobPostingsQuery.refetch,
       };
     } else if (tabId === "3") {
       return {
         data: parseContentsData(getResumesQuery.data?.content || []) ?? [],
         totalCount: getResumesQuery.data?.totalCount ?? 0,
         isLoading: getResumesQuery.isLoading,
-        refetch: getResumesQuery.refetch
+        refetch: getResumesQuery.refetch,
       };
     } else if (tabId === "4") {
       return {
@@ -194,7 +203,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
           parseContentsData(getAnnouncementsQuery.data?.content || []) ?? [],
         totalCount: getAnnouncementsQuery.data?.totalCount ?? 0,
         isLoading: getAnnouncementsQuery.isLoading,
-        refetch: getAnnouncementsQuery.refetch
+        refetch: getAnnouncementsQuery.refetch,
       };
     }
 
@@ -202,7 +211,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
       data: [] as IContents[],
       totalCount: 0,
       isLoading: false,
-      refetch: () => {}
+      refetch: () => {},
     };
   }, [
     tabId,
@@ -213,7 +222,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
     getResumesQuery.data,
     getResumesQuery.isLoading,
     getAnnouncementsQuery.data,
-    getAnnouncementsQuery.isLoading
+    getAnnouncementsQuery.isLoading,
   ]);
 
   useEffect(() => {
@@ -229,13 +238,13 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
       ...DEFAULT_SEARCH_PARAMS,
       size,
       tabId,
-      page: 1
+      page: 1,
     });
     methods.setSearchParams({
       ...DEFAULT_SEARCH_PARAMS,
       size,
       tabId,
-      page: 1
+      page: 1,
     });
   }, [tabId]);
 
@@ -268,6 +277,7 @@ function ContentsPageContent({ className }: ContentsPageContentProps) {
         methods={methods}
         onSubmit={() => {
           methods.handleSubmit();
+          methods.setSearchParams({ ...methods.params, page: 1 });
         }}
         onRefresh={() => {
           methods.handleReset();

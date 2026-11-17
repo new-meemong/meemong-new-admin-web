@@ -16,6 +16,7 @@ import { fetcher } from "@/apis/core";
 const BASE_URL = "/api/v1/admins/time-sale-menus";
 
 export type GetTimeSaleMenusRequest = {
+  userId?: number;
   orderBy?: TimeSaleMenuOrderBy;
   createdAtStartKST?: string;
   createdAtEndKST?: string;
@@ -46,6 +47,7 @@ export type PutTimeSaleMenuResponse = {
 
 export const timeSaleMenuAPI = {
   getAll: async ({
+    userId,
     orderBy,
     createdAtStartKST,
     createdAtEndKST,
@@ -60,6 +62,7 @@ export const timeSaleMenuAPI = {
       BASE_URL,
       {
         query: {
+          ...(userId !== undefined && { userId }),
           orderBy,
           createdAtStartKST: createdAtStartKST || undefined,
           createdAtEndKST: createdAtEndKST || undefined,

@@ -1,5 +1,9 @@
 "use client";
 
+import useContentSearchInput, {
+  getContentSearchQuery,
+} from "../hooks/useContentSearchInput";
+
 import { ColumnDef, Row } from "@tanstack/react-table";
 import React, { useCallback, useState } from "react";
 
@@ -24,7 +28,7 @@ import { useGetHairConsultationsQuery } from "@/queries/hairConsultations";
 import { useModal } from "@/components/shared/modal/useModal";
 
 type HairConsultationSearchParams = {
-  searchType: HairConsultationSearchType;
+  searchType: HairConsultationSearchType | "USER_ID";
   searchKeyword: string;
 };
 
@@ -34,9 +38,10 @@ const DEFAULT_SEARCH_PARAMS: HairConsultationSearchParams = {
 };
 
 const SEARCH_TYPE_OPTIONS: {
-  value: HairConsultationSearchType;
+  value: HairConsultationSearchType | "USER_ID";
   label: string;
 }[] = [
+  { value: "USER_ID", label: "userId" },
   { value: "NAME", label: "닉네임" },
   { value: "PHONE", label: "전화번호" },
 ];
@@ -136,6 +141,10 @@ export default function HairConsultationContent({
   const [submittedSearchParams, setSubmittedSearchParams] =
     useState<HairConsultationSearchParams>(DEFAULT_SEARCH_PARAMS);
 
+  const searchInputProps = useContentSearchInput(
+    searchParams.searchType,
+    searchParams.searchKeyword,
+  );
   const submittedSearchKeyword = submittedSearchParams.searchKeyword.trim();
 
   const buildHairConsultationsRequest = useCallback(
@@ -147,10 +156,10 @@ export default function HairConsultationContent({
       __nextCursor: cursor,
       __orderColumn: "contentUpdatedAt",
       __order: "desc",
-      ...(submittedSearchKeyword && {
-        searchType: submittedSearchParams.searchType,
-        searchKeyword: submittedSearchKeyword,
-      }),
+      ...getContentSearchQuery(
+        submittedSearchParams.searchType,
+        submittedSearchKeyword,
+      ),
     }),
     [submittedSearchKeyword, submittedSearchParams.searchType],
   );
@@ -194,7 +203,7 @@ export default function HairConsultationContent({
     ({ value }: { key: keyof HairConsultationSearchParams; value: string }) => {
       setSearchParams((prev) => ({
         ...prev,
-        searchType: value as HairConsultationSearchType,
+        searchType: value as HairConsultationSearchType | "USER_ID",
       }));
     },
     [],
@@ -237,11 +246,16 @@ export default function HairConsultationContent({
         />
         <SearchFormInput<HairConsultationSearchParams>
           name="searchKeyword"
+          {...searchInputProps}
           className={cn("w-[165px]")}
           onChange={handleSearchKeywordChange}
           value={searchParams.searchKeyword}
           placeholder={
-            searchParams.searchType === "PHONE" ? "전화번호" : "닉네임"
+            searchParams.searchType === "USER_ID"
+              ? "userId"
+              : searchParams.searchType === "PHONE"
+                ? "전화번호"
+                : "닉네임"
           }
         />
       </SearchForm>

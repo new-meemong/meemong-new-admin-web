@@ -50,6 +50,8 @@ export interface ITimeSaleMenuReservationSlot {
 }
 
 export interface ITimeSaleMenuDesigner {
+  // Older admin API deployments omit the review-special position.
+  timeSalePosition?: string | null;
   id: number;
   userId: number;
   displayName: string;

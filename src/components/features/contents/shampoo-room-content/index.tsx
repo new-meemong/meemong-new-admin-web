@@ -1,5 +1,7 @@
 "use client";
 
+import useContentSearchInput from "../hooks/useContentSearchInput";
+
 import React, { useCallback, useState } from "react";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { cn } from "@/lib/utils";
@@ -12,6 +14,7 @@ import { IShampooRoom, ShampooRoomCategory } from "@/models/shampooRooms";
 import ShampooRoomDetailModal from "@/components/features/contents/contents-detail-modal/shampoo-room-detail-modal";
 import {
   SearchForm,
+  SearchFormInput,
   SearchFormSelectBox,
 } from "@/components/shared/search-form";
 import { GetShampooRoomsRequest } from "@/apis/shampooRooms";
@@ -19,6 +22,7 @@ import useContentsCursorPagination from "@/components/features/contents/hooks/us
 
 type ShampooRoomSearchParams = {
   category: string;
+  searchType: "USER_ID";
 };
 
 const CATEGORY_OPTIONS: { value: string; label: string }[] = [
@@ -98,11 +102,15 @@ export default function ShampooRoomContent({
   const modal = useModal();
   const [selectedShampooRoom, setSelectedShampooRoom] =
     useState<IShampooRoom | null>(null);
+  const [userId, setUserId] = useState("");
+  const [submittedUserId, setSubmittedUserId] = useState("");
+  const searchInputProps = useContentSearchInput("USER_ID", userId);
   const [category, setCategory] = useState<string>("ALL");
   const [searchCategory, setSearchCategory] = useState<string>("ALL");
 
   const buildShampooRoomsRequest = useCallback(
     (cursor: string | undefined, pageSize: number): GetShampooRoomsRequest => ({
+      userId: submittedUserId ? Number(submittedUserId) : undefined,
       __nextCursor: cursor,
       __limit: pageSize,
       category:
@@ -110,7 +118,7 @@ export default function ShampooRoomContent({
           ? undefined
           : (searchCategory as ShampooRoomCategory),
     }),
-    [searchCategory],
+    [searchCategory, submittedUserId],
   );
 
   const {
@@ -133,10 +141,13 @@ export default function ShampooRoomContent({
 
   const handleSearch = useCallback(() => {
     setSearchCategory(category);
+    setSubmittedUserId(userId);
     resetPagination();
-  }, [category, resetPagination]);
+  }, [category, userId, resetPagination]);
 
   const handleReset = useCallback(() => {
+    setUserId("");
+    setSubmittedUserId("");
     setCategory("ALL");
     setSearchCategory("ALL");
     resetPagination();
@@ -165,6 +176,20 @@ export default function ShampooRoomContent({
           onChange={({ value }) => setCategory(value)}
           options={CATEGORY_OPTIONS}
           title="카테고리"
+        />
+        <SearchFormSelectBox<ShampooRoomSearchParams>
+          name="searchType"
+          className="w-[114px]"
+          value="USER_ID"
+          options={[{ value: "USER_ID", label: "userId" }]}
+          onChange={() => {}}
+        />
+        <SearchFormInput
+          name="searchKeyword"
+          className="w-[165px]"
+          value={userId}
+          onChange={(event) => setUserId(event.target.value)}
+          {...searchInputProps}
         />
       </SearchForm>
 

@@ -20,6 +20,7 @@ import { fetcher } from "@/apis/core";
 const BASE_URL = "/api/v1/admins/thunder-announcements";
 
 export type GetThunderAnnouncementsRequest = {
+  userId?: number;
   role?: UserRoleType;
   type?: ThunderAnnouncementType;
   searchType?: SearchType;
@@ -73,6 +74,7 @@ export type DeleteThunderAnnouncementResponse = {
 
 export const thunderAnnouncementAPI = {
   getAll: async ({
+    userId,
     role,
     type,
     searchKeyword,
@@ -84,6 +86,7 @@ export const thunderAnnouncementAPI = {
       ServerPaginatedResponse<IThunderAnnouncement>
     >(BASE_URL, {
       query: {
+        ...(userId !== undefined && { userId }),
         ...(role && { role }),
         ...(type && { type }),
         ...(searchKeyword && searchType && { searchKeyword, searchType }),

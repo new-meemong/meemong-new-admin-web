@@ -1,4 +1,5 @@
 "use client";
+import useContentSearchInput from "../hooks/useContentSearchInput";
 
 import React, { useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -26,7 +27,7 @@ export type IContentsSearchParams = {
   jobCategory?: JobCategoryTypeWithAll;
   announcementCategory?: string;
   priceType?: string;
-  searchType?: SearchType;
+  searchType?: SearchType | "USER_ID";
   searchKeyword?: string;
 } & PaginationType;
 
@@ -40,6 +41,10 @@ function ContentsSearchForm({
   className,
   ...props
 }: ContentsSearchFormProps) {
+  const searchInputProps = useContentSearchInput(
+    methods.params.searchType,
+    methods.params.searchKeyword,
+  );
   const { tabId } = useContentsContext();
 
   const USER_ROLE_TYPE_OPTIONS: { value: string; label: string }[] = [
@@ -101,7 +106,10 @@ function ContentsSearchForm({
   ];
 
   const getSearchTypeOptions = useCallback(() => {
-    const baseOptions = [...SEARCH_TYPE_OPTIONS];
+    const baseOptions = [
+      ...SEARCH_TYPE_OPTIONS,
+      { value: "USER_ID", label: "userId" },
+    ];
 
     // 빠른/일반, 빠른/프리미엄, 모집공고의 경우 '내용' 옵션 추가
     if (tabId === "0" || tabId === "1" || tabId === "4") {
@@ -227,18 +235,30 @@ function ContentsSearchForm({
   }, [tabId]);
 
   return (
-    <SearchForm className={cn("contents-search-form", className)} {...props}>
+    <SearchForm
+      className={cn(
+        "contents-search-form h-auto w-full [&_.search-form-content]:flex-wrap [&_.search-form-content]:gap-y-3",
+        className,
+      )}
+      {...props}
+    >
       {renderSearchForm()}
       <SearchFormSelectBox<IContentsSearchParams>
         className={cn("w-[114px] ml-[10px]")}
         name="searchType"
         value={methods.params.searchType!}
         defaultValue={"NAME"}
-        onChange={methods.handleSelect}
+        onChange={({ value }) =>
+          methods.setParams((prev) => ({
+            ...prev,
+            searchType: value as IContentsSearchParams["searchType"],
+          }))
+        }
         options={getSearchTypeOptions()}
       />
       <SearchFormInput
         name="searchKeyword"
+        {...searchInputProps}
         className={cn("w-[165px]")}
         onChange={methods.handleChangeText}
         value={methods.params.searchKeyword}

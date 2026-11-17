@@ -12,6 +12,7 @@ import { IResumeForm } from "@/models/resumes";
 const BASE_URL = "/api/v1/admins/resumes";
 
 export type GetResumesRequest = {
+  userId?: number;
   storeName?: string;
   role?: ResumeRoleType;
   searchType?: SearchType;
@@ -32,6 +33,7 @@ export type DeleteResumeResponse = {
 
 export const resumeAPI = {
   getAll: async ({
+    userId,
     role,
     searchKeyword,
     searchType,
@@ -40,6 +42,7 @@ export const resumeAPI = {
   }: GetResumesRequest) => {
     const response = await fetcher<ServerPaginatedResponse<IResume>>(BASE_URL, {
       query: {
+        ...(userId !== undefined && { userId }),
         ...(role && { role }),
         ...(searchKeyword && searchType && { searchKeyword, searchType }),
         page,

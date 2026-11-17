@@ -11,6 +11,7 @@ import { fetcher } from "@/apis/core";
 const BASE_URL = "/api/v1/admins/shampoo-rooms";
 
 export type GetShampooRoomsRequest = {
+  userId?: number;
   __nextCursor?: string;
   __limit?: number;
   category?: ShampooRoomCategory;
@@ -55,6 +56,7 @@ export type DeleteShampooRoomCommentRequest = {
 
 export const shampooRoomAPI = {
   getAll: ({
+    userId,
     __nextCursor,
     __limit,
     category,
@@ -62,6 +64,7 @@ export const shampooRoomAPI = {
   }: GetShampooRoomsRequest): Promise<GetShampooRoomsResponse> =>
     fetcher<GetShampooRoomsResponse>(BASE_URL, {
       query: {
+        ...(userId !== undefined && { userId }),
         ...(__nextCursor && { __nextCursor }),
         ...(__limit && { __limit }),
         ...(category && { category }),

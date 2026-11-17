@@ -18,3 +18,10 @@
 ### 미리보기 폰트
 
 기존 Meemong 웹 프로젝트의 `PretendardVariable.woff2`를 재사용합니다. 원본 3종 OTF 약 4.7MB 대신 전체 글리프를 가진 단일 WOFF2 약 2.1MB로 교체해 임의의 한글 메뉴명도 보존합니다. 모달은 동적 로딩하고 폰트 preload는 끕니다.
+
+### 2026-11-17 리뷰특가 직급 열
+
+- 서버 `f83ecf81`에서 목록/상세 `designer.timeSalePosition` 응답을 추가했다. 서버는 미설정 값을 `디자이너`로 반환한다. 어드민은 받은 값을 닉네임과 제목 사이 90px 열(Figma `10996:32355`)에 표시하며 `원장점장`만 `원장·점장`으로 표시한다. 구버전 응답 누락·null·디자이너 부재는 `-`, 알 수 없는 직급은 원문을 보존한다.
+- 직급 검색은 서버 목록 DTO/조회 조건에 아직 없어 미구현이다. 연결 Figma의 직급 필터 및 열림 상태까지 구현 완료한 것으로 간주하지 않는다. 기존 작성자 ID 검색 변경은 보존했다.
+- 검증: 어드민 `master`, base `01a5b89049dbfb0c8ec687f3daa7060ff85bfad0` 위 직급 모델/목록 열/신규 `time-sale-menu-content/index.test.tsx` 변경. Vitest 3.2.7·Next 15.3.8. 실제 fetch→API→Query→CommonTable 테스트로 직급7종·미지값·null·누락·디자이너 부재·열 위치/폭을 확인했다. 초기 jsdom ResizeObserver 부재를 보완 후 focused 통과. 최종 `npm run test` 58파일/339건 통과(3.6초), `npm run lint` 통과(1.4초, 기존 img 경고), `npm run build` 통과(10.9초). 로그 `/tmp/admin-position-{focused,test,lint,build}.log`. `git diff --check` 통과. 전체 테스트는 해당 스냅샷에서 1회 실행했다.
+- 브라우저 렌더와 Figma 전체 화면 시각 대조, 운영 실응답/서버 배포 여부는 미검증이다. 서버 수정·커밋·배포 없음.

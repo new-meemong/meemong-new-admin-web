@@ -15,6 +15,7 @@ import {
 const BASE_URL = "/api/v1/admins/job-postings";
 
 export type GetJobPostingsRequest = {
+  userId?: number;
   storeName?: string;
   role?: JobPostingRoleType;
   searchType?: SearchType;
@@ -37,6 +38,7 @@ export type DeleteJobPostingResponse = {
 
 export const jobPostingAPI = {
   getAll: async ({
+    userId,
     storeName,
     role,
     searchKeyword,
@@ -48,6 +50,7 @@ export const jobPostingAPI = {
       BASE_URL,
       {
         query: {
+          ...(userId !== undefined && { userId }),
           ...(storeName && { storeName }),
           ...(role && { role }),
           ...(searchKeyword && searchType && { searchKeyword, searchType }),
