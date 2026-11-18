@@ -3,8 +3,8 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { beforeEach, afterEach, expect, it, vi } from "vitest";
-import LinkedDetail from "./linked-detail";
-import type { UserProfileDetailTarget } from "@/models/user-profile";
+import LinkedDetail from "@/components/features/contents/content-linked-detail";
+import type { ContentDetailTarget } from "@/models/content-detail";
 
 vi.mock("@/components/shared/dialog/context", () => ({
   useDialog: () => ({ confirm: vi.fn() }),
@@ -30,7 +30,20 @@ vi.mock("@/components/features/contents/v3-hair-consultation-preview", () => ({
 }));
 vi.mock(
   "@/components/features/contents/v3-hair-consultation-content/answers",
-  () => ({ default: () => null, V3AnswerDetailPanel: () => null }),
+  () => ({
+    default: () => null,
+    V3AnswerDetailPanel: ({
+      consultationId,
+      answerId,
+    }: {
+      consultationId: number;
+      answerId: number;
+    }) => (
+      <p>
+        상담 {consultationId} 답변 {answerId}
+      </p>
+    ),
+  }),
 );
 let host: HTMLDivElement;
 let root: Root;
@@ -80,7 +93,9 @@ afterEach(async () => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
 });
-async function render(kind: UserProfileDetailTarget["kind"]) {
+async function render(
+  kind: Exclude<ContentDetailTarget["kind"], "thunder-announcement">,
+) {
   await act(async () =>
     root.render(
       <QueryClientProvider client={client}>
@@ -137,6 +152,52 @@ it.each(["model-treatment", "time-sale"] as const)(
     await render(kind);
     expect(document.querySelector('[role="alert"]')?.textContent).toContain(
       "조회 권한이 없습니다",
+    );
+  },
+);
+
+it("opens the detected consultation answer directly", async () => {
+  await act(async () =>
+    root.render(
+      <QueryClientProvider client={client}>
+        <LinkedDetail
+          target={{ kind: "consultation", id: 9, answerId: 27 }}
+          onClose={() => {}}
+          onRefresh={() => {}}
+        />
+      </QueryClientProvider>,
+    ),
+  );
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 30));
+  });
+  expect(document.body.textContent).toContain("상담 9 답변 27");
+});
+it.each([404, 403])(
+  "handles missing/forbidden quick matching originals (%s)",
+  async (code) => {
+    status = code;
+    await act(async () =>
+      root.render(
+        <QueryClientProvider client={client}>
+          <LinkedDetail
+            target={{ kind: "thunder-announcement", id: 9, userId: 5 }}
+            onClose={() => {}}
+            onRefresh={() => {}}
+          />
+        </QueryClientProvider>,
+      ),
+    );
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    });
+    expect(
+      requests.some(
+        (url) => url.pathname === "/api/v1/admins/thunder-announcements/9",
+      ),
+    ).toBe(true);
+    expect(document.body.textContent).toContain(
+      code === 404 ? "공고를 찾을 수 없습니다." : "조회 권한이 없습니다.",
     );
   },
 );

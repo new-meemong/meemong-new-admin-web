@@ -13,9 +13,12 @@ import UserAppPreview from "@/components/features/user/user-app-preview";
 import { ChevronRight } from "lucide-react";
 import { useGetUserDetailQuery } from "@/queries/users";
 import UserDetailForm from "@/components/features/user/user-detail-form";
+import { ApiError } from "@/apis/core";
 import { Button } from "@/components/ui/button";
 
-const UserProfileLinkedDetail = lazy(() => import("./linked-detail"));
+const ContentLinkedDetail = lazy(
+  () => import("@/components/features/contents/content-linked-detail"),
+);
 
 const SupportChatOutreachDialog = lazy(
   () =>
@@ -176,7 +179,13 @@ function UserDetailModal({
             </>
           ) : getUserDetailQuery.isError ? (
             <div role="alert">
-              회원 정보를 불러오지 못했습니다.
+              {getUserDetailQuery.error instanceof ApiError &&
+              getUserDetailQuery.error.status === 404
+                ? "회원을 찾을 수 없습니다."
+                : getUserDetailQuery.error instanceof ApiError &&
+                    [401, 403].includes(getUserDetailQuery.error.status)
+                  ? "조회 권한이 없습니다."
+                  : "회원 정보를 불러오지 못했습니다."}
               <Button onClick={() => void getUserDetailQuery.refetch()}>
                 다시 시도
               </Button>
@@ -197,7 +206,7 @@ function UserDetailModal({
             </Modal>
           }
         >
-          <UserProfileLinkedDetail
+          <ContentLinkedDetail
             target={linkedDetail}
             onClose={() => {
               setLinkedDetail(null);

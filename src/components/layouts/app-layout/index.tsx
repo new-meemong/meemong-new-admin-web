@@ -29,6 +29,12 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
   const supportChatUnreadRooms = useSupportChatUnreadRoomCount();
 
   const handleLogout = useCallback(() => {
+    if (
+      !window.dispatchEvent(
+        new Event("admin:before-navigation", { cancelable: true }),
+      )
+    )
+      return;
     // 세션 스토리지 클리어
     sessionStorage.removeItem("adminName");
     sessionStorage.removeItem("adminPassword");
@@ -71,6 +77,11 @@ function AppLayout({ children, className }: DefaultLayoutProps) {
           href={"/reports"}
           icon={<IcReportMenu />}
           label={"신고 관리"}
+        />
+        <SideNavItem
+          href="/sns-inducement-detections"
+          icon={<IcReportMenu />}
+          label="외부 서비스 안내 탐지"
         />
         <SideNavGroup
           icon={<MessagesSquare className="h-4 w-4" />}

@@ -116,3 +116,40 @@ describe("request cancellation logging", () => {
     expect(console.error).toHaveBeenCalledWith("❌ Error:", error);
   });
 });
+
+describe("API error response shapes", () => {
+  it.each([
+    [
+      {
+        error: { code: "NESTED", message: "서버 상세 사유" },
+        code: "LEGACY",
+        message: "이전 오류",
+      },
+      "NESTED",
+      "서버 상세 사유",
+    ],
+    [{ code: "LEGACY", message: "이전 오류" }, "LEGACY", "이전 오류"],
+    [{ error: null }, undefined, "API 요청 실패: 400 Bad Request"],
+  ])(
+    "preserves nested and legacy errors with an HTTP fallback",
+    async (body, code, message) => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue(
+          new Response(JSON.stringify(body), {
+            status: 400,
+            statusText: "Bad Request",
+            headers: { "content-type": "application/json" },
+          }),
+        ),
+      );
+      await expect(fetcher("/example")).rejects.toMatchObject({
+        name: "ApiError",
+        status: 400,
+        code,
+        message,
+      });
+      expect(console.error).toHaveBeenCalledTimes(1);
+    },
+  );
+});

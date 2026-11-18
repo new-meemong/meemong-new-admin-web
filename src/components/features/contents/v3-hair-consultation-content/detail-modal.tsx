@@ -1,4 +1,5 @@
 "use client";
+import { ApiError } from "@/apis/core";
 import { useState } from "react";
 import { Modal } from "@/components/shared/modal";
 import { Dialog } from "@/components/shared/dialog";
@@ -32,9 +33,11 @@ import V3ConsultationAnswers, { V3AnswerDetailPanel } from "./answers";
 
 export default function V3ConsultationDetailModal({
   id,
+  initialAnswerId,
   onClose,
 }: {
   id: number;
+  initialAnswerId?: number;
   onClose: () => void;
 }) {
   const query = useV3Consultation(id);
@@ -56,22 +59,41 @@ export default function V3ConsultationDetailModal({
       </div>
       <QueryStatus
         pending={query.isPending}
-        error={query.error}
+        error={
+          query.error instanceof ApiError && query.error.status === 404
+            ? new Error("상담을 찾을 수 없습니다.")
+            : query.error instanceof ApiError &&
+                [401, 403].includes(query.error.status)
+              ? new Error("조회 권한이 없습니다.")
+              : query.error
+        }
         retry={() => void query.refetch()}
       />
       {query.data && !query.isError && (
-        <ConsultationDetail detail={query.data} />
+        <ConsultationDetail
+          key={`${id}:${initialAnswerId ?? ""}`}
+          detail={query.data}
+          initialAnswerId={initialAnswerId}
+        />
       )}
     </Modal>
   );
 }
-function ConsultationDetail({ detail }: { detail: V3ConsultationDetail }) {
+function ConsultationDetail({
+  detail,
+  initialAnswerId,
+}: {
+  detail: V3ConsultationDetail;
+  initialAnswerId?: number;
+}) {
   const actions = useV3ConsultationActions(detail.id);
   const [confirmHide, setConfirmHide] = useState(false);
   const [editBase, setEditBase] = useState<V3ConsultationDetail | null>(null);
   const [draft, setDraft] = useState<V3ConsultationEditable | null>(null);
   const [message, setMessage] = useState("");
-  const [answerId, setAnswerId] = useState<number | null>(null);
+  const [answerId, setAnswerId] = useState<number | null>(
+    initialAnswerId ?? null,
+  );
   const busy = actions.update.isPending || actions.hide.isPending;
   const values = draft ?? detail;
   async function save() {

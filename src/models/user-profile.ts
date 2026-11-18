@@ -124,7 +124,7 @@ export type UserDesignerInfo = {
   modelTreatmentMenuList: UserModelTreatmentMenu[];
   timeSaleMenuList: UserTimeSaleMenu[];
 };
-export type UserProfileDetailTarget = {
-  kind: "model-treatment" | "time-sale" | "consultation";
-  id: number;
-};
+export type UserProfileDetailTarget = Exclude<
+  import("./content-detail").ContentDetailTarget,
+  { kind: "thunder-announcement" }
+>;

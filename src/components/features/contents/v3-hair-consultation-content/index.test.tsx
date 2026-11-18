@@ -331,7 +331,11 @@ describe("v3 content production UI and query wiring", () => {
     expect(modal.textContent).toContain("구매 #789 · 답변 3개 구매");
     // 답변 목록 현재 페이지(1건)가 아니라 상담 전체 답변 수를 표시합니다.
     expect(modal.textContent).toContain("받은 답변 3개");
-    expect(modal.textContent).toContain("결제(몽결제) · 열람");
+    // 답변 메타데이터는 별도 요청이므로 고정 대기 시간 대신 표시 완료를 기다립니다.
+    await vi.waitFor(async () => {
+      await settle();
+      expect(modal.textContent).toContain("결제(몽결제) · 열람");
+    });
   });
   it("shows unpaid answers read via free access as read", async () => {
     // 미몽패스 무료 열람·환불 후 열람 이력: 결제 여부로 열람을 추정하지 않습니다.

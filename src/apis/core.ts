@@ -272,11 +272,17 @@ export async function fetcher<T>(
     if (!res.ok) {
       // 에러 응답 로그 출력
       logApiError(method, url, res.status, duration, responseData);
-      const errJson = responseData as Record<string, string>;
+      const errJson = responseData as {
+        error?: { message?: string; code?: string };
+        message?: string;
+        code?: string;
+      } | null;
       throw new ApiError(
-        errJson?.message || `API 요청 실패: ${res.status} ${res.statusText}`,
+        errJson?.error?.message ??
+          errJson?.message ??
+          `API 요청 실패: ${res.status} ${res.statusText}`,
         res.status,
-        errJson?.code,
+        errJson?.error?.code ?? errJson?.code,
       );
     }
 
@@ -297,7 +303,7 @@ export async function fetcher<T>(
     }
     const duration = Math.round(performance.now() - startTime);
     // 네트워크 에러 등 예외 상황 로그 출력
-    if (error instanceof Error && error.message.includes("API 요청 실패")) {
+    if (error instanceof ApiError) {
       // 이미 logApiError에서 처리됨
     } else {
       logApiError(method, url, 0, duration, error);

@@ -24,7 +24,7 @@ vi.mock("@/components/features/user/user-app-preview", () => ({
     </div>
   ),
 }));
-vi.mock("./linked-detail", async () => {
+vi.mock("@/components/features/contents/content-linked-detail", async () => {
   const { Modal } = await import("@/components/shared/modal");
   return {
     default: ({ onClose }: { onClose: () => void }) => (
