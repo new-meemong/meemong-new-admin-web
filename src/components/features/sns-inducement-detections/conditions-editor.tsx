@@ -15,6 +15,7 @@ import {
 } from "@/lib/sns-inducement-detections";
 import { Modal } from "@/components/shared/modal";
 import { ModalHeader } from "@/components/shared/modal/modal-header";
+import { ModalFooter } from "@/components/shared/modal/modal-footer";
 import { ModalBody } from "@/components/shared/modal/modal-body";
 import { useDialog } from "@/components/shared/dialog/context";
 import { Button } from "@/components/ui/button";
@@ -110,6 +111,7 @@ export default function ConditionsEditor({
     <Modal
       isOpen
       size="lg"
+      className="h-[800px] max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] min-w-0"
       closable
       suspended={confirmingClose}
       onClose={() => void close()}
@@ -118,7 +120,7 @@ export default function ConditionsEditor({
       <ModalHeader>
         {mode === "shared" ? "공통 조사 설정" : "이번 조사 조건 변경"}
       </ModalHeader>
-      <ModalBody>
+      <ModalBody className="min-h-0">
         <p className="text-sm text-muted-foreground mb-4">
           {mode === "shared"
             ? "모든 관리자의 다음 조사부터 적용됩니다. 같은 배열을 동시에 수정하면 마지막 저장이 적용됩니다."
@@ -236,27 +238,27 @@ export default function ConditionsEditor({
             )}
           </div>
         )}
-        <div className="mt-5 flex justify-end gap-2">
-          <Button variant="outline" disabled={save.isPending} onClick={close}>
-            취소
-          </Button>
-          <Button
-            disabled={
-              !base ||
-              Boolean(validation) ||
-              save.isPending ||
-              (mode === "shared" && !Object.keys(change).length)
-            }
-            onClick={() => void submit()}
-          >
-            {save.isPending
-              ? "저장 중…"
-              : mode === "shared"
-                ? "공통 설정 저장"
-                : "이번 조사에 적용"}
-          </Button>
-        </div>
       </ModalBody>
+      <ModalFooter className="static mt-0 shrink-0 border-t bg-white rounded-b-2xl">
+        <Button variant="outline" disabled={save.isPending} onClick={close}>
+          취소
+        </Button>
+        <Button
+          disabled={
+            !base ||
+            Boolean(validation) ||
+            save.isPending ||
+            (mode === "shared" && !Object.keys(change).length)
+          }
+          onClick={() => void submit()}
+        >
+          {save.isPending
+            ? "저장 중…"
+            : mode === "shared"
+              ? "공통 설정 저장"
+              : "이번 조사에 적용"}
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 }
