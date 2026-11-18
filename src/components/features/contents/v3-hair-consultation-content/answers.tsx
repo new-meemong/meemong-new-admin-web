@@ -12,7 +12,11 @@ import {
   ConsultationAnswerCard,
   ConsultationAnswerAppPreview,
 } from "@/components/features/contents/v3-hair-consultation-preview";
-import type { V3ConsultationAnswer } from "@/models/v3HairConsultations";
+import type {
+  V3ConsultationAnswer,
+  V3ConsultationType,
+  V3QuickStatistics,
+} from "@/models/v3HairConsultations";
 import {
   CursorPagination,
   Fields,
@@ -20,6 +24,8 @@ import {
   date,
   paymentTypes,
 } from "./presentation";
+
+import QuickMongStatistics, { QuickMongSummary } from "./quick-mong-statistics";
 
 /** 결제와 열람은 독립 상태입니다(미몽패스 무료 열람, 환불 후 열람 이력). */
 const paymentStatus = (status: V3ConsultationAnswer["deepStatus"]) =>
@@ -33,11 +39,13 @@ const readStatus = (status: V3ConsultationAnswer["deepStatus"]) =>
 
 export default function V3ConsultationAnswers({
   consultationId,
+  consultationType,
   answerCount,
   selectedId,
   onSelect,
 }: {
   consultationId: number;
+  consultationType: V3ConsultationType;
   answerCount: number;
   selectedId: number | null;
   onSelect: (id: number) => void;
@@ -71,6 +79,8 @@ export default function V3ConsultationAnswers({
               <AnswerCard
                 key={answer.id}
                 consultationId={consultationId}
+                consultationType={consultationType}
+                quickStatistics={answer.quickStatistics}
                 answerId={answer.id}
                 selected={selectedId === answer.id}
                 onSelect={() => onSelect(answer.id)}
@@ -92,12 +102,16 @@ export default function V3ConsultationAnswers({
 }
 function AnswerCard({
   consultationId,
+  consultationType,
   answerId,
+  quickStatistics,
   selected,
   onSelect,
 }: {
   consultationId: number;
+  consultationType: V3ConsultationType;
   answerId: number;
+  quickStatistics: V3QuickStatistics | null;
   selected: boolean;
   onSelect: () => void;
 }) {
@@ -120,6 +134,11 @@ function AnswerCard({
         error={query.error}
         retry={() => void query.refetch()}
       />
+      {consultationType === "QUICK" && (
+        <p className="px-2 pb-2 text-xs">
+          <QuickMongSummary statistics={quickStatistics} />
+        </p>
+      )}
       {query.data && !query.isError && (
         <ConsultationAnswerCard detail={query.data} onSelect={onSelect} />
       )}
@@ -128,11 +147,13 @@ function AnswerCard({
 }
 export function V3AnswerDetailPanel({
   consultationId,
+  consultationType,
   answerId,
   sex,
   onClose,
 }: {
   consultationId: number;
+  consultationType: V3ConsultationType;
   answerId: number;
   sex: string;
   onClose: () => void;
@@ -165,9 +186,12 @@ export function V3AnswerDetailPanel({
           </div>
           <details className="shrink-0 max-h-40 overflow-y-auto text-sm">
             <summary className="cursor-pointer">
-              결제·열람·리뷰 운영 정보
+              결제·몽 소모·열람·리뷰 운영 정보
             </summary>
             <div className="space-y-3 pt-3">
+              {consultationType === "QUICK" && (
+                <QuickMongStatistics statistics={detail.quickStatistics} />
+              )}
               <Fields
                 rows={[
                   ["디자이너 ID", detail.designerUserId],

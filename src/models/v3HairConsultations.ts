@@ -38,11 +38,19 @@ export interface V3DeepStatistics {
   };
   rating: V3RatingStatistics;
 }
-export interface V3ConsultationStatistics {
-  consultationCount: number;
-  paidConsultationCount: number;
-  paymentRate: number | null;
-  rating: V3RatingStatistics;
+/** 상담 전체 또는 개별 답변의 실제 몽 차감 내역(페이지와 무관). */
+export interface V3QuickStatistics {
+  totalUsedMongAmount: number;
+  refundedUsedMongAmount: number;
+  netUsedMongAmount: number;
+  historyList: {
+    mongOrderId: number;
+    v3HairConsultationAnswerId: number;
+    designerUserId: number;
+    usedMongAmount: number;
+    refundAt: string | null;
+    createdAt: string;
+  }[];
 }
 export interface V3ConsultationListItem {
   id: number;
@@ -56,6 +64,7 @@ export interface V3ConsultationListItem {
   withdrawnAt: string | null;
   user: V3ConsultationUser | null;
   deepStatistics: V3DeepStatistics | null;
+  quickStatistics: V3QuickStatistics | null;
 }
 export interface V3ConsultationEditable {
   aspirationDescription: string | null;
@@ -141,6 +150,7 @@ export interface V3ConsultationAnswer {
   accessType: string;
   submittedAt: string;
   hiddenAt: string | null;
+  quickStatistics: V3QuickStatistics | null;
   deepStatus: {
     isPaid: boolean;
     /** 유효 구매 수단(중복 없음), 미구매 시 빈 배열 */

@@ -463,6 +463,8 @@ describe("dashboard page and query wiring", () => {
     expect(html).toMatch(/몽 사용량<\/div><strong>250몽<\/strong>/);
     expect(html).toContain("심층상담 답변률");
     expect(html).toContain("간편상담 답변률");
+    expect(html).toContain("총 답변 수 <strong>8건</strong>");
+    expect(html).toContain("총 답변 수 <strong>10건</strong>");
     expect(html).toContain("심층상담 결제율");
     expect(html).toContain("75.0");
     expect(html).toContain("83.3");

@@ -3,8 +3,10 @@ import { act, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import summaryFixture from "@/apis/dashboards/__fixtures__/v3-hair-consultation-statistics-summary.json";
 import V3HairConsultationContent from "./index";
 import type {
+  V3QuickStatistics,
   V3ConsultationAnswer,
   V3ConsultationDetail,
 } from "@/models/v3HairConsultations";
@@ -87,6 +89,7 @@ let host: HTMLDivElement;
 let client: QueryClient;
 let calls: { url: URL; init: RequestInit }[];
 let answerHidden: boolean;
+let answerQuickStatistics: V3QuickStatistics | null;
 let answerDeepStatus: V3ConsultationAnswer["deepStatus"];
 const response = (data: unknown) =>
   new Response(JSON.stringify(data), {
@@ -133,6 +136,7 @@ beforeEach(async () => {
   vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.test");
   calls = [];
   answerHidden = false;
+  answerQuickStatistics = null;
   answerDeepStatus = {
     isPaid: true,
     paymentTypeList: ["MONG"],
@@ -157,6 +161,7 @@ beforeEach(async () => {
       deletedAt: "2026-11-08T00:00:00Z",
     },
     deepStatistics: { payment, read, rating },
+    quickStatistics: null,
     aspirationDescription: "원본 내용",
     additionalInquiry: null,
     treatmentHistoryDescription: null,
@@ -192,15 +197,7 @@ beforeEach(async () => {
     vi.fn(async (url: string, init: RequestInit = {}) => {
       const parsed = new URL(url);
       calls.push({ url: parsed, init });
-      if (parsed.pathname.endsWith("statistics"))
-        return response({
-          data: {
-            consultationCount: 2,
-            paidConsultationCount: 0,
-            paymentRate: 0,
-            rating,
-          },
-        });
+      if (parsed.pathname.endsWith("/summary")) return response(summaryFixture);
       const answer = {
         id: 456,
         v3HairConsultationId: 123,
@@ -215,6 +212,7 @@ beforeEach(async () => {
         description: "답변 본문",
         hiddenAt: answerHidden ? "2026-11-09T00:00:00Z" : null,
         deepStatus: answerDeepStatus,
+        quickStatistics: answerQuickStatistics,
         imageList: [
           {
             id: 1,
@@ -292,7 +290,134 @@ afterEach(async () => {
   vi.unstubAllEnvs();
 });
 describe("v3 content production UI and query wiring", () => {
-  it("resets cursor on submitted filters and excludes list paging/type from deep statistics", async () => {
+  it("applies validated dates only to summary and displays server cohort totals", async () => {
+    expect(host.textContent).toContain("기간별 헤어컨설팅 통계");
+    expect(host.textContent).toContain("총 답변 수");
+    expect(host.textContent).toContain("8건");
+    expect(host.textContent).toContain("10건");
+    await change('input[aria-label="통계 시작일"]', "2026-01-01");
+    await change('input[aria-label="통계 종료일"]', "2026-01-05");
+    const previousCalls = calls.length;
+    await click("기간 적용");
+    const requests = calls.slice(previousCalls);
+    expect(requests).toHaveLength(1);
+    expect(requests[0].url.pathname).toBe(
+      "/api/v1/un-auth/dashboards/v3-hair-consultation-statistics/summary",
+    );
+    expect(requests[0].url.searchParams.get("startDateKST")).toBe("2026-01-01");
+    expect(requests[0].url.searchParams.get("endDateKST")).toBe("2026-01-05");
+    for (const [start, end] of [
+      ["2026-01-06", "2026-01-05"],
+      ["2026-01-01", "2026-05-01"],
+      ["2099-01-01", "2099-01-02"],
+    ]) {
+      await change('input[aria-label="통계 시작일"]', start);
+      await change('input[aria-label="통계 종료일"]', end);
+      const count = calls.length;
+      await click("기간 적용");
+      expect(calls).toHaveLength(count);
+      expect(host.querySelector('[role="alert"]')).toBeTruthy();
+    }
+  });
+  it("uses consultation totals independently of answer pages and shows refunded answer history", async () => {
+    const history = {
+      mongOrderId: 789,
+      v3HairConsultationAnswerId: 456,
+      designerUserId: 20,
+      usedMongAmount: 5,
+      refundAt: "2026-01-02T00:00:00Z",
+      createdAt: "2026-01-01T00:00:00Z",
+    };
+    answerQuickStatistics = {
+      totalUsedMongAmount: 5,
+      refundedUsedMongAmount: 5,
+      netUsedMongAmount: 0,
+      historyList: [history],
+    };
+    detail = {
+      ...detail,
+      consultationType: "QUICK",
+      deepStatistics: null,
+      quickStatistics: {
+        totalUsedMongAmount: 35,
+        refundedUsedMongAmount: 5,
+        netUsedMongAmount: 30,
+        historyList: [
+          history,
+          { ...history, mongOrderId: 788, usedMongAmount: 30, refundAt: null },
+        ],
+      },
+    };
+    answerDeepStatus = null;
+    await click("새로고침");
+    expect(host.querySelector(".cursor-pointer.grid")!.textContent).toContain(
+      "차감 35몽 · 환불 5몽 · 순사용 30몽",
+    );
+    await openConsultation(host);
+    const operations = document.querySelector('[aria-label="상담 운영 정보"]')!;
+    expect(operations.textContent).toContain(
+      "차감 35몽 · 환불 5몽 · 순사용 30몽",
+    );
+    expect(
+      document.querySelector('[aria-label="답변 목록"]')!.textContent,
+    ).toContain("차감 5몽 · 환불 5몽 · 순사용 0몽");
+    await vi.waitFor(async () => {
+      await settle();
+      expect(
+        document.querySelector(
+          '[aria-label="고객용 답변 카드 #456"] button[aria-label="추천 스타일 1 크게 보기"]',
+        ),
+      ).toBeTruthy();
+    });
+    await act(async () => {
+      (
+        document.querySelector(
+          '[aria-label="고객용 답변 카드 #456"] button[aria-label="추천 스타일 1 크게 보기"]',
+        ) as HTMLButtonElement
+      ).click();
+    });
+    await settle();
+    const answer = document.querySelector('[aria-label="선택한 답변"]')!;
+    expect(answer.textContent).toContain("차감 5몽 · 환불 5몽 · 순사용 0몽");
+    expect(answer.textContent).toContain("환불 완료");
+    expect(answer.textContent).toContain("789");
+    expect(answer.textContent).toContain("456");
+    expect(operations.textContent).toContain("차감 35몽");
+  });
+  it("distinguishes empty QUICK history, missing statistics and DEEP", async () => {
+    await openConsultation(host);
+    expect(
+      document.querySelector('[aria-label="간편상담 몽 소모"]'),
+    ).toBeNull();
+    await click("닫기");
+    detail = {
+      ...detail,
+      consultationType: "QUICK",
+      deepStatistics: null,
+      quickStatistics: {
+        totalUsedMongAmount: 0,
+        refundedUsedMongAmount: 0,
+        netUsedMongAmount: 0,
+        historyList: [],
+      },
+    };
+    answerDeepStatus = null;
+    await click("새로고침");
+    await openConsultation(host);
+    expect(
+      document.querySelector('[aria-label="상담 운영 정보"]')!.textContent,
+    ).toContain("몽 소모 내역이 없습니다.");
+    expect(
+      document.querySelector('[aria-label="답변 목록"]')!.textContent,
+    ).toContain("몽 통계 확인 불가");
+    await click("닫기");
+    detail = { ...detail, quickStatistics: null };
+    await click("새로고침");
+    expect(host.querySelector(".cursor-pointer.grid")!.textContent).toContain(
+      "몽 통계 확인 불가",
+    );
+  });
+  it("resets cursor on submitted filters and excludes list paging/type from period summary", async () => {
     expect(host.textContent).toContain("테스트 작성자 (탈퇴)");
     await act(async () => {
       (host.querySelector('[aria-label="다음 페이지"]') as HTMLElement).click();
@@ -314,7 +439,7 @@ describe("v3 content production UI and query wiring", () => {
     );
     expect(latestList.url.searchParams.get("consultationType")).toBe("QUICK");
     const stats = calls
-      .filter((call) => call.url.pathname.endsWith("statistics"))
+      .filter((call) => call.url.pathname.endsWith("/summary"))
       .at(-1)!;
     expect(stats.url.searchParams.get("consultationType")).toBe("DEEP");
     expect(stats.url.searchParams.has("__limit")).toBe(false);
@@ -365,7 +490,7 @@ describe("v3 content production UI and query wiring", () => {
     answerDeepStatus = null;
     await click("새로고침");
     const row = host.querySelector(".cursor-pointer.grid")!;
-    // QUICK은 받은 답변 수만 표시하고 결제·열람 칸은 "-"입니다.
+    // QUICK의 심층 결제·열람 칸은 "-"이며 몽 통계는 별도로 표시합니다.
     expect(row.textContent).toContain("7개");
     expect(row.textContent).not.toMatch(/결제|열람/);
     await openConsultation(host);

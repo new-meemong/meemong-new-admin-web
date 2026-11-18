@@ -29,6 +29,7 @@ import {
   readSummary,
   ConsultationTypeBadge,
 } from "./presentation";
+import QuickMongStatistics from "./quick-mong-statistics";
 import V3ConsultationAnswers, { V3AnswerDetailPanel } from "./answers";
 
 export default function V3ConsultationDetailModal({
@@ -150,6 +151,9 @@ function ConsultationDetail({
               ]}
             />
           </div>
+          {detail.consultationType === "QUICK" && (
+            <QuickMongStatistics statistics={detail.quickStatistics} />
+          )}
           {detail.deepStatistics && (
             <details open className="space-y-3 border-t pt-3">
               <summary className="cursor-pointer font-semibold">
@@ -230,6 +234,7 @@ function ConsultationDetail({
             <V3AnswerDetailPanel
               key={answerId}
               consultationId={detail.id}
+              consultationType={detail.consultationType}
               answerId={answerId}
               sex={detail.sex}
               onClose={() => setAnswerId(null)}
@@ -326,6 +331,7 @@ function ConsultationDetail({
         <V3ConsultationAnswers
           key={detail.id}
           consultationId={detail.id}
+          consultationType={detail.consultationType}
           answerCount={detail.answerCount}
           selectedId={answerId}
           onSelect={setAnswerId}

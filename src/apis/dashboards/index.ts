@@ -13,6 +13,7 @@ import type {
   PaymentStatistics,
   V3HairConsultationStatistics,
   V3HairConsultationSummary,
+  V3HairConsultationSummaryFilters,
 } from "./types";
 
 const BASE_URL = "/api/v1/un-auth/dashboards";
@@ -50,11 +51,13 @@ export const dashboardAPI = {
       range,
       signal,
     ),
-  hairConsultationSummary: (range: DashboardDateRange, signal?: AbortSignal) =>
-    getStatistics<V3HairConsultationSummary>(
-      "v3-hair-consultation-statistics/summary",
-      range,
-      signal,
+  hairConsultationSummary: (
+    filters: V3HairConsultationSummaryFilters,
+    signal?: AbortSignal,
+  ) =>
+    fetcher<V3HairConsultationSummary>(
+      `${BASE_URL}/v3-hair-consultation-statistics/summary`,
+      { query: { ...filters }, auth: false, signal },
     ),
   passes: (range: DashboardDateRange, signal?: AbortSignal) =>
     getStatistics<DailyStatistics<PassDay>>(

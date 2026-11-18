@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { V3Rating } from "@/apis/dashboards/types";
 import { Panel } from "./dashboard-widgets";
 import { formatNumber } from "./statistics";
@@ -16,6 +17,7 @@ export function ConsultationRatePanel({
   completed,
   rate,
   color = "#007aff",
+  children,
 }: {
   title: string;
   description: string;
@@ -26,6 +28,7 @@ export function ConsultationRatePanel({
   completed?: number;
   rate?: number | null;
   color?: string;
+  children?: ReactNode;
 }) {
   const remaining =
     total == null || completed == null
@@ -85,6 +88,7 @@ export function ConsultationRatePanel({
           </li>
         ))}
       </ol>
+      {children}
     </Panel>
   );
 }

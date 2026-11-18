@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import useContentsCursorPagination from "@/components/features/contents/hooks/useContentsCursorPagination";
 import {
   useV3Consultations,
-  useV3Statistics,
   v3ConsultationKeys,
 } from "@/queries/v3HairConsultations";
 import type { V3ConsultationFilters } from "@/apis/v3HairConsultations";
@@ -19,8 +18,6 @@ import { cn } from "@/lib/utils";
 import {
   CursorPagination,
   QueryStatus,
-  Rating,
-  Section,
   ConsultationTypeBadge,
   date,
   label,
@@ -28,6 +25,8 @@ import {
   percent,
   readSummary,
 } from "./presentation";
+import ConsultationPeriodSummary from "./period-summary";
+import { QuickMongSummary } from "./quick-mong-statistics";
 import V3ConsultationDetailModal from "./detail-modal";
 
 const DEFAULT_FILTERS = {
@@ -62,7 +61,6 @@ export default function V3HairConsultationContent({
     __limit: pagination.pageSize,
     __nextCursor: pagination.currentCursor,
   });
-  const statistics = useV3Statistics(filters);
   const client = useQueryClient();
   const columns: ColumnDef<V3ConsultationListItem>[] = [
     {
@@ -116,6 +114,17 @@ export default function V3HairConsultationContent({
       header: "받은 답변",
       size: 90,
       cell: ({ row }) => `${row.original.answerCount}개`,
+    },
+    {
+      id: "quickMong",
+      header: "간편상담 몽 소모",
+      size: 290,
+      cell: ({ row }) =>
+        row.original.consultationType === "QUICK" ? (
+          <QuickMongSummary statistics={row.original.quickStatistics} />
+        ) : (
+          "-"
+        ),
     },
     {
       id: "payment",
@@ -183,6 +192,7 @@ export default function V3HairConsultationContent({
       return;
     }
     setFilterError("");
+    setSelectedId(null);
     pagination.resetPagination();
     setFilters({
       searchType: draft.searchKeyword.trim() ? draft.searchType : undefined,
@@ -283,6 +293,7 @@ export default function V3HairConsultationContent({
           type="button"
           variant="outline"
           onClick={() => {
+            setSelectedId(null);
             setDraft(DEFAULT_FILTERS);
             setFilters({ visibility: "ALL" });
             setFilterError("");
@@ -306,39 +317,7 @@ export default function V3HairConsultationContent({
           </p>
         )}
       </form>
-      <Section title="전체 심층 컨설팅 통계">
-        <p className="text-sm text-gray-500">
-          검색한 작성자·공개 상태에 해당하는 모든 심층 컨설팅 기준입니다.
-          간편상담과 페이지 조건은 제외됩니다.
-        </p>
-        <QueryStatus
-          pending={statistics.isPending}
-          error={statistics.error}
-          retry={() => void statistics.refetch()}
-        />
-        {statistics.data && !statistics.isError && (
-          <>
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                ["심층 컨설팅", `${statistics.data.consultationCount}건`],
-                ["결제 상담", `${statistics.data.paidConsultationCount}건`],
-                ["결제 전환율", percent(statistics.data.paymentRate)],
-              ].map(([title, value]) => (
-                <div key={title} className="rounded-lg bg-gray-50 p-4">
-                  <p className="text-sm text-gray-500">{title}</p>
-                  <p className="mt-2 text-2xl font-semibold">{value}</p>
-                </div>
-              ))}
-            </div>
-            <Rating rating={statistics.data.rating} />
-          </>
-        )}
-        <p className="text-xs text-gray-500">
-          결제 전환율 = 결제 발생 상담 / 전체 심층 컨설팅. 검증 성공·미환불 구매
-          기준이며 미몽패스 무료 열람은 제외합니다. 숨긴 답변 이력은 포함하고
-          숨긴 별점은 제외합니다.
-        </p>
-      </Section>
+      <ConsultationPeriodSummary filters={filters} />
       <div className="flex justify-between text-sm">
         <h2 className="font-semibold">v3 헤어컨설팅</h2>
         <span>현재 페이지 {list.data?.dataCount ?? 0}건 · ID 내림차순</span>
@@ -350,7 +329,7 @@ export default function V3HairConsultationContent({
       />
       {!list.isPending && !list.isError && (
         <div className="overflow-x-auto">
-          <div className="min-w-[1740px]">
+          <div className="min-w-[2030px]">
             <CommonTable
               data={list.data?.dataList ?? []}
               columns={columns}

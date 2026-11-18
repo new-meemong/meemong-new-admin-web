@@ -154,6 +154,10 @@ export default function HairConsultationDashboard({
         </div>
       </QueryState>
       <QueryState query={summary}>
+        <p className="dashboard-note">
+          기간 요약은 선택 기간에 생성된 상담 기준입니다. 이전 상담의 답변도
+          포함하는 일별 답변 합계와 다를 수 있습니다.
+        </p>
         <div className="dashboard-grid">
           <ConsultationRatePanel
             title="심층상담 답변률"
@@ -164,7 +168,13 @@ export default function HairConsultationDashboard({
             total={deepSummary?.createdConsultationCount}
             completed={deepSummary?.answeredConsultationCount}
             rate={deepSummary?.answerRate}
-          />
+          >
+            <p className="text-sm text-gray-500 mt-4">
+              기간 내 생성 상담의 총 답변 수{" "}
+              <strong>{formatNumber(deepSummary?.answerCount, "건")}</strong> ·
+              종료일까지 등록된 답변 기준
+            </p>
+          </ConsultationRatePanel>
           <ConsultationRatePanel
             title="간편상담 답변률"
             description="생성된 상담 중 종료일까지 답변 1개 이상"
@@ -174,7 +184,13 @@ export default function HairConsultationDashboard({
             total={quickSummary?.createdConsultationCount}
             completed={quickSummary?.answeredConsultationCount}
             rate={quickSummary?.answerRate}
-          />
+          >
+            <p className="text-sm text-gray-500 mt-4">
+              기간 내 생성 상담의 총 답변 수{" "}
+              <strong>{formatNumber(quickSummary?.answerCount, "건")}</strong> ·
+              종료일까지 등록된 답변 기준
+            </p>
+          </ConsultationRatePanel>
         </div>
         <div className="dashboard-grid">
           <ConsultationRatePanel

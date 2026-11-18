@@ -1,3 +1,7 @@
+import type {
+  DashboardDateRange,
+  V3HairConsultationSummaryFilters,
+} from "@/apis/dashboards/types";
 import { fetcher } from "@/apis/core";
 import type {
   V3ConsultationType,
@@ -7,7 +11,6 @@ import type {
   V3ConsultationEditable,
   V3ConsultationAnswer,
   V3ConsultationAnswerDetail,
-  V3ConsultationStatistics,
 } from "@/models/v3HairConsultations";
 
 const BASE_URL = "/api/v1/admins/v3-hair-consultations";
@@ -55,14 +58,16 @@ export function buildV3ConsultationUpdate(
   return body;
 }
 
-export function v3StatisticsFilters(
-  filters: V3ConsultationFilters,
-): V3ConsultationFilters {
+export type V3ConsultationSummaryFilters = V3ConsultationFilters &
+  DashboardDateRange;
+
+export function v3ConsultationSummaryFilters(
+  filters: V3ConsultationSummaryFilters,
+): V3HairConsultationSummaryFilters {
   return {
-    searchType: filters.searchType,
-    searchKeyword: filters.searchKeyword,
-    userId: filters.userId,
-    visibility: filters.visibility,
+    startDateKST: filters.startDateKST,
+    endDateKST: filters.endDateKST,
+    ...filterQuery(filters),
     consultationType: "DEEP",
   };
 }
@@ -135,15 +140,4 @@ export const v3HairConsultationAPI = {
     ).data,
   hideAnswer: (id: number, answerId: number) =>
     fetcher(`${BASE_URL}/${id}/answers/${answerId}`, { method: "DELETE" }),
-  statistics: async (filters: V3ConsultationFilters, signal?: AbortSignal) =>
-    (
-      await fetcher<{ data: V3ConsultationStatistics }>(
-        "/api/v1/un-auth/dashboards/v3-hair-consultations/statistics",
-        {
-          query: filterQuery(v3StatisticsFilters(filters)),
-          auth: false,
-          signal,
-        },
-      )
-    ).data,
 };

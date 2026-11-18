@@ -2,8 +2,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildV3ConsultationUpdate,
+  v3ConsultationSummaryFilters,
   v3HairConsultationAPI as api,
 } from "./index";
+import { dashboardAPI } from "@/apis/dashboards";
 import type { V3ConsultationEditable } from "@/models/v3HairConsultations";
 const original: V3ConsultationEditable = {
   aspirationDescription: "원본",
@@ -32,6 +34,17 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 describe("v3 consultation HTTP contract", () => {
+  it("omits the admin token for the unfiltered dashboard summary and forwards cancellation", async () => {
+    const signal = new AbortController().signal;
+    const range = { startDateKST: "2026-11-01", endDateKST: "2026-11-12" };
+    await dashboardAPI.hairConsultationSummary(range, signal);
+    const [url, init] = vi.mocked(fetch).mock.calls[0];
+    expect(Object.fromEntries(new URL(String(url)).searchParams)).toEqual(
+      range,
+    );
+    expect(new Headers(init?.headers).has("Authorization")).toBe(false);
+    expect(init?.signal).toBe(signal);
+  });
   it("uses admin auth and normalizes full phone without sending a second phone filter", async () => {
     await api.list({
       searchType: "PHONE",
@@ -54,18 +67,28 @@ describe("v3 consultation HTTP contract", () => {
     expect(new Headers(init?.headers).get("Authorization")).toBe("test-admin");
   });
   it("omits auth, pagination and QUICK for dashboard statistics", async () => {
-    await api.statistics({
-      consultationType: "QUICK",
-      userId: 9,
-      visibility: "ALL",
-      ...{ __limit: 50, __nextCursor: "40" },
-    });
+    await dashboardAPI.hairConsultationSummary(
+      v3ConsultationSummaryFilters({
+        startDateKST: "2026-11-01",
+        endDateKST: "2026-11-12",
+        consultationType: "QUICK",
+        userId: 9,
+        visibility: "ALL",
+        searchType: "PHONE",
+        searchKeyword: " 010-1234-5678 ",
+        ...{ __limit: 50, __nextCursor: "40" },
+      }),
+    );
     const [url, init] = vi.mocked(fetch).mock.calls[0];
     expect(new URL(String(url)).pathname).toBe(
-      "/api/v1/un-auth/dashboards/v3-hair-consultations/statistics",
+      "/api/v1/un-auth/dashboards/v3-hair-consultation-statistics/summary",
     );
     expect(Object.fromEntries(new URL(String(url)).searchParams)).toEqual({
+      startDateKST: "2026-11-01",
+      endDateKST: "2026-11-12",
       consultationType: "DEEP",
+      searchType: "PHONE",
+      searchKeyword: "01012345678",
       userId: "9",
       visibility: "ALL",
     });

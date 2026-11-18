@@ -1,9 +1,11 @@
+import { dashboardAPI } from "@/apis/dashboards";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   v3HairConsultationAPI as api,
-  v3StatisticsFilters,
+  v3ConsultationSummaryFilters,
   type V3ConsultationFilters,
   type V3CursorParams,
+  type V3ConsultationSummaryFilters,
 } from "@/apis/v3HairConsultations";
 import type { V3ConsultationEditable } from "@/models/v3HairConsultations";
 const ROOT = ["v3-hair-consultations"] as const;
@@ -22,10 +24,10 @@ export const v3ConsultationKeys = {
     params,
   ],
   answer: (id: number, answerId: number) => [...ROOT, "answer", id, answerId],
-  statistics: (filters: V3ConsultationFilters) => [
+  summary: (filters: V3ConsultationSummaryFilters) => [
     ...ROOT,
-    "statistics",
-    v3StatisticsFilters(filters),
+    "summary",
+    v3ConsultationSummaryFilters(filters),
   ],
 };
 export const useV3Consultations = (
@@ -50,10 +52,18 @@ export const useV3Answer = (id: number, answerId: number) =>
     queryKey: v3ConsultationKeys.answer(id, answerId),
     queryFn: ({ signal }) => api.answer(id, answerId, signal),
   });
-export const useV3Statistics = (filters: V3ConsultationFilters) =>
+export const useV3ConsultationSummary = (
+  filters: V3ConsultationSummaryFilters,
+) =>
   useQuery({
-    queryKey: v3ConsultationKeys.statistics(filters),
-    queryFn: ({ signal }) => api.statistics(filters, signal),
+    queryKey: v3ConsultationKeys.summary(filters),
+    queryFn: async ({ signal }) =>
+      (
+        await dashboardAPI.hairConsultationSummary(
+          v3ConsultationSummaryFilters(filters),
+          signal,
+        )
+      ).data,
   });
 export function useV3ConsultationActions(id: number) {
   const client = useQueryClient();

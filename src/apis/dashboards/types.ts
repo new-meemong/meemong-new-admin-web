@@ -262,6 +262,14 @@ type V3AnswerSummary = {
   answerRate: number | null;
   mongPayment: V3MongPayment;
 };
+export type V3HairConsultationSummaryFilters = DashboardDateRange & {
+  userId?: number;
+  phone?: string;
+  searchType?: "PHONE" | "NAME";
+  searchKeyword?: string;
+  consultationType?: "DEEP";
+  visibility?: "ALL" | "VISIBLE" | "WITHDRAWN";
+};
 export type V3HairConsultationSummary = {
   meta: DashboardMeta;
   data: {
