@@ -22,7 +22,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
   vi.clearAllMocks();
 });
-async function setup(role = 4, status = 200) {
+async function setup(role = 4, status = 200, menuId?: number) {
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
   vi.stubGlobal(
     "ResizeObserver",
@@ -33,13 +33,22 @@ async function setup(role = 4, status = 200) {
     },
   );
   vi.stubEnv("NEXT_PUBLIC_API_URL", "https://example.test");
-  const fetchMock = vi.fn(
-    async () =>
-      new Response(JSON.stringify({ data: null }), {
-        status,
-        headers: { "content-type": "application/json" },
-      }),
-  );
+  const fetchMock = vi.fn(async (url: string, init: RequestInit) => {
+    let data = null;
+    if (menuId !== undefined) {
+      expect(new URL(url).pathname).toBe(
+        `/api/v1/admins/time-sale-menus/${menuId}`,
+      );
+      expect(new URL(url).search).toBe("");
+      expect(init.method ?? "GET").toBe("GET");
+      expect(init.body).toBeUndefined();
+      data = { designer: { timeSalePosition: "원장점장" } };
+    }
+    return new Response(JSON.stringify({ data }), {
+      status,
+      headers: { "content-type": "application/json" },
+    });
+  });
   vi.stubGlobal("fetch", fetchMock);
   const host = document.createElement("div");
   document.body.append(host);
@@ -58,6 +67,7 @@ async function setup(role = 4, status = 200) {
     designerInfo:
       role % 2 === 0
         ? {
+            timeSaleMenuList: menuId === undefined ? [] : [{ id: menuId }],
             description: "새 소개",
             address: "새 주소",
             storeReservationNotice: "기존 안내",
@@ -105,6 +115,7 @@ it.each([2, 4])(
   async (role) => {
     const t = await setup(role);
     try {
+      expect(t.host.textContent).toContain("직급리뷰특가 없음");
       expect(t.host.textContent).toContain("새 주소");
       await saveText(t.host, "storeReservationNotice", "예약 전 문의해주세요");
       await saveText(t.host, "description", "");
@@ -133,6 +144,7 @@ it.each([1, 3])(
   async (role) => {
     const t = await setup(role);
     try {
+      expect(t.host.textContent).not.toContain("직급");
       expect(t.host.querySelector("textarea")).toBeNull();
       for (const next of [false, true]) {
         await act(async () =>
@@ -176,3 +188,16 @@ it.each([400, 403, 404])(
     }
   },
 );
+
+it("리뷰특가 메뉴에서 조회한 디자이너 직급을 기본 정보에 표시한다", async () => {
+  const t = await setup(2, 200, 30);
+  try {
+    await act(
+      async () => new Promise<void>((resolve) => setTimeout(resolve, 0)),
+    );
+    expect(t.host.textContent).toContain("직급원장·점장");
+    expect(t.fetchMock).toHaveBeenCalledOnce();
+  } finally {
+    await t.close();
+  }
+});

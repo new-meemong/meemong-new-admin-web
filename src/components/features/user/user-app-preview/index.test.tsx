@@ -265,3 +265,29 @@ it("구버전 응답을 등록된 정보가 없는 상태로 오인하지 않는
   expect(host.textContent).toContain("추가 프로필 정보를 불러오지 못했습니다");
   expect(host.textContent).not.toContain("등록된 내용이 없어요");
 });
+
+it.each([
+  ["무료시술", 10000, "무료시술"],
+  ["재료비 발생", 0, "무료시술"],
+  ["페이 모델 (모델료 지급)", null, "무료시술"],
+  ["재료비 발생", 10000, "재료비만 내요 · 최소 10,000원"],
+  ["페이 모델 (모델료 지급)", 10000, "모델료 드려요 · 최대 10,000원"],
+  [null, 10000, "재료비만 내요 · 최소 10,000원"],
+] as const)(
+  "시술 유형 %s와 금액 %s에 앱의 비용 조건을 적용한다",
+  async (priceType, price, expected) => {
+    await render({
+      ...user(2),
+      designerInfo: {
+        ...designer,
+        modelTreatmentMenuList: [
+          { ...designer.modelTreatmentMenuList[0], priceType, price },
+        ],
+      },
+    });
+    const menu = Array.from(host.querySelectorAll("button")).find((item) =>
+      item.textContent?.includes("모델 펌"),
+    );
+    expect(menu?.querySelector("p:last-child")?.textContent).toBe(expected);
+  },
+);

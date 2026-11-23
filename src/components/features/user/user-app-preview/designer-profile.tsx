@@ -3,6 +3,7 @@ import Image from "next/image";
 import AppPreviewStoreMap from "@/components/shared/app-preview/store-map";
 import type {
   UserDesignerInfo,
+  UserModelTreatmentMenu,
   UserProfileDetailTarget,
 } from "@/models/user-profile";
 import {
@@ -17,6 +18,16 @@ import {
   safeProfileLink,
   Section,
 } from "./shared";
+
+// Flutter Announcement 모델은 누락된 금액을 0원으로 읽는다.
+function modelTreatmentPrice(menu: UserModelTreatmentMenu) {
+  const type = menu.priceType?.trim() || "재료비 발생";
+  if (!menu.price || type.includes("무료")) return "무료시술";
+  if (type.includes("모델료 지급"))
+    return `모델료 드려요 · 최대 ${price(menu.price)}`;
+  const label = type.includes("재료비") ? "재료비만 내요" : type;
+  return `${label} · 최소 ${price(menu.price)}`;
+}
 
 function Availability({ info }: { info: UserDesignerInfo }) {
   const [dates] = useState(() => getPreviewReservationDates());
@@ -237,9 +248,7 @@ export default function DesignerProfile({
                             .join(" · ")}
                         </p>
                         <p className="mt-2 text-[14px] font-semibold">
-                          {[menu.priceType, price(menu.price)]
-                            .filter(Boolean)
-                            .join(" · ") || "가격 정보 없음"}
+                          {modelTreatmentPrice(menu)}
                         </p>
                       </div>
                     </button>

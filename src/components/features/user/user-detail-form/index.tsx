@@ -32,6 +32,23 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { useGetTimeSaleMenuByIdQuery } from "@/queries/timeSaleMenus";
+
+function DesignerPositionRow({ menuId }: { menuId: number }) {
+  const menu = useGetTimeSaleMenuByIdQuery(menuId);
+  const position = menu.data?.designer?.timeSalePosition;
+  return (
+    <CommonForm.ReadonlyRow
+      label="직급"
+      value={
+        position === "원장점장"
+          ? "원장·점장"
+          : position || (menu.isLoading ? "조회 중" : "확인 불가")
+      }
+    />
+  );
+}
+
 const USER_PHOTO_PREVIEW_LIMIT = 10;
 
 interface UserDetailFormProps {
@@ -286,6 +303,21 @@ export default function UserDetailForm({
                   : "-";
             }}
           />
+          {getUserRole(formData.role) === "DESIGNER" &&
+            (formData.designerInfo?.timeSaleMenuList?.[0] ? (
+              <DesignerPositionRow
+                menuId={formData.designerInfo.timeSaleMenuList[0].id}
+              />
+            ) : (
+              <CommonForm.ReadonlyRow
+                label="직급"
+                value={
+                  formData.designerInfo?.timeSaleMenuList?.length === 0
+                    ? "리뷰특가 없음"
+                    : "확인 불가"
+                }
+              />
+            ))}
           <CommonForm.InputRow
             label={"닉네임"}
             disabled={updateUserMutation.isPending}
