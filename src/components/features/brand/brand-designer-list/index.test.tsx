@@ -56,6 +56,7 @@ const brand = {
   code: "test",
   name: "테스트 브랜드",
   isRecommended: false,
+  isTimeSaleRecommended: false,
   createdAt: "2026-09-22",
 };
 

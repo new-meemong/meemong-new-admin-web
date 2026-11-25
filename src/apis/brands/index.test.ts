@@ -49,6 +49,21 @@ describe("brand recommendation API", () => {
     });
   });
 
+  it.each([true, false])(
+    "sends time-sale recommendation %s independently of home recommendation",
+    async (isTimeSaleRecommended) => {
+      await brandAPI.create({ name: "테스트", isTimeSaleRecommended });
+      await brandAPI.update({ id: 7, isTimeSaleRecommended });
+      expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({
+        name: "테스트",
+        isTimeSaleRecommended,
+      });
+      expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({
+        isTimeSaleRecommended,
+      });
+    },
+  );
+
   it("preserves recommendation values in the normalized list", async () => {
     fetchMock.mockImplementationOnce(
       async () =>
@@ -56,8 +71,8 @@ describe("brand recommendation API", () => {
           JSON.stringify({
             data: {
               dataList: [
-                { id: 7, isRecommended: true },
-                { id: 8, isRecommended: false },
+                { id: 7, isRecommended: true, isTimeSaleRecommended: false },
+                { id: 8, isRecommended: false, isTimeSaleRecommended: true },
               ],
               totalCount: 2,
               page: 1,
@@ -71,6 +86,10 @@ describe("brand recommendation API", () => {
     expect(result.content.map((brand) => brand.isRecommended)).toEqual([
       true,
       false,
+    ]);
+    expect(result.content.map((brand) => brand.isTimeSaleRecommended)).toEqual([
+      false,
+      true,
     ]);
   });
 });

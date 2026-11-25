@@ -30,6 +30,7 @@ export default function BrandFormModal({
   const postBrandMutation = usePostBrandMutation();
   const [name, setName] = useState("");
   const [isRecommended, setIsRecommended] = useState(false);
+  const [isTimeSaleRecommended, setIsTimeSaleRecommended] = useState(false);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -47,11 +48,13 @@ export default function BrandFormModal({
           await postBrandMutation.mutateAsync({
             name: name.trim(),
             isRecommended,
+            isTimeSaleRecommended,
           });
 
           toast.success("브랜드를 추가했습니다.");
           setName("");
           setIsRecommended(false);
+          setIsTimeSaleRecommended(false);
           onSubmit();
           onClose();
         }
@@ -62,12 +65,21 @@ export default function BrandFormModal({
         toast.error(errorMessage);
       }
     },
-    [dialog, postBrandMutation, name, isRecommended, onSubmit, onClose],
+    [
+      dialog,
+      postBrandMutation,
+      name,
+      isRecommended,
+      isTimeSaleRecommended,
+      onSubmit,
+      onClose,
+    ],
   );
 
   const handleClose = useCallback(() => {
     setName("");
     setIsRecommended(false);
+    setIsTimeSaleRecommended(false);
     onClose();
   }, [onClose]);
 
@@ -95,8 +107,16 @@ export default function BrandFormModal({
           </div>
           <BrandRecommendationField
             id="brand-recommended"
+            kind="home"
             checked={isRecommended}
             onChange={setIsRecommended}
+            disabled={postBrandMutation.isPending}
+          />
+          <BrandRecommendationField
+            id="brand-time-sale-recommended"
+            kind="timeSale"
+            checked={isTimeSaleRecommended}
+            onChange={setIsTimeSaleRecommended}
             disabled={postBrandMutation.isPending}
           />
         </form>

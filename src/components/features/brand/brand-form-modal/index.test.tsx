@@ -43,6 +43,9 @@ describe("brand creation recommendation field", () => {
       );
       expect(html).toContain('id="brand-recommended-description"');
       expect(html).toContain(">미추천</span>");
+      expect(html).toContain('for="brand-time-sale-recommended"');
+      expect(html).toContain("리뷰특가 추천 브랜드");
+      expect(html.match(/aria-checked="false"/g)).toHaveLength(2);
     } finally {
       client.clear();
     }

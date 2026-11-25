@@ -50,9 +50,7 @@ function BrandPageContent({ className }: BrandPageContentProps) {
         totalCount={getBrandsQuery.data?.totalCount ?? 0}
         currentPage={page ?? 1}
         pageSize={size ?? DEFAULT_PAGINATION.size}
-        onRefresh={() => {
-          getBrandsQuery.refetch();
-        }}
+        onRefresh={() => getBrandsQuery.refetch()}
         onPageChange={(page) => {
           const next = Number(page);
           if (Number.isFinite(next)) methods.handleChangePage(next);

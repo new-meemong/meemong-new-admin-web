@@ -3,6 +3,7 @@ export interface IBrand {
   code: string;
   name: string;
   isRecommended: boolean;
+  isTimeSaleRecommended: boolean;
   createdAt: string;
   updatedAt?: string;
 }
@@ -10,11 +11,13 @@ export interface IBrand {
 export interface IBrandCreateRequest {
   name: string;
   isRecommended?: boolean;
+  isTimeSaleRecommended?: boolean;
 }
 
 export interface IBrandUpdateRequest {
   name?: string;
   isRecommended?: boolean;
+  isTimeSaleRecommended?: boolean;
 }
 
 export interface IBrandJoinRequest {

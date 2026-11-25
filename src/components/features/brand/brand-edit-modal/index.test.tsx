@@ -9,13 +9,18 @@ const mocks = vi.hoisted(() => ({
   close: vi.fn(),
   refetch: vi.fn(),
   ensure: vi.fn(async () => ({ adminId: "1", adminName: "관리자" })),
+  patch: vi.fn(async () => ({ data: {} })),
+  confirm: vi.fn(async () => false),
 }));
 vi.mock("@/queries/brands", () => ({
-  usePatchBrandMutation: () => ({ isPending: false }),
+  usePatchBrandMutation: () => ({
+    isPending: false,
+    mutateAsync: mocks.patch,
+  }),
   useDeleteBrandMutation: () => ({ isPending: false }),
 }));
 vi.mock("@/components/shared/dialog/context", () => ({
-  useDialog: () => ({ confirm: vi.fn() }),
+  useDialog: () => ({ confirm: mocks.confirm }),
 }));
 vi.mock("@/components/features/brand/brand-designer-list", () => ({
   default: ({
@@ -51,11 +56,7 @@ vi.mock(
     ),
   }),
 );
-afterEach(() => {
-  vi.unstubAllGlobals();
-  vi.clearAllMocks();
-});
-it("브랜드 초안을 보존하고 회원 상세와 연락창이 닫힌 뒤 포커스를 복귀한다", async () => {
+const stubDomGlobals = () => {
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
   vi.stubGlobal(
     "ResizeObserver",
@@ -65,6 +66,13 @@ it("브랜드 초안을 보존하고 회원 상세와 연락창이 닫힌 뒤 �
       disconnect() {}
     },
   );
+};
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.clearAllMocks();
+});
+it("브랜드 초안을 보존하고 회원 상세와 연락창이 닫힌 뒤 포커스를 복귀한다", async () => {
+  stubDomGlobals();
   const host = document.createElement("div");
   document.body.append(host);
   const root = createRoot(host);
@@ -89,6 +97,7 @@ it("브랜드 초안을 보존하고 회원 상세와 연락창이 닫힌 뒤 �
               code: "test",
               name: "브랜드",
               isRecommended: false,
+              isTimeSaleRecommended: false,
               createdAt: "2026-11-16",
             }}
             isOpen
@@ -144,4 +153,68 @@ it("브랜드 초안을 보존하고 회원 상세와 연락창이 닫힌 뒤 �
     client.clear();
   }
   expect(document.body.style.overflow).toBe("");
+});
+
+it("수정하기 없이 추천 토글을 바로 저장하고, 이름 수정은 이름만 PATCH한다", async () => {
+  stubDomGlobals();
+  mocks.confirm.mockResolvedValueOnce(true);
+  const host = document.createElement("div");
+  document.body.append(host);
+  const root = createRoot(host);
+  const client = new QueryClient();
+  const switchFor = (label: string) =>
+    document.querySelector(
+      `[role="switch"][aria-label="브랜드 ${label}"]`,
+    ) as HTMLButtonElement;
+  const clickButton = async (label: string) => {
+    await act(async () => {
+      [...document.querySelectorAll("button")]
+        .find((b) => b.textContent === label)!
+        .click();
+    });
+  };
+  try {
+    await act(async () =>
+      root.render(
+        <QueryClientProvider client={client}>
+          <BrandEditModal
+            brand={{
+              id: 3,
+              code: "test",
+              name: "브랜드",
+              isRecommended: true,
+              isTimeSaleRecommended: false,
+              createdAt: "2026-11-16",
+            }}
+            isOpen
+            onClose={mocks.close}
+            onSubmit={mocks.refresh}
+          />
+        </QueryClientProvider>,
+      ),
+    );
+    expect(switchFor("홈 추천 여부").getAttribute("aria-checked")).toBe("true");
+    expect(
+      switchFor("홈 추천 여부").previousElementSibling?.className,
+    ).toContain("text-green-500");
+    expect(switchFor("리뷰특가 추천 여부").getAttribute("aria-checked")).toBe(
+      "false",
+    );
+
+    await act(async () => switchFor("리뷰특가 추천 여부").click());
+    expect(mocks.patch).toHaveBeenCalledExactlyOnceWith({
+      id: 3,
+      isTimeSaleRecommended: true,
+    });
+    expect(mocks.refresh).toHaveBeenCalledOnce();
+
+    await clickButton("수정하기");
+    expect(switchFor("리뷰특가 추천 여부")).not.toBeNull();
+    await clickButton("수정 완료");
+    expect(mocks.patch).toHaveBeenLastCalledWith({ id: 3, name: "브랜드" });
+  } finally {
+    await act(async () => root.unmount());
+    host.remove();
+    client.clear();
+  }
 });

@@ -6,7 +6,8 @@ import {
   usePatchBrandMutation,
 } from "@/queries/brands";
 
-import BrandRecommendationField from "@/components/features/brand/brand-recommendation-field";
+import BrandRecommendationToggle from "@/components/features/brand/brand-recommendation-toggle";
+import { brandRecommendationStatusLabel } from "@/components/features/brand/brand-recommendation-field";
 import BrandDesignerList from "@/components/features/brand/brand-designer-list";
 import UserDetailModal from "@/components/features/user/user-detail-modal";
 import { useQueryClient } from "@tanstack/react-query";
@@ -28,7 +29,7 @@ interface BrandEditModalProps {
   isOpen: boolean;
   closable?: boolean;
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit: () => unknown;
 }
 
 export default function BrandEditModal({
@@ -55,7 +56,6 @@ export default function BrandEditModal({
   const patchBrandMutation = usePatchBrandMutation();
   const deleteBrandMutation = useDeleteBrandMutation();
   const [name, setName] = useState(brand.name);
-  const [isRecommended, setIsRecommended] = useState(brand.isRecommended);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState("");
@@ -64,8 +64,7 @@ export default function BrandEditModal({
 
   const seedDraftFromBrand = useCallback(() => {
     setName(brand.name);
-    setIsRecommended(brand.isRecommended);
-  }, [brand.name, brand.isRecommended]);
+  }, [brand.name]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -104,7 +103,6 @@ export default function BrandEditModal({
           await patchBrandMutation.mutateAsync({
             id: brand.id,
             name: name.trim(),
-            isRecommended,
           });
 
           toast.success("브랜드를 수정했습니다.");
@@ -118,7 +116,7 @@ export default function BrandEditModal({
         toast.error(errorMessage);
       }
     },
-    [dialog, patchBrandMutation, brand.id, name, isRecommended, onSubmit],
+    [dialog, patchBrandMutation, brand.id, name, onSubmit],
   );
 
   const handleDelete = useCallback(async () => {
@@ -229,22 +227,23 @@ export default function BrandEditModal({
                     required
                   />
                 </div>
-                <BrandRecommendationField
-                  id="brand-edit-recommended"
-                  checked={isRecommended}
-                  onChange={setIsRecommended}
-                  disabled={patchBrandMutation.isPending}
-                />
               </form>
             ) : (
-              <>
-                <CommonForm.ReadonlyRow label="브랜드명" value={brand.name} />
-                <CommonForm.ReadonlyRow
-                  label="추천 여부"
-                  value={brand.isRecommended ? "추천" : "미추천"}
-                />
-              </>
+              <CommonForm.ReadonlyRow label="브랜드명" value={brand.name} />
             )}
+            {(["home", "timeSale"] as const).map((kind) => (
+              <CommonForm.ReadonlyRow
+                key={kind}
+                label={brandRecommendationStatusLabel(kind)}
+                formatter={() => (
+                  <BrandRecommendationToggle
+                    brand={brand}
+                    kind={kind}
+                    onChanged={onSubmit}
+                  />
+                )}
+              />
+            ))}
             <CommonForm.ReadonlyRow
               label="등록일"
               value={formatDate(brand.createdAt)}

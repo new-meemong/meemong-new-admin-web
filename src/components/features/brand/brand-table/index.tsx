@@ -11,6 +11,8 @@ import React, { useCallback, useState } from "react";
 
 import BrandEditModal from "@/components/features/brand/brand-edit-modal";
 import BrandDesignerCount from "@/components/features/brand/brand-designer-count";
+import BrandRecommendationToggle from "@/components/features/brand/brand-recommendation-toggle";
+import { brandRecommendationStatusLabel } from "@/components/features/brand/brand-recommendation-field";
 import { DEFAULT_PAGINATION } from "@/components/shared/common-pagination/contants";
 import { IBrand } from "@/models/brand";
 import { cn } from "@/lib/utils";
@@ -19,7 +21,7 @@ import { useModal } from "@/components/shared/modal/useModal";
 
 interface BrandTableProps
   extends Omit<CommonTableProps<IBrand> & CommonPaginationProps, "columns"> {
-  onRefresh: () => void;
+  onRefresh: () => unknown;
   className?: string;
 }
 
@@ -60,8 +62,26 @@ function BrandTable({
     },
     {
       accessorKey: "isRecommended",
-      header: "추천 여부",
-      cell: (info) => (info.getValue() ? "추천" : "미추천"),
+      header: brandRecommendationStatusLabel("home"),
+      cell: ({ row }) => (
+        <BrandRecommendationToggle
+          brand={row.original}
+          kind="home"
+          onChanged={onRefresh}
+        />
+      ),
+      enableSorting: false,
+    },
+    {
+      accessorKey: "isTimeSaleRecommended",
+      header: brandRecommendationStatusLabel("timeSale"),
+      cell: ({ row }) => (
+        <BrandRecommendationToggle
+          brand={row.original}
+          kind="timeSale"
+          onChanged={onRefresh}
+        />
+      ),
       enableSorting: false,
     },
     {
@@ -107,9 +127,7 @@ function BrandTable({
             data?.find((brand) => brand.id === selectedBrand.id) ??
             selectedBrand
           }
-          onSubmit={() => {
-            onRefresh();
-          }}
+          onSubmit={onRefresh}
         />
       )}
     </div>
