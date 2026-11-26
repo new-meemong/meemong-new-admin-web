@@ -484,11 +484,19 @@ describe("dashboard page and query wiring", () => {
         { key: "answers", label: "답변", color: "#007aff" },
       ],
       [
+        { key: "deep", label: "심층상담", color: "#1d1d1f" },
+        { key: "quick", label: "간편상담", color: "#007aff" },
+      ],
+      [
         { key: "store", label: "단건결제", color: "#c2410c" },
         { key: "mong", label: "몽 결제", color: "#007aff" },
       ],
       [{ key: "mong", label: "몽 사용", color: "#003d82" }],
     ]);
+    expect(html).toMatch(/심층상담 채팅방<\/div><strong>3개<\/strong>/);
+    expect(html).toMatch(/간편상담 채팅방<\/div><strong>5개<\/strong>/);
+    expect(html).toContain("1일 합계 심층 3개 · 간편 5개");
+    expect(html).toContain("<th>채팅방 심층</th><th>채팅방 간편</th>");
     expect(html).toContain("종료일까지 평가된 답변 10건");
     expect(html).toContain("4.6");
     expect(html).toContain("09.10 (목)");
@@ -511,6 +519,28 @@ describe("dashboard page and query wiring", () => {
     expect(html).not.toContain("225.0%");
     expect(html).toContain('class="consultation-answer-rate">—');
     expect(html).toContain("0.0%");
+  });
+  it("shows chat room counts as unavailable when the server omits them", () => {
+    const daily = structuredClone(hair);
+    for (const day of daily.dataList) {
+      delete day.deepStatistics.openedChatChannelCount;
+      delete day.quickStatistics.openedChatChannelCount;
+    }
+    const summary = structuredClone(hairSummary);
+    delete summary.data.deepStatistics.openedChatChannelCount;
+    delete summary.data.quickStatistics.openedChatChannelCount;
+    client.setQueryData(
+      dashboardQueryOptions.hairConsultations(range).queryKey,
+      daily,
+    );
+    client.setQueryData(
+      dashboardQueryOptions.hairConsultationSummary(range).queryKey,
+      summary,
+    );
+    const html = render(<HairConsultationDashboard range={range} />);
+    expect(html).not.toContain("NaN");
+    expect(html).toMatch(/심층상담 채팅방<\/div><strong>—<\/strong>/);
+    expect(html).toContain("1일 합계 심층 — · 간편 —");
   });
   it("marks previous-period comparison unavailable when that query fails", () => {
     client

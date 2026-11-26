@@ -20,7 +20,13 @@ import {
   ConsultationRatingPanel,
   rateText,
 } from "./consultation-summary-panels";
-import { ascending, dayCount, formatNumber, kstToday } from "./statistics";
+import {
+  ascending,
+  dayCount,
+  formatNumber,
+  kstToday,
+  sumKnown,
+} from "./statistics";
 import {
   dayLabel,
   dayColorClass,
@@ -41,6 +47,13 @@ export function hairConsultationTotals(days: V3HairConsultationDay[]) {
   const quickCreated = sum(quick, (row) => row.createdConsultationCount);
   const deepAnswers = sum(deep, (row) => row.createdAnswerCount);
   const quickAnswers = sum(quick, (row) => row.createdAnswerCount);
+  // 채팅방 수가 빠진 날이 있으면 0으로 메우지 않고 합계를 확인 불가로 둡니다.
+  const deepChats = sumKnown(
+    deep.map((row) => row.openedChatChannelCount ?? null),
+  );
+  const quickChats = sumKnown(
+    quick.map((row) => row.openedChatChannelCount ?? null),
+  );
   const deepMong = sum(deep, (row) => row.mongPayment.totalUsedMongAmount);
   const quickMong = sum(quick, (row) => row.mongPayment.totalUsedMongAmount);
   return {
@@ -50,6 +63,8 @@ export function hairConsultationTotals(days: V3HairConsultationDay[]) {
     deepAnswers,
     quickAnswers,
     answers: deepAnswers + quickAnswers,
+    deepChats,
+    quickChats,
     store: krwSummary(deep.map((row) => row.storePayment)),
     deepMongCount: sum(deep, (row) => row.mongPayment.purchaseCount),
     quickMongCount: sum(quick, (row) => row.mongPayment.purchaseCount),
@@ -154,6 +169,19 @@ export default function HairConsultationDashboard({
         </div>
       </QueryState>
       <QueryState query={summary}>
+        <div className="dashboard-metrics two">
+          <Metric
+            label="심층상담 채팅방"
+            color="#1d1d1f"
+            value={formatNumber(deepSummary?.openedChatChannelCount, "개")}
+            detail="선택 기간에 등록된 채팅방 · 등록일 기준"
+          />
+          <Metric
+            label="간편상담 채팅방"
+            value={formatNumber(quickSummary?.openedChatChannelCount, "개")}
+            detail="선택 기간에 등록된 채팅방 · 등록일 기준"
+          />
+        </div>
         <p className="dashboard-note">
           기간 요약은 선택 기간에 생성된 상담 기준입니다. 이전 상담의 답변도
           포함하는 일별 답변 합계와 다를 수 있습니다.
@@ -257,6 +285,23 @@ export default function HairConsultationDashboard({
           />
         </Panel>
         <Panel
+          title="채팅방 등록 추이"
+          description={`등록일 기준 · ${formatNumber(dayCount(range), "일")} 합계 심층 ${formatNumber(current.deepChats, "개")} · 간편 ${formatNumber(current.quickChats, "개")}`}
+        >
+          <TrendChart
+            data={days.map((day) => ({
+              dateKST: day.dateKST,
+              deep: day.deepStatistics.openedChatChannelCount ?? null,
+              quick: day.quickStatistics.openedChatChannelCount ?? null,
+            }))}
+            lines={[
+              { key: "deep", label: "심층상담", color: "#1d1d1f" },
+              { key: "quick", label: "간편상담", color: "#007aff" },
+            ]}
+            height={260}
+          />
+        </Panel>
+        <Panel
           title="심층답변 열람 · 고객"
           description={`결제 수단별 열람 건수 · 단건결제 ${formatNumber(current.store.purchaseCount, "건")} ${krwAmountText(current.store)} · 몽 결제 ${formatNumber(current.deepMongCount, "건")} ${formatNumber(current.deepMong, "몽")}`}
         >
@@ -301,6 +346,8 @@ export default function HairConsultationDashboard({
                   <th>심층 답변률</th>
                   <th>답변 간편</th>
                   <th>간편 답변률</th>
+                  <th>채팅방 심층</th>
+                  <th>채팅방 간편</th>
                   <th>결제된 상담</th>
                   <th>단건결제액</th>
                   <th>몽 고객 열기</th>
@@ -326,6 +373,8 @@ export default function HairConsultationDashboard({
                       <td title="일별 답변률 데이터 미제공">—</td>
                       <td>{formatNumber(quick.createdAnswerCount)}</td>
                       <td title="일별 답변률 데이터 미제공">—</td>
+                      <td>{formatNumber(deep.openedChatChannelCount)}</td>
+                      <td>{formatNumber(quick.openedChatChannelCount)}</td>
                       <td>{formatNumber(deep.paidConsultationCount)}</td>
                       <td>
                         {store.purchaseCount ? krwAmountText(store) : "—"}
@@ -363,6 +412,8 @@ export default function HairConsultationDashboard({
                   <td className="consultation-answer-rate">
                     {summary.isError ? "—" : rateText(quickSummary?.answerRate)}
                   </td>
+                  <td>{formatNumber(current.deepChats)}</td>
+                  <td>{formatNumber(current.quickChats)}</td>
                   <td>
                     {formatNumber(
                       sum(
@@ -383,8 +434,9 @@ export default function HairConsultationDashboard({
       <p className="dashboard-note">
         상담은 생성일, 답변은 작성일 기준입니다. 답변률은 기간 내 생성된 상담 중
         종료일까지 답변이 1개 이상 달린 비율이며, 답변 수 ÷ 생성 수로 계산하지
-        않습니다. 일별 답변률은 데이터 미제공으로 표시하지 않습니다. 몽 사용량은
-        매출이 아니며 합산하지 않습니다.
+        않습니다. 일별 답변률은 데이터 미제공으로 표시하지 않습니다. 채팅방은
+        등록일 기준이며 이전에 생성된 상담의 채팅방도 포함하므로 결제·답변 수와
+        비율로 계산하지 않습니다. 몽 사용량은 매출이 아니며 합산하지 않습니다.
       </p>
     </div>
   );

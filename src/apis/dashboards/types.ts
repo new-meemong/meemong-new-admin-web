@@ -241,6 +241,8 @@ export type V3HairConsultationDay = {
   deepStatistics: {
     createdConsultationCount: number;
     createdAnswerCount: number;
+    /** 서버 dev에 먼저 추가된 필드라 서버 배포 순서에 따라 응답에 없을 수 있습니다. */
+    openedChatChannelCount?: number;
     paidConsultationCount: number;
     paymentRate: number | null;
     storePayment: V3StorePayment;
@@ -250,6 +252,7 @@ export type V3HairConsultationDay = {
   quickStatistics: {
     createdConsultationCount: number;
     createdAnswerCount: number;
+    openedChatChannelCount?: number;
     mongPayment: V3MongPayment;
   };
 };
@@ -260,6 +263,7 @@ type V3AnswerSummary = {
   answeredConsultationCount: number;
   answerCount: number;
   answerRate: number | null;
+  openedChatChannelCount?: number;
   mongPayment: V3MongPayment;
 };
 export type V3HairConsultationSummaryFilters = DashboardDateRange & {

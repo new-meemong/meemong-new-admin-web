@@ -295,6 +295,8 @@ describe("v3 content production UI and query wiring", () => {
     expect(host.textContent).toContain("총 답변 수");
     expect(host.textContent).toContain("8건");
     expect(host.textContent).toContain("10건");
+    expect(host.textContent).toContain("등록 채팅방3개");
+    expect(host.textContent).toContain("등록 채팅방5개");
     await change('input[aria-label="통계 시작일"]', "2026-01-01");
     await change('input[aria-label="통계 종료일"]', "2026-01-05");
     const previousCalls = calls.length;

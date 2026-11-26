@@ -102,6 +102,10 @@ export default function ConsultationPeriodSummary({
                     ],
                     ["총 답변 수", formatNumber(stats.answerCount, "건")],
                     ["답변율", percent(stats.answerRate)],
+                    [
+                      "등록 채팅방",
+                      formatNumber(stats.openedChatChannelCount, "개"),
+                    ],
                   ]}
                 />
                 <h5 className="font-medium">
@@ -167,9 +171,10 @@ export default function ConsultationPeriodSummary({
       <p className="text-xs text-gray-500">
         상담·답변은 기간 내 생성된 상담에 종료일까지 등록된 답변 기준이며 일별
         답변 활동량 합계와 다를 수 있습니다. 원화는 구매일·구매자, 몽은
-        차감일·사용 계정 기준입니다. 환불은 원래 구매일·차감일에 반영합니다.
-        원화와 몽은 합산하지 않으며 Sandbox 구매는 대시보드 결제 집계에서
-        제외됩니다. 확인되지 않는 값은 — 또는 -로 표시합니다.
+        차감일·사용 계정 기준입니다. 채팅방은 기간 내 등록일 기준이며 이전에
+        생성된 상담의 채팅방도 포함합니다. 환불은 원래 구매일·차감일에
+        반영합니다. 원화와 몽은 합산하지 않으며 Sandbox 구매는 대시보드 결제
+        집계에서 제외됩니다. 확인되지 않는 값은 — 또는 -로 표시합니다.
       </p>
     </Section>
   );

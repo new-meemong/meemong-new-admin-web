@@ -11,6 +11,7 @@
       "deepStatistics": {
         "createdConsultationCount": 4,
         "createdAnswerCount": 9,
+        "openedChatChannelCount": 3,
         "paidConsultationCount": 2,
         "paymentRate": 50,
         "storePayment": {
@@ -63,6 +64,7 @@
       "quickStatistics": {
         "createdConsultationCount": 6,
         "createdAnswerCount": 11,
+        "openedChatChannelCount": 5,
         "mongPayment": {
           "purchaseCount": 11,
           "knownRefundedCount": 0,

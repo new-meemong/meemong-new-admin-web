@@ -10,6 +10,7 @@
       "answeredConsultationCount": 3,
       "answerCount": 8,
       "answerRate": 75,
+      "openedChatChannelCount": 3,
       "paidConsultationCount": 2,
       "paymentRate": 50,
       "storePayment": {
@@ -64,6 +65,7 @@
       "answeredConsultationCount": 5,
       "answerCount": 10,
       "answerRate": 83.33,
+      "openedChatChannelCount": 5,
       "mongPayment": {
         "purchaseCount": 11,
         "knownRefundedCount": 0,
